@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.power.platform.questionnaire.dao.AnswerDao">
+
+	<sql id="answerColumns">
+		a.id AS "id",
+		a.name AS "name",
+		a.score AS "score",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remark AS "remark",
+		a.del_flag AS "delFlag"
+	</sql>
+
+	<!-- 答案分配. -->
+	<sql id="answerAssignColumns">
+		b.id AS "topic.id",
+		b.name AS "topic.name",
+		c.id AS "id",
+		c.name AS "name",
+		c.score AS "score",
+		a.create_date AS "createDate"
+	</sql>
+
+	<sql id="answerJoins">
+	</sql>
+
+	<sql id="qanswerJoins">
+		LEFT JOIN q_answer a ON b.answer_id = a.id
+	</sql>
+
+	<!-- 答案分配. -->
+	<sql id="answerAssignJoins">
+		LEFT JOIN q_topic b ON b.id = a.topic_id
+		LEFT JOIN q_answer c ON c.id = a.answer_id
+	</sql>
+
+	<!-- 已选答案列表. -->
+	<select id="findAnswerAssignList" resultType="Answer">
+		SELECT
+		<include refid="answerAssignColumns" />
+		FROM q_topic_answer a
+		<include refid="answerAssignJoins" />
+		<where>
+			a.topic_id = #{topicId}
+			ORDER BY a.create_date ASC
+		</where>
+	</select>
+
+	<!-- 待选答案列表. -->
+	<select id="findAnswerTreeList" resultType="Answer">
+		SELECT
+		<include refid="answerColumns" />
+		FROM q_answer a
+		<where>
+			NOT EXISTS (
+			SELECT
+			*
+			FROM
+			q_topic_answer b
+			WHERE
+			b.answer_id = a.id
+			AND b.topic_id = #{topicId}
+			)
+			ORDER BY a.create_date ASC
+		</where>
+	</select>
+
+	<select id="get" resultType="Answer">
+		SELECT
+		<include refid="answerColumns" />
+		FROM q_answer a
+		<include refid="answerJoins" />
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findList" resultType="Answer">
+		SELECT
+		<include refid="answerColumns" />
+		FROM q_answer a
+		<include refid="answerJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="name != null and name != ''">
+				AND a.name LIKE
+				<if test="dbName == 'oracle'">'%'||#{name}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{name}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{name},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date ASC
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="Answer">
+		SELECT
+		<include refid="answerColumns" />
+		FROM q_answer a
+		<include refid="answerJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date ASC
+			</otherwise>
+		</choose>
+	</select>
+
+	<!-- 接口用 -->
+	<select id="findAll" resultType="Answer">
+		SELECT
+		<include refid="answerColumns" />
+		FROM q_topic_answer b
+		<include refid="qanswerJoins" />
+		WHERE b.topic_id = #{topicId}
+		ORDER BY a.create_date ASC
+	</select>
+
+	<insert id="insert">
+		INSERT INTO q_answer(
+		id,
+		name,
+		score,
+		create_by,
+		create_date,
+		update_by,
+		update_date,
+		remark,
+		del_flag
+		) VALUES (
+		#{id},
+		#{name},
+		#{score},
+		#{createBy.id},
+		#{createDate},
+		#{updateBy.id},
+		#{updateDate},
+		#{remark},
+		#{delFlag}
+		)
+	</insert>
+
+	<!-- 新增题目答案. -->
+	<insert id="insertTopicAnswer">
+		INSERT INTO q_topic_answer(
+		topic_id,
+		answer_id,
+		create_by,
+		create_date,
+		update_by,
+		update_date,
+		remark,
+		del_flag
+		) VALUES (
+		#{topicId},
+		#{answerId},
+		#{createBy.id},
+		#{createDate},
+		#{updateBy.id},
+		#{updateDate},
+		#{remark},
+		#{delFlag}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE q_answer SET
+		name = #{name},
+		score = #{score},
+		update_by = #{updateBy.id},
+		update_date = #{updateDate},
+		remark = #{remark}
+		WHERE id = #{id}
+	</update>
+
+	<update id="delete">
+		UPDATE q_answer SET
+		del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+
+	<!-- 删除问卷题目关系. -->
+	<delete id="deleteTopicAnswer">
+		DELETE
+		FROM
+		q_topic_answer
+		WHERE
+		topic_id = #{topicId}
+		AND answer_id = #{answerId};
+	</delete>
+
+</mapper>

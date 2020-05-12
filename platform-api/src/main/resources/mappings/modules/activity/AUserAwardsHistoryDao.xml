@@ -1,0 +1,333 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.power.platform.activity.dao.AUserAwardsHistoryDao">
+
+	<!-- (type = 1 || type = 2)：优惠券字段. -->
+	<sql id="aUserAwardsHistoryColumns">
+		a.id AS "id",
+		a.award_id AS "awardId",
+		a.user_id AS "userId",
+		a.overdue_date AS "overdueDate",
+		a.state AS "state",
+		a.type AS "type",
+		a.value AS "value",
+		a.bid_id AS "bidId",
+		a.create_date AS "createDate",
+		a.create_by AS "createBy",
+		a.update_date AS "updateDate",
+		a.update_by AS "updateBy",
+		a.del_flag AS "delFlag",
+		c.id AS "userInfo.id",
+		c.name AS "userInfo.name",
+		c.real_name AS "userInfo.realName",
+		a.spans AS "spans",
+		a.remark AS "remark"
+	</sql>
+
+	<!-- (type = 1)：抵用券字段. -->
+	<sql id="vouchersColumns">
+		a.id AS "id",
+		a.award_id AS "awardId",
+		a.user_id AS "userId",
+		a.overdue_date AS "overdueDate",
+		a.state AS "state",
+		a.type AS "type",
+		a.value AS "value",
+		a.bid_id AS "bidId",
+		a.create_date AS "createDate",
+		a.create_by AS "createBy",
+		a.update_date AS "updateDate",
+		a.update_by AS "updateBy",
+		a.del_flag AS "delFlag",
+		b.id AS "aVouchersDic.id",
+		b.overdue_days AS "aVouchersDic.overdueDays",
+		b.state AS "aVouchersDic.state",
+		b.amount AS "aVouchersDic.amount",
+		b.limit_amount AS "aVouchersDic.limitAmount",
+		b.remarks AS "aVouchersDic.remarks",
+		c.id AS "userInfo.id",
+		c.name AS "userInfo.name",
+		c.real_name AS "userInfo.realName",
+		a.spans AS "spans",
+		a.remark AS "remark"
+	</sql>
+
+	<!-- (type = 2)：加息券字段. -->
+	<sql id="rateCouponColumns">
+		a.id AS "id",
+		a.award_id AS "awardId",
+		a.user_id AS "userId",
+		a.overdue_date AS "overdueDate",
+		a.state AS "state",
+		a.type AS "type",
+		a.bid_id AS "bidId",
+		a.create_date AS "createDate",
+		a.create_by AS "createBy",
+		a.update_date AS "updateDate",
+		a.update_by AS "updateBy",
+		a.del_flag AS "delFlag",
+		a.remark AS "remark",
+		b.id AS "aVouchersDic.id",
+		b.overdue_days AS "aRateCouponDic.overdueDays",
+		b.state AS "aRateCouponDic.state",
+		b.rate AS "aRateCouponDic.rate",
+		b.limit_amount AS "aRateCouponDic.limitAmount",
+		b.remarks AS "aVouchersDic.remarks",
+		c.id AS "userInfo.id",
+		c.name AS "userInfo.name",
+		c.real_name AS "userInfo.realName"
+	</sql>
+
+	<!-- (type = 1 || type = 2)：优惠券奖励查询条件. -->
+	<sql id="aUserAwardsHistoryJoins">
+		LEFT JOIN user_info c ON a.user_id = c.id
+	</sql>
+
+	<!-- (type = 1)：抵用券查询条件. -->
+	<sql id="vouchersJoins">
+		LEFT JOIN a_vouchers_dic b ON a.award_id = b.id
+		LEFT JOIN user_info c ON a.user_id = c.id
+	</sql>
+
+	<!-- (type = 2)：加息券查询条件. -->
+	<sql id="rateCouponJoins">
+		LEFT JOIN a_rate_coupon_dic b ON a.award_id = b.id
+		LEFT JOIN user_info c ON a.user_id = c.id
+	</sql>
+
+	<!-- (type = 1)：抵用券. -->
+	<select id="findVouchersList" resultType="AUserAwardsHistory">
+		SELECT
+		<include refid="vouchersColumns" />
+		FROM a_user_awards_history a
+		<include refid="vouchersJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			AND a.type = 1
+			<if test="state != null and state != ''">
+				AND a.state = #{state}
+			</if>
+			<!-- 投资ID查询抵用券记录. -->
+			<if test="bidId != null and bidId != ''">
+				AND a.bid_id = #{bidId}
+			</if>
+			<if test="userInfo != null">
+				<if test="userInfo.id != null and userInfo.id != ''">
+					and c.id = #{userInfo.id}
+				</if>
+				<if test="userInfo.name != null and userInfo.name != ''">
+					and c.name LIKE
+					<if test="dbName == 'mysql'">concat('%',#{userInfo.name},'%')</if>
+				</if>
+				<if test="userInfo.realName != null and userInfo.realName != ''">
+					and c.real_name LIKE
+					<if test="dbName == 'mysql'">concat('%',#{userInfo.realName},'%')</if>
+				</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY b.amount desc,a.update_date  
+			</otherwise>
+		</choose>
+	</select>
+
+	<!-- (type = 2)：加息券. -->
+	<select id="findRateCouponList" resultType="AUserAwardsHistory">
+		SELECT
+		<include refid="rateCouponColumns" />
+		FROM a_user_awards_history a
+		<include refid="rateCouponJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			AND a.type = 2
+			<if test="state != null and state != ''">
+				AND a.state = #{state}
+			</if>
+			<if test="userInfo != null">
+				<if test="userInfo.id != null and userInfo.id != ''">
+					and c.id = #{userInfo.id}
+				</if>
+				<if test="userInfo.name != null and userInfo.name != ''">
+					and c.name LIKE
+					<if test="dbName == 'mysql'">concat('%',#{userInfo.name},'%')</if>
+				</if>
+				<if test="userInfo.realName != null and userInfo.realName != ''">
+					and c.real_name LIKE
+					<if test="dbName == 'mysql'">concat('%',#{userInfo.realName},'%')</if>
+				</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="get" resultType="AUserAwardsHistory">
+		SELECT
+		<include refid="aUserAwardsHistoryColumns" />
+		FROM a_user_awards_history a
+		<include refid="aUserAwardsHistoryJoins" />
+		WHERE a.id = #{id}
+	</select> 
+	
+	<!-- 根据投资ID查询抵用劵信息 -->
+	<select id="findByBidId" resultType="AUserAwardsHistory">
+		SELECT
+		<include refid="vouchersColumns" />
+		FROM a_user_awards_history a
+		<include refid="vouchersJoins" />
+		WHERE a.bid_id = #{bidId}
+	</select>
+
+	<!-- (type = 1 || type = 2)：优惠券. -->
+	<select id="findList" resultType="AUserAwardsHistory">
+		SELECT
+		<include refid="aUserAwardsHistoryColumns" />
+		FROM a_user_awards_history a
+		<include refid="aUserAwardsHistoryJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="state != null and state != ''">
+				AND a.state = #{state}
+			</if>
+			<if test="remark != null and remark != ''">
+				AND a.remark LIKE
+				<if test="dbName == 'mysql'">concat('%',#{remark},'%')</if> 
+			</if>
+			<if test="userId != null and userId != ''">
+				AND a.user_id = #{userId}
+			</if>
+			<if test="value != null and value != ''">
+				AND a.value = #{value}
+			</if>
+			<if test="userInfo != null">
+				<if test="userInfo.id != null and userInfo.id != ''">
+					and c.id = #{userInfo.id}
+				</if>
+				<if test="userInfo.name != null and userInfo.name != ''">
+					and c.name LIKE
+					<if test="dbName == 'mysql'">concat('%',#{userInfo.name},'%')</if>
+				</if>
+				<if test="userInfo.realName != null and userInfo.realName != ''">
+					and c.real_name LIKE
+					<if test="dbName == 'mysql'">concat('%',#{userInfo.realName},'%')</if>
+				</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="AUserAwardsHistory">
+		SELECT
+		<include refid="aUserAwardsHistoryColumns" />
+		FROM a_user_awards_history a
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="state != null and state != ''">
+				AND a.state = #{state}
+			</if>
+			<if test="userInfo != null">
+				<if test="userInfo.id != null and userInfo.id != ''">
+					and c.id = #{userInfo.id}
+				</if>
+				<if test="userInfo.name != null and userInfo.name != ''">
+					and c.name LIKE
+					<if test="dbName == 'mysql'">concat('%',#{userInfo.name},'%')</if>
+				</if>
+				<if test="userInfo.realName != null and userInfo.realName != ''">
+					and c.real_name LIKE
+					<if test="dbName == 'mysql'">concat('%',#{userInfo.realName},'%')</if>
+				</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<insert id="insert">
+		INSERT INTO a_user_awards_history(
+		id,
+		award_id,
+		user_id,
+		overdue_date,
+		state,
+		type,
+		value,
+		bid_id,
+		create_date,
+		create_by,
+		update_date,
+		update_by,
+		del_flag,
+		spans,
+		remark
+		) VALUES (
+		#{id},
+		#{awardId},
+		#{userId},
+		#{overdueDate},
+		#{state},
+		#{type},
+		#{value},
+		#{bidId},
+		#{createDate},
+		#{createBy},
+		#{updateDate},
+		#{updateBy},
+		#{delFlag},
+		#{spans},
+		#{remark}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE a_user_awards_history SET
+		award_id = #{awardId},
+		user_id = #{userId},
+		overdue_date = #{overdueDate},
+		state = #{state},
+		type = #{type},
+		value = #{value},
+		bid_id = #{bidId},
+		update_date = #{updateDate},
+		update_by = #{updateBy},
+		spans = #{spans},
+		remark = #{remark}
+		WHERE id = #{id}
+	</update>
+
+	<update id="delete">
+		UPDATE a_user_awards_history SET
+		del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="deleteBy">
+		UPDATE a_user_awards_history SET
+		del_flag = 1
+		WHERE id = #{id}
+	</update>
+
+</mapper>

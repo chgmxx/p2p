@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.power.platform.lanmao.dao.LmTransactionDao">
+
+	<sql id="lmTransactionColumns">
+		a.id AS "id",
+		a.service_name AS "serviceName",
+		a.batch_no AS "batchNo",
+		a.request_no AS "requestNo",
+		a.project_no AS "projectNo",
+		a.trade_type AS "tradeType",
+		a.code AS "code",
+		a.status AS "status",
+		a.audit_status AS "auditStatus",
+		a.access_type AS "accessType",
+		a.review_status AS "reviewStatus",
+		a.error_code AS "errorCode",
+		a.error_message AS "errorMessage",
+		a.create_date AS "createDate",
+		a.update_date AS "updateDate",
+		a.platform_user_no AS "platformUserNo",
+		a.source_platform_user_no AS "sourcePlatformUserNo",
+		a.target_platform_user_no AS "targetPlatformUserNo",
+		a.original_freeze_request_no AS "originalFreezeRequestNo"
+	</sql>
+
+	<sql id="lmTransactionJoins">
+	</sql>
+
+	<select id="get" resultType="LmTransaction">
+		SELECT
+		<include refid="lmTransactionColumns" />
+		FROM lm_transaction a
+		<include refid="lmTransactionJoins" />
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findList" resultType="LmTransaction">
+		SELECT
+		<include refid="lmTransactionColumns" />
+		FROM lm_transaction a
+		<include refid="lmTransactionJoins" />
+		<where>
+
+			<if test="originalFreezeRequestNo != null and originalFreezeRequestNo != ''">
+				AND a.original_freeze_request_no = #{originalFreezeRequestNo}
+			</if>
+			<if test="sourcePlatformUserNo != null and sourcePlatformUserNo != ''">
+				AND a.source_platform_user_no = #{sourcePlatformUserNo}
+			</if>
+			<if test="targetPlatformUserNo != null and targetPlatformUserNo != ''">
+				AND a.target_platform_user_no = #{targetPlatformUserNo}
+			</if>
+			<if test="platformUserNo != null and platformUserNo != ''">
+				AND a.platform_user_no = #{platformUserNo}
+			</if>
+			<if test="serviceName != null and serviceName != ''">
+				AND a.service_name = #{serviceName}
+			</if>
+			<if test="batchNo != null and batchNo != ''">
+				AND a.batch_no = #{batchNo}
+			</if>
+			<if test="requestNo != null and requestNo != ''">
+				AND a.request_no = #{requestNo}
+			</if>
+			<if test="projectNo != null and projectNo != ''">
+				AND a.project_no = #{projectNo}
+			</if>
+			<if test="tradeType != null and tradeType != ''">
+				AND a.trade_type = #{tradeType}
+			</if>
+			<if test="code != null and code != ''">
+				AND a.code = #{code}
+			</if>
+			<if test="status != null and status != ''">
+				AND a.status = #{status}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="LmTransaction">
+		SELECT
+		<include refid="lmTransactionColumns" />
+		FROM lm_transaction a
+		<include refid="lmTransactionJoins" />
+		<where>
+
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<insert id="insert">
+		INSERT INTO lm_transaction(
+		id,
+		service_name,
+		batch_no,
+		request_no,
+		project_no,
+		trade_type,
+		code,
+		status,
+		audit_status,
+		access_type,
+		review_status,
+		error_code,
+		error_message,
+		create_date,
+		update_date,
+		platform_user_no,
+		source_platform_user_no,
+		target_platform_user_no,
+		original_freeze_request_no
+		) VALUES (
+		#{id},
+		#{serviceName},
+		#{batchNo},
+		#{requestNo},
+		#{projectNo},
+		#{tradeType},
+		#{code},
+		#{status},
+		#{auditStatus},
+		#{accessType},
+		#{reviewStatus},
+		#{errorCode},
+		#{errorMessage},
+		#{createDate},
+		#{updateDate},
+		#{platformUserNo},
+		#{sourcePlatformUserNo},
+		#{targetPlatformUserNo},
+		#{originalFreezeRequestNo}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE lm_transaction SET
+		service_name = #{serviceName},
+		batch_no = #{batchNo},
+		request_no = #{requestNo},
+		project_no = #{projectNo},
+		trade_type = #{tradeType},
+		code = #{code},
+		status = #{status},
+		audit_status = #{auditStatus},
+		access_type = #{accessType},
+		review_status = #{reviewStatus},
+		error_code = #{errorCode},
+		error_message = #{errorMessage},
+		update_date = #{updateDate},
+		platform_user_no = #{platformUserNo},
+		source_platform_user_no = #{sourcePlatformUserNo},
+		target_platform_user_no = #{targetPlatformUserNo},
+		original_freeze_request_no = #{originalFreezeRequestNo}
+		WHERE id = #{id}
+	</update>
+
+	<update id="delete">
+		DELETE FROM lm_transaction
+		WHERE id = #{id}
+	</update>
+
+</mapper>

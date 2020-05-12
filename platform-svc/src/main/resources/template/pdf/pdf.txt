@@ -1,0 +1,26 @@
+合同编号：contract_no
+乙方（借款人）：name
+身份证号码：card_id
+丙方（担保人）：third_name
+法人代表：legal_person
+住所：residence
+电话：telphone
+
+借款项目名称：project_name
+借款项目编号：project_no
+借款服务合同变化：service_no
+连带责任保证担保涵编号：guarantee_no
+借款总额：rmb  大写：rmd_da
+借款用途：uses
+借款日期：lend_date
+借款期限：term_date
+还本日期：back_date
+年利率：year_interest
+利息总额：interest_sum
+
+
+合同下方签字处：
+乙方（借款人）：bottom_name
+
+丙方（担保人）：bottom_third_name
+签订合同日期：sign_date

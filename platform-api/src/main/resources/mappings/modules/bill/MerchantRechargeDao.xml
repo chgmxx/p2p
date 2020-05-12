@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.power.platform.bill.dao.MerchantRechargeDao">
+
+	<sql id="merchantRechargeColumns">
+		a.id AS "id",
+		a.cgb_order_id AS "cgbOrderId",
+		a.trading_type AS "tradingType",
+		a.trading_amount AS "tradingAmount",
+		a.trading_status AS "tradingStatus",
+		a.completion_time AS "completionTime",
+		a.pay_code AS "payCode",
+		a.platform_user_id AS "platformUserId",
+		a.business_source AS "businessSource",
+		a.remarks AS "remarks"
+	</sql>
+
+	<sql id="merchantRechargeJoins">
+	</sql>
+
+	<select id="get" resultType="MerchantRecharge">
+		SELECT
+		<include refid="merchantRechargeColumns" />
+		FROM merchant_recharge a
+		<include refid="merchantRechargeJoins" />
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findList" resultType="MerchantRecharge">
+		SELECT
+		<include refid="merchantRechargeColumns" />
+		FROM merchant_recharge a
+		<include refid="merchantRechargeJoins" />
+		<where>
+			<if test="beginCompletionTime != null and beginCompletionTime != ''">
+				AND a.completion_time &gt;= #{beginCompletionTime}
+			</if>
+			<if test="endCompletionTime != null and endCompletionTime != ''">
+				AND a.completion_time &lt;= #{endCompletionTime}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="MerchantRecharge">
+		SELECT
+		<include refid="merchantRechargeColumns" />
+		FROM merchant_recharge a
+		<include refid="merchantRechargeJoins" />
+		<where>
+
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+
+	<insert id="insert">
+		INSERT INTO merchant_recharge(
+		id,
+		cgb_order_id,
+		trading_type,
+		trading_amount,
+		trading_status,
+		completion_time,
+		pay_code,
+		platform_user_id,
+		business_source,
+		remarks
+		) VALUES (
+		#{id},
+		#{cgbOrderId},
+		#{tradingType},
+		#{tradingAmount},
+		#{tradingStatus},
+		#{completionTime},
+		#{payCode},
+		#{platformUserId},
+		#{businessSource},
+		#{remarks}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE merchant_recharge SET
+		cgb_order_id = #{cgbOrderId},
+		trading_type = #{tradingType},
+		trading_amount = #{tradingAmount},
+		trading_status = #{tradingStatus},
+		completion_time = #{completionTime},
+		pay_code = #{payCode},
+		platform_user_id = #{platformUserId},
+		business_source = #{businessSource},
+		remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+
+	<update id="delete">
+		DELETE FROM merchant_recharge
+		WHERE id = #{id}
+	</update>
+
+</mapper>

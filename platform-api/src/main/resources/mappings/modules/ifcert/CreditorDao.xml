@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.power.platform.ifcert.dao.CreditorDao">
+
+	<sql id="creditorColumns">
+		a.version AS "version",
+		a.sourcecode AS "sourceCode",
+		a.finclaimid AS "finClaimid",
+		a.sourceproductcode AS "sourceProductCode",
+		a.useridcardhash AS "userIdcardHash",
+		a.invamount AS "invAmount",
+		a.invrate AS "invRate",
+		a.invtime AS "invTime",
+		a.redpackage AS "redpackage",
+		a.locktime AS "lockTime",
+		a.batchnum AS "batchNum",
+		a.sendtime AS "sendTime"
+	</sql>
+
+	<sql id="creditorJoins">
+	</sql>
+
+	<select id="get" resultType="Creditor">
+		SELECT
+		<include refid="creditorColumns" />
+		FROM creditor a
+		<include refid="creditorJoins" />
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findList" resultType="Creditor">
+		SELECT
+		<include refid="creditorColumns" />
+		FROM creditor a
+		<include refid="creditorJoins" />
+		<where>
+			<!-- 批次号. -->
+			<if test="batchNum != null and batchNum != ''">
+				AND a.batchnum = #{batchNum}
+			</if>
+			<if test="sendTime != null and sendTime != ''">
+				AND a.sendTime = #{sendTime}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="Creditor">
+		SELECT
+		<include refid="creditorColumns" />
+		FROM creditor a
+		<include refid="creditorJoins" />
+		<where>
+
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+
+	<insert id="insert">
+		INSERT INTO creditor(
+		version,
+		sourcecode,
+		finclaimid,
+		sourceproductcode,
+		useridcardhash,
+		invamount,
+		invrate,
+		invtime,
+		redpackage,
+		locktime,
+		batchnum,
+		sendtime
+		) VALUES (
+		#{version},
+		#{sourceCode},
+		#{finClaimid},
+		#{sourceProductCode},
+		#{userIdcardHash},
+		#{invAmount},
+		#{invRate},
+		#{invTime},
+		#{redpackage},
+		#{lockTime},
+		#{batchNum},
+		#{sendTime}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE creditor SET
+		version = #{version},
+		sourcecode = #{sourceCode},
+		finclaimid = #{finClaimid},
+		sourceproductcode = #{sourceProductCode},
+		useridcardhash = #{userIdcardHash},
+		invamount = #{invAmount},
+		invrate = #{invRate},
+		invtime = #{invTime},
+		redpackage = #{redpackage},
+		locktime = #{lockTime},
+		batchnum = #{batchNum},
+		sendtime = #{sendTime}
+		WHERE id = #{id}
+	</update>
+
+	<update id="delete">
+		DELETE FROM creditor
+		WHERE id = #{id}
+	</update>
+
+</mapper>

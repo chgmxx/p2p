@@ -1,0 +1,279 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.power.platform.credit.dao.userinfo.CreditUserInfoDao">
+
+	<sql id="creditUserInfoColumns">
+		a.id AS "id",
+		a.phone AS "phone",
+		a.name AS "name",
+		a.pwd AS "pwd",
+		a.gesture_pwd AS "gesturePwd",
+		a.credit_score AS "creditScore",
+		a.register_date AS "registerDate",
+		a.last_login_date AS
+		"lastLoginDate",
+		a.last_login_ip AS "lastLoginIp",
+		a.state AS "state",
+		a.open_account_state AS "openAccountState",
+		a.account_id AS "accountId",
+		a.certificate_no AS "certificateNo",
+		a.credit_user_type AS "creditUserType",
+		a.enterpriseFullName AS "enterpriseFullName",
+		a.auto_state AS "autoState",
+		a.first_login AS "firstLogin",
+		a.account_type AS "accountType",
+		a.owned_company AS "ownedCompany",
+		a.level AS "level",
+		a.is_activate AS "isActivate",
+		a.is_create_basic_info AS "isCreateBasicInfo"
+	</sql>
+
+	<sql id="creditUserInfoJoins">
+	</sql>
+
+	<select id="get" resultType="CreditUserInfo">
+		SELECT
+		<include refid="creditUserInfoColumns" />
+		FROM credit_user_info a
+		<include refid="creditUserInfoJoins" />
+		WHERE a.id = #{id}
+	</select>
+
+	<!-- 借款人手机号码获取用户信息. -->
+	<select id="getCreditUserInfoByPhone" resultType="CreditUserInfo">
+		SELECT
+		<include refid="creditUserInfoColumns" />
+		FROM credit_user_info a
+		WHERE a.phone = #{phone}
+	</select>
+
+	<select id="findList" resultType="CreditUserInfo">
+		SELECT
+		<include refid="creditUserInfoColumns" />
+		FROM credit_user_info a
+		<include refid="creditUserInfoJoins" />
+		<where>
+			<if test="id != null and id !=''">
+				AND a.id = #{id}
+			</if>
+			<if test="phone != null and phone != ''">
+				AND a.phone = #{phone}
+			</if>
+			<if test="pwd != null and pwd != ''">
+				AND a.pwd = #{pwd}
+			</if>
+			<if test="name != null and name != ''">
+				AND a.name LIKE
+				<if test="dbName == 'oracle'">'%'||#{name}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{name}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{name},'%')</if>
+			</if>
+			<if
+				test="beginCreditScore != null and endCreditScore != null and beginCreditScore != '' and endCreditScore != ''">
+				AND a.credit_score BETWEEN #{beginCreditScore} AND
+				#{endCreditScore}
+			</if>
+			<if test="creditUserType != null and creditUserType != ''">
+				AND a.credit_user_type = #{creditUserType}
+			</if>
+			<if test="null != supplierIdList">
+				AND a.id in
+				<foreach item="supplierIdList" index="index" collection="supplierIdList"
+					open="(" separator="," close=")">
+					#{supplierIdList}
+				</foreach>
+			</if>
+			<if test="enterpriseFullName != null and enterpriseFullName != ''">
+				AND a.enterpriseFullName LIKE
+				<if test="dbName == 'oracle'">'%'||#{enterpriseFullName}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{enterpriseFullName}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{enterpriseFullName},'%')</if>
+			</if>
+			<if test="accountType != null and accountType != ''">
+				AND a.account_type = #{accountType}
+			</if>
+			<if test="ownedCompany != null and ownedCompany != ''">
+				AND a.owned_company LIKE
+				<if test="dbName == 'oracle'">'%'||#{ownedCompany}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{ownedCompany}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{ownedCompany},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="CreditUserInfo">
+		SELECT
+		<include refid="creditUserInfoColumns" />
+		FROM credit_user_info a
+		<include refid="creditUserInfoJoins" />
+		<where>
+
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+
+	<insert id="insert">
+		INSERT INTO credit_user_info(
+		id,
+		phone,
+		name,
+		pwd,
+		gesture_pwd,
+		credit_score,
+		register_date,
+		last_login_date,
+		last_login_ip,
+		state,
+		open_account_state,
+		account_id,
+		certificate_no,
+		credit_user_type,
+		enterpriseFullName,
+		auto_state,
+		first_login,
+		account_type,
+		owned_company,
+		level,
+		is_activate,
+		is_create_basic_info
+		) VALUES (
+		#{id},
+		#{phone},
+		#{name},
+		#{pwd},
+		#{gesturePwd},
+		#{creditScore},
+		#{registerDate},
+		#{lastLoginDate},
+		#{lastLoginIp},
+		#{state},
+		#{openAccountState},
+		#{accountId},
+		#{certificateNo},
+		#{creditUserType},
+		#{enterpriseFullName},
+		#{autoState},
+		#{firstLogin},
+		#{accountType},
+		#{ownedCompany},
+		#{level},
+		#{isActivate},
+		#{isCreateBasicInfo}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE credit_user_info SET
+		phone = #{phone},
+		name = #{name},
+		pwd = #{pwd},
+		gesture_pwd = #{gesturePwd},
+		credit_score = #{creditScore},
+		register_date = #{registerDate},
+		last_login_date = #{lastLoginDate},
+		last_login_ip = #{lastLoginIp},
+		state = #{state},
+		open_account_state = #{openAccountState},
+		account_id = #{accountId},
+		certificate_no = #{certificateNo},
+		credit_user_type = #{creditUserType},
+		enterpriseFullName = #{enterpriseFullName},
+		auto_state = #{autoState},
+		first_login = #{firstLogin},
+		account_type = #{accountType},
+		owned_company = #{ownedCompany},
+		level = #{level},
+		is_activate = #{isActivate},
+		is_create_basic_info = #{isCreateBasicInfo}
+		WHERE id = #{id}
+	</update>
+
+	<update id="delete">
+		DELETE FROM credit_user_info
+		WHERE id = #{id}
+	</update>
+
+	<!-- 核心企业附件 -->
+	<select id="findPageByAnnexFile" resultType="CreditUserInfo">
+		SELECT
+		a.id AS "id",
+		a.phone AS "phone",
+		a.name AS "name",
+		a.pwd AS "pwd",
+		a.gesture_pwd AS "gesturePwd",
+		a.credit_score AS "creditScore",
+		a.register_date AS "registerDate",
+		a.last_login_date AS "lastLoginDate",
+		a.last_login_ip AS "lastLoginIp",
+		a.state AS "state",
+		a.open_account_state AS "openAccountState",
+		a.account_id AS "accountId",
+		a.certificate_no AS "certificateNo",
+		a.credit_user_type AS "creditUserType",
+		a.enterpriseFullName AS "enterpriseFullName",
+		a.auto_state AS "autoState",
+		a.level AS "level",
+		a.is_activate AS "isActivate",
+		a.is_create_basic_info AS "isCreateBasicInfo",
+		b.url AS "annexFile.url",
+		b.remark AS "annexFile.remark"
+		FROM credit_user_info a
+		JOIN credit_annex_file b
+		ON a.id = b.other_id
+		<where>
+			AND b.type = 30
+			AND a.credit_user_type = 11
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<!-- JBXT-借款用户信息列表 -->
+	<select id="findCreditUserInfo" resultType="CreditUserInfoDto">
+		SELECT
+		a.id AS "id",
+		a.phone AS "phone",
+		a.name AS "name",
+		a.pwd AS "pwd",
+		a.register_date AS "registerDate",
+		a.state AS "state",
+		a.open_account_state AS "openAccountState",
+		a.account_id AS "accountId",
+		a.certificate_no AS "certificateNo",
+		a.credit_user_type AS "creditUserType",
+		a.enterpriseFullName AS "enterpriseFullName",
+		b.agent_person_name AS "agentPersonName",b.agent_person_phone AS "agentPersonPhone",
+		b.agent_person_cert_type AS "agentPersonCertType",b.agent_person_cert_no AS "agentPersonCertNo",b.email AS "wloanSubject.email"
+		FROM credit_user_info a  LEFT JOIN wloan_subject b ON b.loan_apply_id = a.id
+		<include refid="creditUserInfoJoins" />
+		<where>
+			 a.credit_user_type IN (02,05,11)
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+
+</mapper>

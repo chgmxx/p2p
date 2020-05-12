@@ -1,0 +1,22 @@
+
+转让人（甲方）:transfer_person
+受让人（乙方）:assignee_person
+签署日期 年 year 月 month 日 day
+合同编号contract_no
+转让金额transfer_amout
+用户名 username
+会员号 vip_no
+期限 term_date
+年利率：year_interest
+开始日 start_date 
+结束日 end_date
+还款日 back_date
+还款方式 back_mode
+
+
+
+
+
+
+
+ 

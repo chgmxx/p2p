@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.power.platform.credit.dao.userinfo.CreditUserAccountDao">
+
+	<sql id="creditUserAccountColumns">
+		a.id AS "id",
+		a.credit_user_id AS "creditUserId",
+		a.total_amount AS "totalAmount",
+		a.borrowing_total_amount AS "borrowingTotalAmount",
+		a.available_amount AS "availableAmount",
+		a.repay_amount AS "repayAmount",
+		a.surplus_amount AS "surplusAmount",
+		a.freeze_amount AS "freezeAmount",
+		a.recharge_amount AS "rechargeAmount",
+		a.withdraw_amount AS "withdrawAmount",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remark AS "remark",
+		a.del_flag AS "delFlag",
+		b.id AS 'creditUserInfo.id',
+		b.phone AS 'creditUserInfo.phone',
+		b.`name` AS 'creditUserInfo.name',
+		b.credit_user_type AS 'creditUserInfo.creditUserType',
+		b.enterpriseFullName AS 'creditUserInfo.enterpriseFullName'
+	</sql>
+
+	<sql id="creditUserAccountJoins">
+		LEFT JOIN credit_user_info b ON b.account_id = a.id
+	</sql>
+
+	<select id="get" resultType="CreditUserAccount">
+		SELECT
+		<include refid="creditUserAccountColumns" />
+		FROM credit_user_account a
+		<include refid="creditUserAccountJoins" />
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findList" resultType="CreditUserAccount">
+		SELECT
+		<include refid="creditUserAccountColumns" />
+		FROM credit_user_account a
+		<include refid="creditUserAccountJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="null != creditUserInfo">
+				<if test="null != creditUserInfo.phone and creditUserInfo.phone != ''">
+					AND b.phone LIKE
+					<if test="dbName == 'mssql'">'%'+#{creditUserInfo.phone}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{creditUserInfo.phone},'%')</if>
+				</if>
+				<if test="null != creditUserInfo.name and creditUserInfo.name != ''">
+					AND b.`name` LIKE
+					<if test="dbName == 'mssql'">'%'+#{creditUserInfo.name}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{creditUserInfo.name},'%')</if>
+				</if>
+				<if test="null != creditUserInfo.enterpriseFullName and creditUserInfo.enterpriseFullName != ''">
+					AND b.enterpriseFullName LIKE
+					<if test="dbName == 'mssql'">'%'+#{creditUserInfo.enterpriseFullName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{creditUserInfo.enterpriseFullName},'%')</if>
+				</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="CreditUserAccount">
+		SELECT
+		<include refid="creditUserAccountColumns" />
+		FROM credit_user_account a
+		<include refid="creditUserAccountJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllCreditUserAccountList" resultType="CreditUserAccount">
+		SELECT
+		<include refid="creditUserAccountColumns" />
+		FROM credit_user_account a
+	</select>
+
+	<select id="findCreditUserAccountListByMiddlemenId" resultType="CreditUserAccount">
+		SELECT
+		<include refid="creditUserAccountColumns" />
+		FROM credit_user_account a
+		<include refid="creditUserAccountJoins" />
+		where a.credit_user_id in
+		(select supplier_id from credit_supplier_to_middlemen where middlemen_id=#{middlemenId})
+	</select>
+
+	<insert id="insert">
+		INSERT INTO credit_user_account(
+		id,
+		credit_user_id,
+		total_amount,
+		borrowing_total_amount,
+		available_amount,
+		repay_amount,
+		surplus_amount,
+		freeze_amount,
+		recharge_amount,
+		withdraw_amount,
+		create_by,
+		create_date,
+		update_by,
+		update_date,
+		remark,
+		del_flag
+		) VALUES (
+		#{id},
+		#{creditUserId},
+		#{totalAmount},
+		#{borrowingTotalAmount},
+		#{availableAmount},
+		#{repayAmount},
+		#{surplusAmount},
+		#{freezeAmount},
+		#{rechargeAmount},
+		#{withdrawAmount},
+		#{createBy.id},
+		#{createDate},
+		#{updateBy.id},
+		#{updateDate},
+		#{remark},
+		#{delFlag}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE credit_user_account SET
+		credit_user_id = #{creditUserId},
+		total_amount = #{totalAmount},
+		borrowing_total_amount = #{borrowingTotalAmount},
+		available_amount = #{availableAmount},
+		repay_amount = #{repayAmount},
+		surplus_amount = #{surplusAmount},
+		freeze_amount = #{freezeAmount},
+		recharge_amount = #{rechargeAmount},
+		withdraw_amount = #{withdrawAmount},
+		update_by = #{updateBy.id},
+		update_date = #{updateDate},
+		remark = #{remark}
+		WHERE id = #{id}
+	</update>
+
+	<!-- 平台营销款账户 -->
+	<update id="updateSysGenerateCreditUserAccount">
+		UPDATE credit_user_account SET
+		total_amount = (total_amount - #{sumVoucherAmount}),
+		available_amount = (available_amount - #{sumVoucherAmount})
+		WHERE id = #{id}
+	</update>
+
+	<!-- 避免脏读幻读   账户总额、可用余额、融资金额(借款总额) 改变在sql里处理。 -->
+	<update id="updateAmount">
+		UPDATE credit_user_account SET
+		total_amount = (total_amount + #{currentAmount}),
+		borrowing_total_amount = (borrowing_total_amount + #{currentAmount}),
+		available_amount =(available_amount + #{currentAmount}),
+		surplus_amount = (surplus_amount + #{surplusAmount})
+		WHERE id = #{id}
+	</update>
+
+	<update id="delete">
+		UPDATE credit_user_account SET
+		del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+
+</mapper>

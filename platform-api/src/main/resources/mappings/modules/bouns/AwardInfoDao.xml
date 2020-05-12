@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.power.platform.bouns.dao.AwardInfoDao">
+    
+	<sql id="awardInfoColumns">
+		a.id AS "id",
+		a.need_amount AS "needAmount",
+		a.state AS "state",
+		a.docs AS "docs",
+		a.img_web AS "imgWeb",
+		a.img_wap AS "imgWap",
+		a.is_lottery AS "isLottery",
+		a.odds AS "odds",
+		a.creat_time AS "creatTime",
+		a.create_by AS "createBy.id",
+		a.update_time AS "updateTime",
+		a.name AS "name",
+		a.is_true AS "isTrue",
+		a.award_standard AS "awardStandard",
+		a.exchange_flow AS "exchangeFlow",
+		a.exchange_docs AS "exchangeDocs",
+		a.vouchers_id AS "vouchersId",
+		a.deadline AS "deadline"
+	</sql>
+	
+	<sql id="awardInfoJoins">
+	</sql>
+    
+	<select id="get" resultType="AwardInfo">
+		SELECT 
+			<include refid="awardInfoColumns"/>
+		FROM award_info a
+		<include refid="awardInfoJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="AwardInfo">
+		SELECT 
+			<include refid="awardInfoColumns"/>
+		FROM award_info a
+		<include refid="awardInfoJoins"/>
+		<where>
+			<if test="null != name and name != ''">
+				AND a.name LIKE
+				<if test="dbName == 'mysql'">concat('%',#{name},'%')</if>
+			</if>
+			<if test="needAmount != null and needAmount != ''">
+				AND a.need_amount = #{needAmount}
+			</if>
+			<if test="isLottery != null and isLottery != ''">
+				AND a.is_lottery = #{isLottery}
+			</if>
+			<if test="isTrue != null and isTrue !=''">
+			    AND a.is_true = #{isTrue}
+			</if>
+			<if test="state != null and state != ''">
+			    AND a.state = #{state}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.need_amount ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<!-- 针对奖品列表是否显示谢谢惠顾  isTrue=2时 不显示 -->
+	<select id="findList1" resultType="AwardInfo">
+		SELECT 
+			<include refid="awardInfoColumns"/>
+		FROM award_info a
+		<include refid="awardInfoJoins"/>
+		<where>
+			
+			 <if test="needAmount != null and needAmount != ''">
+				AND a.need_amount = #{needAmount}
+			</if> 
+			
+			<if test="isTrue != null and isTrue = '2'">
+				AND a.is_true != #{isTrue}
+			</if>
+			<if test="state != null and state != ''">
+			   AND a.state  = #{state}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	
+	<!-- 针对奖品列表是否显示谢谢惠顾  isTrue=2时 不显示  PC -->
+	<select id="findList2" resultType="AwardInfo">
+		SELECT 
+			<include refid="awardInfoColumns"/>
+		FROM award_info a
+		<include refid="awardInfoJoins"/>
+		<where>
+			<if test="needAmount==200">
+			    AND a.need_amount&gt;=0 and a.need_amount&lt;=200
+			</if>
+			<if test="needAmount==1000">
+			    AND a.need_amount&gt;200 and a.need_amount&lt;=1000
+			</if>
+			<if test="needAmount==5000">
+			    AND a.need_amount&gt;1000 and a.need_amount&lt;=5000
+			</if>
+			<if test="needAmount==5001">
+			    AND a.need_amount&gt;5000 
+			</if>
+			
+			
+			<if test="isTrue != null and isTrue = '2'">
+				AND a.is_true != #{isTrue}
+			</if>
+			<if test="state != null and state != ''">
+			   AND a.state  = #{state}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="AwardInfo">
+		SELECT 
+			<include refid="awardInfoColumns"/>
+		FROM award_info a
+		<include refid="awardInfoJoins"/>
+		<where>
+			
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+
+	<insert id="insert">
+		INSERT INTO award_info(
+			id,
+			need_amount,
+			state,
+			docs,
+			img_web,
+			img_wap,
+			is_lottery,
+			odds,
+			creat_time,
+			create_by,
+			update_time,
+			name,
+			is_true,
+			award_standard,
+		    exchange_flow,
+		    exchange_docs,
+		    deadline,
+			vouchers_id
+		) VALUES (
+			#{id},
+			#{needAmount},
+			#{state},
+			#{docs},
+			#{imgWeb},
+			#{imgWap},
+			#{isLottery},
+			#{odds},
+			#{creatTime},
+			#{createBy.id},
+			#{updateTime},
+			#{name},
+			#{isTrue},
+			#{awardStandard},
+			#{exchangeFlow},
+			#{exchangeDocs},
+			#{deadline},
+			#{vouchersId}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE award_info SET 	
+			need_amount = #{needAmount},
+			state = #{state},
+			docs = #{docs},
+			img_web = #{imgWeb},
+			img_wap = #{imgWap},
+			is_lottery = #{isLottery},
+			odds = #{odds},
+			creat_time = #{creatTime},
+			update_time = #{updateTime},
+			name = #{name},
+			is_true = #{isTrue},
+			award_standard = #{awardStandard},
+		    exchange_flow = #{exchangeFlow},
+		    exchange_docs = #{exchangeDocs},
+		    deadline = #{deadline},
+			vouchers_id = #{vouchersId}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		DELETE FROM award_info
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

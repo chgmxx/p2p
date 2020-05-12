@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.power.platform.ifcert.dao.BatchNumDao">
+
+	<sql id="batchNumColumns">
+		a.id AS "id",
+		a.batch_num AS "batchNum",
+		a.send_time AS "sendTime",
+		a.inf_type AS "infType",
+		a.total_num AS "totalNum",
+		a.status AS "status",
+		a.code AS "code"
+	</sql>
+
+	<sql id="batchNumJoins">
+	</sql>
+
+	<select id="get" resultType="BatchNum">
+		SELECT
+		<include refid="batchNumColumns" />
+		FROM batch_num a
+		<include refid="batchNumJoins" />
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findList" resultType="BatchNum">
+		SELECT
+		<include refid="batchNumColumns" />
+		FROM batch_num a
+		<include refid="batchNumJoins" />
+		<where>
+			<!-- 接口类型. -->
+			<if test="infType != null and infType != ''">
+				AND a.inf_type = #{infType}
+			</if>
+			<!-- 批次号. -->
+			<if test="batchNum != null and batchNum != ''">
+				AND a.batch_num = #{batchNum}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="BatchNum">
+		SELECT
+		<include refid="batchNumColumns" />
+		FROM batch_num a
+		<include refid="batchNumJoins" />
+		<where>
+
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<!-- 查询批次区间数据 --> 
+	<select id="findBatchNum" resultType="BatchNum">
+		SELECT
+		<include refid="batchNumColumns" />
+		FROM batch_num a
+		<include refid="batchNumJoins" />
+		<where>
+			and a.status = '01'
+			<!-- 接口类型. -->
+			<if test="infType != null and infType != ''">
+				AND a.inf_type = #{infType}
+			</if>
+			<if test="startTime != null and startTime != '' and endTime != null and endTime != ''">
+				AND a.send_time &gt;= #{startTime}
+				AND a.send_time &lt; #{endTime}
+			</if>
+			
+		</where>
+		ORDER BY a.send_time asc
+	</select>
+	
+	<select id="fingBatchNumList" resultType="BatchNum">
+		SELECT
+		<include refid="batchNumColumns" />
+		FROM batch_num a
+		<include refid="batchNumJoins" />
+		<where>
+			a.status = #{status} and a.code = #{code}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+
+	<insert id="insert">
+		INSERT INTO batch_num(
+		id,
+		batch_num,
+		send_time,
+		inf_type,
+		total_num,
+		status,
+		code
+		) VALUES (
+		#{id},
+		#{batchNum},
+		#{sendTime},
+		#{infType},
+		#{totalNum},
+		#{status},
+		#{code}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE batch_num SET
+		batch_num = #{batchNum},
+		send_time = #{sendTime},
+		inf_type = #{infType},
+		total_num = #{totalNum},
+		status = #{status},
+		code = #{code}
+		WHERE id = #{id}
+	</update>
+
+	<update id="delete">
+		DELETE FROM batch_num
+		WHERE id = #{id}
+	</update>
+
+</mapper>

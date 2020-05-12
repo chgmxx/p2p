@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.power.platform.credit.dao.voucher.CreditVoucherInfoDetailDao">
+    
+	<sql id="creditVoucherInfoDetailColumns">
+		a.id AS "id",
+		a.apply_id AS "applyId",
+		a.title AS "title",
+		a.number AS "number",
+		a.addr AS "addr",
+		a.phone AS "phone",
+		a.bank_name AS "bankName",
+		a.bank_no AS "bankNo",
+		a.to_name AS "toName",
+		a.to_phone AS "toPhone",
+		a.to_addr AS "toAddr",
+		a.state AS "state",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<sql id="creditVoucherInfoDetailJoins">
+	</sql>
+    
+	<select id="get" resultType="CreditVoucherInfoDetail">
+		SELECT 
+			<include refid="creditVoucherInfoDetailColumns"/>
+		FROM credit_voucher_info_detail a
+		<include refid="creditVoucherInfoDetailJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="CreditVoucherInfoDetail">
+		SELECT 
+			<include refid="creditVoucherInfoDetailColumns"/>
+		FROM credit_voucher_info_detail a
+		<include refid="creditVoucherInfoDetailJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="title != null and title != ''">
+				AND a.title LIKE 
+					<if test="dbName == 'oracle'">'%'||#{title}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{title}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{title},'%')</if>
+			</if>
+			<if test="state != null and state != ''">
+				AND a.state = #{state} 
+			</if>
+			<if test="applyId != null and applyId != ''">
+				AND a.apply_id = #{applyId} 
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="CreditVoucherInfoDetail">
+		SELECT 
+			<include refid="creditVoucherInfoDetailColumns"/>
+		FROM credit_voucher_info_detail a
+		<include refid="creditVoucherInfoDetailJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO credit_voucher_info_detail(
+			id,
+			apply_id,
+			title,
+			number,
+			addr,
+			phone,
+			bank_name,
+			bank_no,
+			to_name,
+			to_phone,
+			to_addr,
+			state,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			#{id},
+			#{applyId},
+			#{title},
+			#{number},
+			#{addr},
+			#{phone},
+			#{bankName},
+			#{bankNo},
+			#{toName},
+			#{toPhone},
+			#{toAddr},
+			#{state},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE credit_voucher_info_detail SET 	
+			apply_id = #{applyId},
+			title = #{title},
+			number = #{number},
+			addr = #{addr},
+			phone = #{phone},
+			bank_name = #{bankName},
+			bank_no = #{bankNo},
+			to_name = #{toName},
+			to_phone = #{toPhone},
+			to_addr = #{toAddr},
+			state = #{state},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE credit_voucher_info_detail SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

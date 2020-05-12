@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.power.platform.more.suggestion.dao.SuggestionDao">
+    
+	<sql id="suggestionColumns">
+		a.id 			AS "id",
+		a.name 			AS "name",
+		a.remarks		AS "remarks",
+		a.create_date	AS "createDate"
+	</sql>
+	
+	<sql id="suggestionJoins">
+	</sql>
+    
+	<select id="get" resultType="Suggestion">
+		SELECT 
+			<include refid="suggestionColumns"/>
+		FROM ztmg_suggestion a
+		<include refid="suggestionJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="Suggestion">
+		SELECT 
+			<include refid="suggestionColumns"/>
+		FROM ztmg_suggestion a
+		<include refid="suggestionJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="Suggestion">
+		SELECT 
+			<include refid="suggestionColumns"/>
+		FROM ztmg_suggestion a
+		<include refid="suggestionJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO ztmg_suggestion(
+			id,
+			name,
+			remarks,
+			create_date
+		) VALUES (
+			#{id},
+			#{name},
+			#{remarks},
+			#{createDate}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE ztmg_suggestion SET 	
+			name = #{name},
+			remarks = #{remarks},
+			create_date = #{createDate}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		DELETE FROM ztmg_suggestion
+		WHERE id = #{id}
+	</update>
+			
+</mapper>

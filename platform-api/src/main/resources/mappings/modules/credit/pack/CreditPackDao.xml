@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.power.platform.credit.dao.pack.CreditPackDao">
+    
+	<sql id="creditPackColumns">
+		a.id AS "id",
+		a.credit_info_id AS "creditInfoId",
+		a.core_name AS "coreName",
+		a.loan_name AS "loanName",
+		a.name AS "name",
+		a.no AS "no",
+		a.money AS "money",
+		a.type AS "type",
+		a.userd_date AS "userdDate",
+		a.sign_date AS "signDate",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<sql id="creditPackJoins">
+	</sql>
+    
+	<select id="get" resultType="CreditPack">
+		SELECT 
+			<include refid="creditPackColumns"/>
+		FROM credit_pack a
+		<include refid="creditPackJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="CreditPack">
+		SELECT 
+			<include refid="creditPackColumns"/>
+		FROM credit_pack a
+		<include refid="creditPackJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="name != null and name != ''">
+				AND a.name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{name}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{name}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{name},'%')</if>
+			</if>
+			<if test="creditInfoId != null and creditInfoId != ''">
+				AND a.credit_info_id = #{creditInfoId} 
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="CreditPack">
+		SELECT 
+			<include refid="creditPackColumns"/>
+		FROM credit_pack a
+		<include refid="creditPackJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO credit_pack(
+			id,
+			credit_info_id,
+			core_name,
+			loan_name,
+			name,
+			no,
+			money,
+			type,
+			userd_date,
+			sign_date,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			#{id},
+			#{creditInfoId},
+			#{coreName},
+			#{loanName},
+			#{name},
+			#{no},
+			#{money},
+			#{type},
+			#{userdDate},
+			#{signDate},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE credit_pack SET 	
+			credit_info_id = #{creditInfoId},
+			core_name = #{coreName},
+			loan_name = #{loanName},
+			name = #{name},
+			no = #{no},
+			money = #{money},
+			type = #{type},
+			userd_date = #{userdDate},
+			sign_date = #{signDate},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE credit_pack SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

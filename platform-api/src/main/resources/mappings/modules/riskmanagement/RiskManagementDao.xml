@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.power.platform.riskmanagement.dao.RiskManagementDao">
+    
+	<sql id="riskManagementColumns">
+		a.id AS "id",
+		a.company_name AS "companyName",
+		a.state AS "state",
+		a.check_user1 AS "checkUser1",
+		a.check_date1 AS "checkDate1",
+		a.check_note1 AS "checkNote1",
+		a.check_user2 AS "checkUser2",
+		a.check_date2 AS "checkDate2",
+		a.check_note2 AS "checkNote2",
+		a.check_user3 AS "checkUser3",
+		a.check_date3 AS "checkDate3",
+		a.check_note3 AS "checkNote3",
+		a.docurl AS "docUrl"
+	</sql>
+	
+	<sql id="riskManagementJoins">
+	</sql>
+    
+	<select id="get" resultType="RiskManagement">
+		SELECT 
+			<include refid="riskManagementColumns"/>
+		FROM risk_management a
+		<include refid="riskManagementJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="RiskManagement">
+		SELECT 
+			<include refid="riskManagementColumns"/>
+		FROM risk_management a
+		<include refid="riskManagementJoins"/>
+		<where>
+			
+			<if test="companyName != null and companyName != ''">
+				AND a.company_name = #{companyName}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="RiskManagement">
+		SELECT 
+			<include refid="riskManagementColumns"/>
+		FROM risk_management a
+		<include refid="riskManagementJoins"/>
+		<where>
+			
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO risk_management(
+			id,
+			company_name,
+			state,
+			check_user1,
+			check_date1,
+			check_note1,
+			check_user2,
+			check_date2,
+			check_note2,
+			check_user3,
+			check_date3,
+			check_note3,
+			docurl
+		) VALUES (
+			#{id},
+			#{companyName},
+			#{state},
+			#{checkUser1},
+			#{checkDate1},
+			#{checkNote1},
+			#{checkUser2},
+			#{checkDate2},
+			#{checkNote2},
+			#{checkUser3},
+			#{checkDate3},
+			#{checkNote3},
+			#{docUrl}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE risk_management SET 	
+			company_name = #{companyName},
+			state = #{state},
+			check_user1 = #{checkUser1},
+			check_date1 = #{checkDate1},
+			check_note1 = #{checkNote1},
+			check_user2 = #{checkUser2},
+			check_date2 = #{checkDate2},
+			check_note2 = #{checkNote2},
+			check_user3 = #{checkUser3},
+			check_date3 = #{checkDate3},
+			check_note3 = #{checkNote3},
+			docurl = #{docUrl}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		DELETE FROM risk_management
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.power.platform.activity.dao.ARateCouponDicDao">
+
+	<sql id="aRateCouponDicColumns">
+		a.id AS "id",
+		a.state AS "state",
+		a.overdue_days AS "overdueDays",
+		a.rate AS "rate",
+		a.limit_amount AS "limitAmount",
+		a.remarks AS "remarks",
+		a.create_date AS "createDate",
+		a.create_by AS "createBy.id",
+		a.update_date AS "updateDate",
+		a.update_by AS "updateBy.id",
+		a.del_flag AS "delFlag"
+	</sql>
+
+	<sql id="aRateCouponDicJoins">
+	</sql>
+
+	<select id="get" resultType="ARateCouponDic">
+		SELECT
+		<include refid="aRateCouponDicColumns" />
+		FROM a_rate_coupon_dic a
+		<include refid="aRateCouponDicJoins" />
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findList" resultType="ARateCouponDic">
+		SELECT
+		<include refid="aRateCouponDicColumns" />
+		FROM a_rate_coupon_dic a
+		<include refid="aRateCouponDicJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="state != null and state != ''">
+				AND a.state = #{state}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="ARateCouponDic">
+		SELECT
+		<include refid="aRateCouponDicColumns" />
+		FROM a_rate_coupon_dic a
+		<include refid="aRateCouponDicJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<insert id="insert">
+		INSERT INTO a_rate_coupon_dic(
+		id,
+		state,
+		overdue_days,
+		rate,
+		limit_amount,
+		remarks,
+		create_date,
+		create_by,
+		update_date,
+		update_by,
+		del_flag
+		) VALUES (
+		#{id},
+		#{state},
+		#{overdueDays},
+		#{rate},
+		#{limitAmount},
+		#{remarks},
+		#{createDate},
+		#{createBy.id},
+		#{updateDate},
+		#{updateBy.id},
+		#{delFlag}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE a_rate_coupon_dic SET
+		state = #{state},
+		overdue_days = #{overdueDays},
+		rate = #{rate},
+		limit_amount = #{limitAmount},
+		remarks = #{remarks},
+		update_date = #{updateDate},
+		update_by = #{updateBy.id}
+		WHERE id = #{id}
+	</update>
+
+	<update id="delete">
+		UPDATE a_rate_coupon_dic SET
+		del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+
+	<!-- 获取所有字典数据. -->
+	<select id="findAllARateCouponDics" resultType="ARateCouponDic">
+		SELECT
+		<include refid="aRateCouponDicColumns" />
+		FROM a_rate_coupon_dic a
+		<where>
+			a.del_flag = 0
+		</where>
+	</select>
+	
+	<!-- 根据加息劵面值查询数据 -->
+	<select id="findByRate" resultType="ARateCouponDic">
+		SELECT
+		<include refid="aRateCouponDicColumns" />
+		FROM a_rate_coupon_dic a
+		<include refid="aRateCouponDicJoins" />
+		WHERE a.rate = #{rate}
+	</select>
+
+</mapper>

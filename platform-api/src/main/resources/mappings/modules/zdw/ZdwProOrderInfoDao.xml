@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.power.platform.zdw.dao.ZdwProOrderInfoDao">
+
+	<sql id="zdwProOrderInfoColumns">
+		a.id AS "id",
+		a.pro_id AS "proId",
+		a.pro_no AS "proNo",
+		a.status AS "status",
+		a.full_date AS "fullDate",
+		a.create_date AS "createDate",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag"
+	</sql>
+
+	<sql id="zdwProOrderInfoJoins">
+	</sql>
+
+	<select id="get" resultType="ZdwProOrderInfo">
+		SELECT
+		<include refid="zdwProOrderInfoColumns" />
+		FROM zdw_pro_order_info a
+		<include refid="zdwProOrderInfoJoins" />
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findList" resultType="ZdwProOrderInfo">
+		SELECT
+		<include refid="zdwProOrderInfoColumns" />
+		FROM zdw_pro_order_info a
+		<include refid="zdwProOrderInfoJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="status != null and status != ''">
+				AND a.status = #{status}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date ASC
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="ZdwProOrderInfo">
+		SELECT
+		<include refid="zdwProOrderInfoColumns" />
+		FROM zdw_pro_order_info a
+		<include refid="zdwProOrderInfoJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<insert id="insert">
+		INSERT INTO zdw_pro_order_info(
+		id,
+		pro_id,
+		pro_no,
+		status,
+		full_date,
+		create_date,
+		update_date,
+		remarks,
+		del_flag
+		) VALUES (
+		#{id},
+		#{proId},
+		#{proNo},
+		#{status},
+		#{fullDate},
+		#{createDate},
+		#{updateDate},
+		#{remarks},
+		#{delFlag}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE zdw_pro_order_info SET
+		pro_id = #{proId},
+		pro_no = #{proNo},
+		status = #{status},
+		full_date = #{fullDate},
+		update_date = #{updateDate},
+		remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+
+	<update id="delete">
+		UPDATE zdw_pro_order_info SET
+		del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+
+</mapper>

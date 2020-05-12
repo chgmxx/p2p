@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.power.platform.sms.dao.SmsRejectHistoryDao">
+    
+	<sql id="smsRejectHistoryColumns">
+		a.id AS "id",
+		a.phone AS "phone",
+		a.create_time AS "createTime",
+		a.times AS "times",
+		a.type AS "type",
+		a.ip AS "ip"
+	</sql>
+	
+	<sql id="smsRejectHistoryJoins">
+	</sql>
+    
+	<select id="get" resultType="SmsRejectHistory">
+		SELECT 
+			<include refid="smsRejectHistoryColumns"/>
+		FROM sms_reject_history a
+		<include refid="smsRejectHistoryJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="SmsRejectHistory">
+		SELECT 
+			<include refid="smsRejectHistoryColumns"/>
+		FROM sms_reject_history a
+		<include refid="smsRejectHistoryJoins"/>
+		<where>
+			
+			<if test="phone != null and phone != ''">
+				AND a.phone = #{phone}
+			</if>
+			
+			<if test="beginCreateTime != null and endCreateTime != null and beginCreateTime != '' and endCreateTime != ''">
+				AND a.create_time BETWEEN #{beginCreateTime} AND #{endCreateTime}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY a.create_time desc
+			</when>
+			<otherwise>
+				ORDER BY a.create_time desc
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="SmsRejectHistory">
+		SELECT 
+			<include refid="smsRejectHistoryColumns"/>
+		FROM sms_reject_history a
+		<include refid="smsRejectHistoryJoins"/>
+		<where>
+			
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO sms_reject_history(
+			id,
+			phone,
+			create_time,
+			times,
+			type,
+			ip
+		) VALUES (
+			#{id},
+			#{phone},
+			#{createTime},
+			#{times},
+			#{type},
+			#{ip}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE sms_reject_history SET 	
+			phone = #{phone},
+			type = #{type},
+			times = #{times},
+			ip = #{ip}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		DELETE FROM sms_reject_history
+		WHERE id = #{id}
+	</update>
+	<select id="getByIP" resultType="SmsRejectHistory">
+		SELECT 
+			<include refid="smsRejectHistoryColumns"/>
+		FROM sms_reject_history a
+		<include refid="smsRejectHistoryJoins"/>
+		WHERE a.ip = #{ip} and a.type = 1 order by a.times desc
+	</select>
+	<select id="getByPhone" resultType="SmsRejectHistory">
+		SELECT 
+			<include refid="smsRejectHistoryColumns"/>
+		FROM sms_reject_history a
+		<include refid="smsRejectHistoryJoins"/>
+		WHERE a.phone = #{phone} and a.type= 0
+	</select>
+</mapper>

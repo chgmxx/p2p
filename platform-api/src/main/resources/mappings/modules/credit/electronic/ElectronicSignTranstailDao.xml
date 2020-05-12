@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.power.platform.credit.dao.electronic.ElectronicSignTranstailDao">
+    
+	<sql id="electronicSignTranstailColumns">
+		a.id AS "id",
+		a.invest_user_id AS "investUserId",
+		a.core_id AS "coreId",
+		a.supply_id AS "supplyId",
+		a.sign_service_id_user AS "signServiceIdUser",
+		a.sign_service_id_supply AS "signServiceIdSupply",
+		a.sign_service_id_core AS "signServiceIdCore",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<sql id="electronicSignTranstailJoins">
+	</sql>
+    
+	<select id="get" resultType="ElectronicSignTranstail">
+		SELECT 
+			<include refid="electronicSignTranstailColumns"/>
+		FROM electronic_sign_transtail a
+		<include refid="electronicSignTranstailJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="ElectronicSignTranstail">
+		SELECT 
+			<include refid="electronicSignTranstailColumns"/>
+		FROM electronic_sign_transtail a
+		<include refid="electronicSignTranstailJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="ElectronicSignTranstail">
+		SELECT 
+			<include refid="electronicSignTranstailColumns"/>
+		FROM electronic_sign_transtail a
+		<include refid="electronicSignTranstailJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO electronic_sign_transtail(
+			id,
+			invest_user_id,
+			core_id,
+			supply_id,
+			sign_service_id_user,
+			sign_service_id_supply,
+			sign_service_id_core,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			#{id},
+			#{investUserId},
+			#{coreId},
+			#{supplyId},
+			#{signServiceIdUser},
+			#{signServiceIdSupply},
+			#{signServiceIdCore},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE electronic_sign_transtail SET 	
+			invest_user_id = #{investUserId},
+			core_id = #{coreId},
+			supply_id = #{supplyId},
+			sign_service_id_user = #{signServiceIdUser},
+			sign_service_id_supply = #{signServiceIdSupply},
+			sign_service_id_core = #{signServiceIdCore},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE electronic_sign_transtail SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

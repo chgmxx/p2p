@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.power.platform.current.dao.moment.WloanCurrentMomentInvestDao">
+    
+	<sql id="wloanCurrentMomentInvestColumns">
+		a.id 				AS "id",
+		a.user_id 			AS "userid",
+		a.amount 			AS "amount",
+		a.state 			AS "state",
+		a.voucher_amount 	AS "voucherAmount",
+		a.create_date 		AS "createDate",
+		a.update_date 		AS "updateDate",
+		a.user_invest 		AS "userInvest",
+		a.del_flag 			AS "delFlag",
+		b.id 				AS "userInfo.id",
+		b.name 				AS "userInfo.name",
+		b.real_name 		AS "userInfo.realName"
+	</sql>
+	
+	<sql id="wloanCurrentMomentInvestJoins">
+		JOIN user_info b ON b.id = a.user_id
+	</sql>
+    
+	<select id="get" resultType="WloanCurrentMomentInvest">
+		SELECT 
+			<include refid="wloanCurrentMomentInvestColumns"/>
+		FROM wloan_current_moment_invest a
+		<include refid="wloanCurrentMomentInvestJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="WloanCurrentMomentInvest">
+		SELECT 
+			<include refid="wloanCurrentMomentInvestColumns"/>
+		FROM wloan_current_moment_invest a
+		<include refid="wloanCurrentMomentInvestJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="state != null and state != ''">
+				AND a.state = #{state}
+			</if>
+			<if test="userInvest != null and userInvest != ''">
+				AND a.user_invest = #{userInvest}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="WloanCurrentMomentInvest">
+		SELECT 
+			<include refid="wloanCurrentMomentInvestColumns"/>
+		FROM wloan_current_moment_invest a
+		<include refid="wloanCurrentMomentInvestJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO wloan_current_moment_invest(
+			id,
+			user_id,
+			amount,
+			state,
+			voucher_amount,
+			create_date,
+			update_date,
+			user_invest,
+			del_flag
+		) VALUES (
+			#{id},
+			#{userid},
+			#{amount},
+			#{state},
+			#{voucherAmount},
+			#{createDate},
+			#{updateDate},
+			#{userInvest},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE wloan_current_moment_invest SET 	
+			user_id = #{userid},
+			amount = #{amount},
+			state = #{state},
+			voucher_amount = #{voucherAmount},
+			update_date = #{updateDate},
+			user_invest = #{userInvest}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE wloan_current_moment_invest SET 
+			del_flag = #{DEL_FLAG_DELETE},
+			state = #{state}
+		WHERE id = #{id}
+	</update>
+	
+	<select id="findListByUserId" resultType="WloanCurrentMomentInvest">
+	SELECT 
+		a.id 				AS "id",
+		a.user_id 			AS "userid",
+		a.amount 			AS "amount",
+		a.state 			AS "state",
+		a.voucher_amount 	AS "voucherAmount",
+		a.create_date 		AS "createDate",
+		a.update_date 		AS "updateDate",
+		a.user_invest 		AS "userInvest",
+		a.del_flag 			AS "delFlag"
+	FROM  wloan_current_moment_invest a
+	WHERE a.user_id = #{userId} and a.del_flag = '0'
+	</select>
+	
+</mapper>

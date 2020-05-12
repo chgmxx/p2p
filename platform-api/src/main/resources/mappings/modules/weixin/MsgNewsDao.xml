@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://10.20.91.130/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.power.platform.weixin.dao.MsgNewsDao">
+
+	<sql id="msgNewsColumns">
+		a.id AS "id",
+		a.title AS "title",
+		a.author AS "author",
+		a.brief AS "brief",
+		a.description AS "description",
+		a.picpath AS "picpath",
+		a.showpic AS "showpic",
+		a.url AS "url",
+		a.fromurl AS "fromurl",
+		a.createdate AS "createDate",
+		b.id AS "msgBase.id",
+		b.msg_type AS "msgBase.msgType",
+		b.input_code AS "msgBase.inputCode",
+		b.rule AS "msgBase.rule",
+		b.enable AS "msgBase.enable",
+		b.read_count AS "msgBase.readCount",
+		b.favour_count AS "msgBase.favourCount",
+		b.createtime AS "msgBase.createDate"
+	</sql>
+ 
+	
+	<select id="findList" resultType="MsgNews">
+		SELECT <include refid="msgNewsColumns"/>
+		FROM t_wxcms_msg_news a 
+		LEFT JOIN t_wxcms_msg_base b
+		ON a.base_id = b.id 
+		<where>
+			1 = 1
+			<if test="title !=null  and title != '' ">
+				and a.title like concat('%', #{title}, '%')  
+			</if>
+		</where>
+			ORDER BY b.createTime desc
+		<choose>	
+			<when test="page !=null and page.orderBy != null and page.orderBy != '' ">
+				  , ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="get" resultType="MsgNews">
+		SELECT  <include refid="msgNewsColumns"/>
+		FROM t_wxcms_msg_news a
+		LEFT JOIN t_wxcms_msg_base b
+		ON a.base_id = b.id 
+		WHERE a.ID = #{id}
+	</select>
+	
+	<select id="getRandomMsgByContent" resultType="MsgNews">
+		SELECT <include refid="msgNewsColumns"/>
+		FROM t_wxcms_msg_news a
+		LEFT JOIN t_wxcms_msg_base b
+		ON a.base_id = b.id 
+		WHERE b.input_code like CONCAT('%','#{inputcode}','%' ) 
+		ORDER BY RAND() LIMIT #{num}
+	</select>
+	 
+	 <select id="listMsgNewsByBaseId" resultType="MsgNews">
+		SELECT <include refid="msgNewsColumns"/>
+		FROM t_wxcms_msg_news a
+		LEFT JOIN t_wxcms_msg_base b
+		ON a.base_id = b.id 
+		WHERE b.id in 
+		<foreach item="ids" index="index" collection="array" open="(" separator="," close=")">  
+		 	#{item}  
+		</foreach>  
+	</select>
+	
+	
+	<insert id="insert">
+		INSERT INTO t_wxcms_msg_news 
+		(ID,TITLE,AUTHOR,BRIEF,DESCRIPTION,PICPATH,SHOWPIC,URL,FROMURL,BASE_ID,createdate )  
+		VALUES 
+		(#{id},#{title},#{author},#{brief},#{description},#{picpath},#{showpic},#{url},#{fromurl},#{msgBase.id},#{createDate}) 
+	</insert>
+ 
+	<update id="update">
+		UPDATE t_wxcms_msg_news 
+		SET TITLE = #{title},AUTHOR = #{author},BRIEF = #{brief},DESCRIPTION = #{description},PICPATH = #{picpath},URL = #{url},FROMURL = #{fromurl},SHOWPIC = #{showpic} 
+		WHERE ID = #{id} 
+	</update>
+
+	<delete id="delete">
+		DELETE FROM t_wxcms_msg_news WHERE ID = #{id}
+	</delete>
+
+</mapper>

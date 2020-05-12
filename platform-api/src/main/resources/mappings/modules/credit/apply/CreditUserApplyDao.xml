@@ -1,0 +1,444 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.power.platform.credit.dao.apply.CreditUserApplyDao">
+
+	<!-- 借款申请表字段. -->
+	<sql id="creditUserApplyColumns">
+		a.id AS "id",
+		a.replace_user_id AS "replaceUserId",
+		a.project_data_id AS "projectDataId",
+		a.credit_apply_name AS "creditApplyName",
+		a.amount AS "amount",
+		a.span AS "span",
+		a.lender_rate AS "lenderRate",
+		a.credit_supply_id AS "creditSupplyId",
+		a.borr_purpose AS "borrPurpose",
+		a.state AS "state",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remark",
+		a.financing_type AS "financingType",
+		a.financing_step AS "financingStep",
+		a.financing_confirm AS "financingConfirm",
+		a.file_confirm AS "fileConfirm",
+		a.modify AS "modify",
+		a.share_rate AS "shareRate",
+		a.voucher_state AS "voucherState",
+		a.declaration_file_path AS "declarationFilePath",
+		a.is_authorize AS "isAuthorize",
+		a.is_notice AS "isNotice",
+		a.sh_cis_file_path AS "shCisFilePath",
+		a.zd_file_path AS "zdFilePath",
+		a.del_flag AS "delFlag"
+	</sql>
+
+	<!-- 联表查询字段. -->
+	<sql id="creditUserApplyInnerJoinColumns">
+		a.id AS "id",
+		a.replace_user_id AS "replaceUserId",
+		a.project_data_id AS "projectDataId",
+		a.credit_supply_id AS "creditSupplyId",
+		a.credit_apply_name AS "creditApplyName",
+		a.amount AS "amount",
+		a.span AS "span",
+		a.lender_rate AS "lenderRate",
+		a.borr_purpose AS "borrPurpose",
+		a.state AS "state",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remark",
+		a.del_flag AS "delFlag",
+		a.financing_type AS "financingType",
+		a.financing_step AS "financingStep",
+		a.modify AS "modify",
+		a.share_rate AS "shareRate",
+		a.voucher_state AS "voucherState",
+		a.declaration_file_path AS "declarationFilePath",
+		a.is_authorize AS "isAuthorize",
+		a.is_notice AS "isNotice",
+		a.sh_cis_file_path AS "shCisFilePath",
+		a.zd_file_path AS "zdFilePath",
+		a.financing_confirm AS "financingConfirm",
+		a.file_confirm AS "fileConfirm",
+		b.id AS "replaceUserInfo.id",
+		b.phone AS "replaceUserInfo.phone",
+		b.`name` AS "replaceUserInfo.name",
+		b.credit_user_type AS "replaceUserInfo.creditUserType",
+		c.id AS "projectDataInfo.id",
+		c.`name` AS "projectDataInfo.name",
+		d.enterpriseFullName AS "loanUserEnterpriseFullName"
+	</sql>
+	
+	<!-- 借款端ERP联表查询字段. -->
+	<sql id="creditUserApplyPackJoinColumns">
+	     a.project_data_id AS  "projectDataId",
+		 a.credit_apply_name AS "creditApplyName",
+		 a.borr_purpose AS "borrPurpose",
+		 c.core_name AS "creditPack.coreName",
+		 c.loan_name AS "creditPack.loanName",
+		 a.amount AS "amount",
+		 a.span AS "span",
+		 a.lender_rate AS "lenderRate",
+		 a.state AS "state",
+		 a.create_date AS "createDate",
+		 a.financing_type AS "financingType",
+		 a.financing_step AS "financingStep",
+		 a.modify AS "modify",
+		 a.share_rate AS "shareRate",
+		 a.voucher_state AS "voucherState",
+		 a.financing_confirm AS "financingConfirm",
+		 a.file_confirm AS "fileConfirm",
+		 a.declaration_file_path AS "declarationFilePath",
+		 a.is_authorize AS "isAuthorize",
+		 a.is_notice AS "isNotice",
+		 a.sh_cis_file_path AS "shCisFilePath",
+		 a.zd_file_path AS "zdFilePath",
+		 c.`name` AS "creditPack.name",
+		 c.`no` AS "creditPack.no",
+		 c.money AS "creditPack.money",
+		 c.type AS "creditPack.type",
+		 c.userd_date AS "creditPack.userdDate",
+		 c.sign_date AS "creditPack.signDate"
+	</sql>
+
+	<!-- 联表查询表. -->
+	<sql id="creditUserApplyInnerJoins">
+		INNER JOIN credit_user_info b ON b.id = a.replace_user_id
+		INNER JOIN credit_info c ON c.id = a.project_data_id
+		LEFT JOIN credit_user_info d ON d.id = a.credit_supply_id
+	</sql>
+	
+	<!-- 借款端ERP联表查询表. -->
+	<sql id="creditUserApplyPackJoins">
+		JOIN credit_pack c ON a.project_data_id = c.credit_info_id
+	</sql>
+
+	<!-- 单表查询. -->
+	<select id="get" resultType="CreditUserApply">
+		SELECT
+		<include refid="creditUserApplyColumns" />
+		FROM credit_user_apply a
+		WHERE a.id = #{id}
+	</select>
+
+	<!-- 借款详情. -->
+	<select id="queryCreditUserApplyById" resultType="CreditUserApply">
+		SELECT
+		<include refid="creditUserApplyInnerJoinColumns" />
+		FROM credit_user_apply a
+		<include refid="creditUserApplyInnerJoins" />
+		WHERE a.id = #{id}
+	</select>
+
+	<!-- 借款申请列表. -->
+	<select id="findList" resultType="CreditUserApply">
+		SELECT
+		<include refid="creditUserApplyInnerJoinColumns" />
+		FROM credit_user_apply a
+		<include refid="creditUserApplyInnerJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<!-- 期限(天). -->
+			<if test="id != null and id != ''">
+				AND a.id = #{id}
+			</if>
+			<!-- 期限(天). -->
+			<if test="span != null and span != ''">
+				AND a.span = #{span}
+			</if>
+			<!-- 申请状态. -->
+			<if test="state != null and state != ''">
+				AND a.state = #{state}
+			</if>
+			<!-- 多状态查询. -->
+			<if test="null != stateItem">
+				AND a.state IN
+				<foreach item="stateItem" index="index" collection="stateItem" open="(" separator="," close=")">
+					#{stateItem}
+				</foreach>
+			</if>
+			<if test="beginCreateDate != null and beginCreateDate != ''">
+				AND a.create_date &gt;= #{beginCreateDate}
+			</if>
+			<if test="endCreateDate != null and endCreateDate != ''">
+				AND a.create_date &lt;= #{endCreateDate}
+			</if>
+			<if test="replaceUserId != null and replaceUserId != ''">
+			   AND a.replace_user_id = #{replaceUserId}
+			</if>
+			<if test="creditSupplyId != null and creditSupplyId != ''">
+			   AND a.credit_supply_id = #{creditSupplyId}
+			</if>
+			<if test="voucherState != null and voucherState != ''">
+			   AND a.voucher_state = #{voucherState}
+			</if>
+			<if test="financingType != null and financingType != ''">
+			   AND a.financing_type = #{financingType}
+			</if>
+			<if test="creditApplyName !=null and creditApplyName != ''">
+			   AND a.credit_apply_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{creditApplyName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{creditApplyName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{creditApplyName},'%')</if>
+			</if>
+			<if test="loanUserEnterpriseFullName !=null and loanUserEnterpriseFullName != ''">
+			   AND d.enterpriseFullName LIKE 
+					<if test="dbName == 'oracle'">'%'||#{loanUserEnterpriseFullName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{loanUserEnterpriseFullName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{loanUserEnterpriseFullName},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	<!-- 借款申请列表. -->
+	<select id="findListForAgreement" resultType="CreditUserApply">
+		SELECT
+		<include refid="creditUserApplyInnerJoinColumns" />
+		FROM credit_user_apply a
+		<include refid="creditUserApplyInnerJoins" />
+		<where>
+			a.del_flag = 0
+			<!-- 申请状态. -->
+			AND a.state in (2,4,5,6)
+			
+			AND a.credit_supply_id = #{supplyId}
+		</where>
+		ORDER BY a.create_date DESC
+	</select>
+
+	<!-- 借款申请列表按融资类型区分. -->
+	<select id="findListByFinancingType" resultType="CreditUserApply">
+		SELECT
+		<include refid="creditUserApplyInnerJoinColumns" />
+		FROM credit_user_apply a
+		<include refid="creditUserApplyInnerJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<!-- 期限(天). -->
+			<if test="span != null and span != ''">
+				AND a.span = #{span}
+			</if>
+			<!-- 申请状态. -->
+			<if test="state != null and state != ''">
+				AND a.state = #{state}
+			</if>
+			<!-- 融资类型. -->
+			<if test="financingType != null and financingType != ''">
+				AND a.financing_type = #{financingType}
+			</if>
+			<!-- 多状态查询. -->
+			<if test="null != stateItem">
+				AND a.state IN
+				<foreach item="stateItem" index="index" collection="stateItem" open="(" separator="," close=")">
+					#{stateItem}
+				</foreach>
+			</if>
+			<if test="beginCreateDate != null and beginCreateDate != ''">
+				AND a.create_date &gt;= #{beginCreateDate}
+			</if>
+			<if test="endCreateDate != null and endCreateDate != ''">
+				AND a.create_date &lt;= #{endCreateDate}
+			</if>
+			<if test="replaceUserId != null and replaceUserId != ''">
+			   AND a.replace_user_id = #{replaceUserId}
+			</if>
+			<if test="creditSupplyId != null and creditSupplyId != ''">
+			   AND a.credit_supply_id = #{creditSupplyId}
+			</if>
+			<if test="voucherState != null and voucherState != ''">
+			   AND a.voucher_state = #{voucherState}
+			</if>
+			<if test="creditApplyName !=null and creditApplyName != ''">
+				AND a.credit_apply_name LIKE 
+				<if test="dbName == 'oracle'">'%'||#{creditApplyName}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{creditApplyName}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{creditApplyName},'%')</if>
+			</if>
+			<if test="loanUserEnterpriseFullName !=null and loanUserEnterpriseFullName != ''">
+				AND d.enterpriseFullName LIKE 
+				<if test="dbName == 'oracle'">'%'||#{loanUserEnterpriseFullName}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{loanUserEnterpriseFullName}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{loanUserEnterpriseFullName},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date ASC
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="CreditUserApply">
+		SELECT
+		<include refid="creditUserApplyColumns" />
+		FROM credit_user_apply a
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<!-- 新增. -->
+	<insert id="insert">
+		INSERT INTO credit_user_apply(
+		id,
+		replace_user_id,
+		project_data_id,
+		credit_apply_name,
+		amount,
+		span,
+		lender_rate,
+		credit_supply_id,
+		borr_purpose,
+		state,
+		create_by,
+		create_date,
+		update_by,
+		update_date,
+		remarks,
+		financing_type,
+		financing_step,
+		modify,
+		share_rate,
+		voucher_state,
+		financing_confirm,
+		file_confirm,
+		declaration_file_path,
+		is_authorize,
+		is_notice,
+		sh_cis_file_path,
+		zd_file_path,
+		del_flag
+		) VALUES (
+		#{id},
+		#{replaceUserId},
+		#{projectDataId},
+		#{creditApplyName},
+		#{amount},
+		#{span},
+		#{lenderRate},
+		#{creditSupplyId},
+		#{borrPurpose},
+		#{state},
+		#{createBy.id},
+		#{createDate},
+		#{updateBy.id},
+		#{updateDate},
+		#{remarks},
+		#{financingType},
+		#{financingStep},
+		#{modify} ,
+		#{shareRate},
+		#{voucherState},
+		#{financingConfirm},
+		#{fileConfirm},
+		#{declarationFilePath},
+		#{isAuthorize},
+		#{isNotice},
+		#{shCisFilePath},
+		#{zdFilePath},
+		#{delFlag}
+		)
+	</insert>
+
+	<!-- 更新. -->
+	<update id="update">
+		UPDATE credit_user_apply SET
+		replace_user_id = #{replaceUserId},
+		project_data_id = #{projectDataId},
+		credit_apply_name = #{creditApplyName},
+		amount = #{amount},
+		span = #{span},
+		lender_rate = #{lenderRate},
+		credit_supply_id = #{creditSupplyId},
+		borr_purpose = #{borrPurpose},
+		state = #{state},
+		update_by = #{updateBy.id},
+		update_date = #{updateDate},
+		remarks = #{remarks},
+		financing_type= #{financingType},
+		financing_step= #{financingStep},
+		modify = #{modify},
+		share_rate = #{shareRate},
+		voucher_state = #{voucherState},
+		financing_confirm = #{financingConfirm},
+		file_confirm = #{fileConfirm},
+		declaration_file_path = #{declarationFilePath},
+		is_authorize = #{isAuthorize},
+		is_notice = #{isNotice},
+		sh_cis_file_path = #{shCisFilePath},
+		zd_file_path = #{zdFilePath},
+		del_flag = #{delFlag}
+		WHERE id = #{id}
+	</update>
+
+	<update id="delete">
+		UPDATE credit_user_apply SET
+		del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<select id="findApplyById" resultType="CreditUserApply">
+	    SELECT
+        <include refid="creditUserApplyPackJoinColumns" />
+        FROM credit_user_apply a
+        <include refid="creditUserApplyPackJoins" />
+		<where>
+				a.project_data_id = #{userApplyId}
+		</where>
+	</select>
+	
+	<!-- 查询申请借款列表 -->
+	<select id="findVoucherApplyList" resultType="CreditUserApply">
+		SELECT
+		<include refid="creditUserApplyInnerJoinColumns" />
+		FROM credit_user_apply a
+		<include refid="creditUserApplyInnerJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="voucherState != null and voucherState != ''">
+			   AND a.voucher_state = #{voucherState}
+			</if>
+			<if test="voucherState == null or voucherState == ''">
+			   AND a.voucher_state != ""
+			</if>
+			<if test="beginCreateDate != null and beginCreateDate != ''">
+				AND a.create_date &gt;= #{beginCreateDate}
+			</if>
+			<if test="endCreateDate != null and endCreateDate != ''">
+				AND a.create_date &lt;= #{endCreateDate}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+</mapper>

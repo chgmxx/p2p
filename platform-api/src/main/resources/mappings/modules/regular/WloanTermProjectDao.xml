@@ -1,0 +1,1154 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.power.platform.regular.dao.WloanTermProjectDao">
+
+
+	<sql id="wloanTermProjectOriginalColumns">
+		a.id AS "id",
+		a.sn AS "sn",
+		a.name AS "name",
+		a.subject_id AS "subjectId",
+		a.guarantee_id AS "guaranteeId",
+		a.doc_id AS "docId",
+		a.locus AS "locus",
+		a.amount AS "amount",
+		a.annual_rate AS "annualRate",
+		a.publish_date AS "publishDate",
+		a.online_date AS "onlineDate",
+		a.full_date AS "fullDate",
+		a.loan_date AS "loanDate",
+		a.real_loan_date AS "realLoanDate",
+		a.end_date AS "endDate",
+		a.span AS "span",
+		a.repay_type AS "repayType",
+		a.min_amount AS "minAmount",
+		a.max_amount AS "maxAmount",
+		a.step_amount AS "stepAmount",
+		a.fee_rate AS "feeRate",
+		a.current_amount AS "currentAmount",
+		a.current_real_amount AS "currentRealAmount",
+		a.purpose AS "purpose",
+		a.project_case AS "projectCase",
+		a.state AS "state",
+		a.img_url AS "imgUrl",
+		a.detail_img_url AS "detailImgUrl",
+		a.guarantee_sn AS "guaranteeSn",
+		a.margin_percentage AS "marginPercentage",
+		a.guarantee_scheme AS "guaranteeScheme",
+		a.create_date AS "createDate",
+		a.create_by AS "createById",
+		a.update_date AS "updateDate",
+		a.update_by AS "updateById",
+		a.remark AS "remark",
+		a.contract_url AS "contractUrl",
+		a.project_type AS "projectType",
+		a.label AS "label",
+		a.iscanuse_coupon AS "isCanUseCoupon",
+		a.iscanuse_pluscoupon AS "isCanUsePlusCoupon",
+		a.del_flag AS "delFlag",
+		a.is_entrusted_pay AS "isEntrustedPay",
+		a.is_entrusted_withdraw AS "isEntrustedWithdraw",
+		a.project_repay_plan_type AS "projectRepayPlanType",
+		a.project_data_id AS "projectDataId",
+		a.is_replace_repay AS "isReplaceRepay",
+		a.replace_repay_id AS "replaceRepayId",
+		a.project_product_type AS "projectProductType",
+		a.borrower_residence AS "borrowerResidence",
+		a.borrower_electronic_sign_url AS "borrowerElectronicSignUrl",
+		a.replace_repay_residence AS "replaceRepayResidence",
+		a.replace_repay_electronic_sign_url AS "replaceRepayElectronicSignUrl",
+		a.source_of_repayment AS "sourceOfRepayment",
+		a.credit_user_apply_id AS "creditUserApplyId",
+		a.business_financial_situation AS "businessFinancialSituation",
+		a.ability_to_repay_situation AS "abilityToRepaySituation",
+		a.platform_overdue_situation AS "platformOverdueSituation",
+		a.litigation_situation AS "litigationSituation",
+		a.administrative_punishment_situation AS "administrativePunishmentSituation",
+		a.interest_rate_increase AS "interestRateIncrease",
+		a.repayment_guarantee_measures AS "repaymentGuaranteeMeasures"
+	</sql>
+	
+	<sql id="wloanTermProjectColumns">
+		a.id AS "id",
+		a.sn AS "sn",
+		a.name AS "name",
+		a.subject_id AS "subjectId",
+		a.guarantee_id AS "guaranteeId",
+		a.doc_id AS "docId",
+		a.locus AS "locus",
+		a.amount AS "amount",
+		a.annual_rate AS "annualRate",
+		a.publish_date AS "publishDate",
+		a.online_date AS "onlineDate",
+		a.full_date AS "fullDate",
+		a.loan_date AS "loanDate",
+		a.real_loan_date AS "realLoanDate",
+		a.end_date AS "endDate",
+		a.span AS "span",
+		a.repay_type AS "repayType",
+		a.min_amount AS "minAmount",
+		a.max_amount AS "maxAmount",
+		a.step_amount AS "stepAmount",
+		a.fee_rate AS "feeRate",
+		a.current_amount AS "currentAmount",
+		a.current_real_amount AS "currentRealAmount",
+		a.purpose AS "purpose",
+		a.project_case AS "projectCase",
+		a.state AS "state",
+		a.img_url AS "imgUrl",
+		a.detail_img_url AS "detailImgUrl",
+		a.guarantee_sn AS "guaranteeSn",
+		a.margin_percentage AS "marginPercentage",
+		a.guarantee_scheme AS "guaranteeScheme",
+		a.create_date AS "createDate",
+		a.create_by AS "createById",
+		a.update_date AS "updateDate",
+		a.update_by AS "updateById",
+		a.remark AS "remark",
+		a.contract_url AS "contractUrl",
+		a.project_type AS "projectType",
+		a.label AS "label",
+		a.iscanuse_coupon AS "isCanUseCoupon",
+		a.iscanuse_pluscoupon AS "isCanUsePlusCoupon",
+		a.del_flag AS "delFlag",
+		a.is_entrusted_pay AS "isEntrustedPay",
+		a.is_entrusted_withdraw AS "isEntrustedWithdraw",
+		a.project_repay_plan_type AS "projectRepayPlanType",
+		a.project_data_id AS "projectDataId",
+		a.is_replace_repay AS "isReplaceRepay",
+		a.replace_repay_id AS "replaceRepayId",
+		a.project_product_type AS "projectProductType",
+		a.borrower_residence AS "borrowerResidence",
+		a.borrower_electronic_sign_url AS "borrowerElectronicSignUrl",
+		a.replace_repay_residence AS "replaceRepayResidence",
+		a.replace_repay_electronic_sign_url AS "replaceRepayElectronicSignUrl",
+		a.source_of_repayment AS "sourceOfRepayment",
+		a.credit_user_apply_id AS "creditUserApplyId",
+		a.business_financial_situation AS "businessFinancialSituation",
+		a.ability_to_repay_situation AS "abilityToRepaySituation",
+		a.platform_overdue_situation AS "platformOverdueSituation",
+		a.litigation_situation AS "litigationSituation",
+		a.administrative_punishment_situation AS "administrativePunishmentSituation",
+		a.interest_rate_increase AS "interestRateIncrease",
+		a.repayment_guarantee_measures AS "repaymentGuaranteeMeasures",
+		wg.id AS "wgCompany.id",
+		wg.name AS "wgCompany.name",
+		wg.brief_name AS "wgCompany.briefName",
+		wg.industry AS "wgCompany.industry",
+		wg.register_date AS "wgCompany.registerDate",
+		wg.business_no AS "wgCompany.businessNo",
+		wg.organ_no AS "wgCompany.organNo",
+		wg.tax_code AS "wgCompany.taxCode",
+		wg.brief_info AS "wgCompany.briefInfo",
+		wg.web_site AS "wgCompany.webSite",
+		wg.corporation AS "wgCompany.corporation",
+		wg.guarantee_scheme AS "wgCompany.guaranteeScheme",
+		wg.guarantee_case AS "wgCompany.guaranteeCase",
+		wg.register_amount AS "wgCompany.registerAmount",
+		wg.net_asset_amount AS "wgCompany.netAssetAmount",
+		wg.last_year_cash AS "wgCompany.lastYearCash",
+		wg.run_case AS "wgCompany.runCase",
+		wg.wguarantee_logo AS "wgCompany.wguaranteeLogo",
+		wg.electronic_sign_url AS "wgCompany.electronicSignUrl",
+		wg.address AS "wgCompany.address",
+		wg.phone AS "wgCompany.phone",
+		wg.create_date AS "wgCompany.createDate",
+		wg.create_by AS "wgCompany.createBy",
+		wg.update_date AS "wgCompany.updateDate",
+		wg.update_by AS "wgCompany.updateBy",
+		wg.remark AS "wgCompany.remarks",
+		ws.id AS "wloanSubject.id",
+		ws.company_name AS "wloanSubject.companyName",
+		ws.brief_name AS "wloanSubject.briefName",
+		ws.type AS "wloanSubject.type",
+		ws.locus AS "wloanSubject.locus",
+		ws.industry AS "wloanSubject.industry",
+		ws.register_date AS "wloanSubject.registerDate",
+		ws.business__no AS "wloanSubject.businessNo",
+		ws.organ_no AS "wloanSubject.organNo",
+		ws.tax_code AS "wloanSubject.taxCode",
+		ws.brief_info AS "wloanSubject.briefInfo",
+		ws.web_site AS "wloanSubject.webSite",
+		ws.register_amount AS "wloanSubject.registerAmount",
+		ws.net_asset_amount AS "wloanSubject.netAssetAmount",
+		ws.last_year_cash AS "wloanSubject.lastYearCash",
+		ws.run_case AS "wloanSubject.runCase",
+		ws.cashier_user AS "wloanSubject.cashierUser",
+		ws.cashier_id_card AS "wloanSubject.cashierIdCard",
+		ws.cashier_bank_no AS "wloanSubject.cashierBankNo",
+		ws.cashier_bank_adderss AS "wloanSubject.cashierBankAdderss",
+		ws.cashier_bank_phone AS "wloanSubject.cashierBankPhone",
+		ws.loan_user AS "wloanSubject.loanUser",
+		ws.loan_id_card AS "wloanSubject.loanIdCard",
+		ws.loan_phone AS "wloanSubject.loanPhone",
+		ws.create_by AS "wloanSubject.createBy.id",
+		ws.create_date AS "wloanSubject.createDate",
+		ws.update_by AS "wloanSubject.updateBy.id",
+		ws.update_date AS "wloanSubject.updateDate",
+		ws.remarks AS "wloanSubject.remarks",
+		ws.loan_apply_id AS "wloanSubject.loanApplyId",
+		wtd.id AS "wloanTermDoc.id",
+		wtd.name AS "wloanTermDoc.name",
+		wtd.create_by AS "wloanTermDoc.createBy.id",
+		wtd.create_date AS "wloanTermDoc.createDate",
+		wtd.update_by AS "wloanTermDoc.updateBy.id",
+		wtd.update_date AS "wloanTermDoc.updateDate",
+		wtd.remarks AS "wloanTermDoc.remarks",
+		sa.id AS "area.id",
+		sa.name AS "area.name",
+		cua.credit_apply_name AS "creditUserApply.creditApplyName"
+	</sql>
+
+	<sql id="wloanTermProjectJoins">
+		LEFT JOIN wguarantee_company wg ON wg.id = a.guarantee_id
+		LEFT JOIN wloan_subject ws ON ws.id = a.subject_id
+		LEFT JOIN wloan_term_doc wtd ON wtd.id = a.doc_id
+		LEFT JOIN sys_area sa ON sa.id = a.locus
+		LEFT JOIN credit_user_apply cua ON a.credit_user_apply_id = cua.id
+	</sql>
+
+
+
+	<select id="get" resultType="WloanTermProject">
+		SELECT
+		<include refid="wloanTermProjectColumns" />
+		FROM wloan_term_project a
+		<include refid="wloanTermProjectJoins" />
+		WHERE a.id = #{id}
+	</select>
+
+
+	<select id="findListByCompanyId" resultType="WloanTermProject">
+		SELECT
+		<include refid="wloanTermProjectColumns" />
+		FROM wloan_term_project a
+		<include refid="wloanTermProjectJoins" />
+		WHERE a.del_flag = '0'
+		AND a.guarantee_id = #{companyId}
+	</select>
+
+	<!-- WDXH -->
+	<select id="selectForWDXHOne" resultType="java.util.Map">
+		select sum(amount) total_loan_money,count(id) total_loan_num from wloan_term_project
+	</select>
+	<select id="selectForWDXHTwo" resultType="java.util.Map">
+		select sum(amount) total_loan_balance_money,count(id) total_loan_balance_num,count(DISTINCT(subject_id)) cur_borrow_users from wloan_term_project where state in(4,5,6)
+	</select>
+	<select id="selectForWDXHThree" resultType="java.util.Map">
+		select count(DISTINCT(company_name)) total_borrow_users from wloan_subject
+	</select>
+	<select id="selectForWDXHFour" resultType="java.util.Map">
+		select count(id) total_invest_users from user_info
+	</select>
+	<select id="selectForWDXHFive" resultType="java.util.Map">
+		select count(DISTINCT(user_id)) cur_invest_users from wloan_term_invest where project_id in(select id from wloan_term_project where state in(4,5,6))
+	</select>
+
+
+	<select id="findList" resultType="WloanTermProject">
+		SELECT
+		<include refid="wloanTermProjectColumns" />
+		FROM wloan_term_project a
+		<include refid="wloanTermProjectJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="sn != null and sn != ''">
+				AND a.sn LIKE
+				<if test="dbName == 'mysql'">concat('%',#{sn},'%')</if>
+			</if>
+			<if test="name != null and name != ''">
+				AND a.name LIKE
+				<if test="dbName == 'mysql'">concat('%',#{name},'%')</if>
+			</if>
+			<if test="span != null and span != ''">
+				AND a.span = #{span}
+			</if>
+			<if test="spans != null and spans != ''">
+				AND a.span &lt;= #{spans}
+			</if>
+			<if test="repayType != null and repayType != ''">
+				AND a.repay_type = #{repayType}
+			</if>
+			<if test="state != null and state != ''">
+				AND a.state = #{state}
+			</if>
+			<if test="projectType != null and projectType != ''">
+				AND a.project_type = #{projectType}
+			</if>
+			<if test="null != projectTypeItem">
+				AND a.project_type in
+				<foreach item="projectTypeItem" index="index" collection="projectTypeItem" open="(" separator="," close=")">
+					#{projectTypeItem}
+				</foreach>
+			</if>
+			<if test="projectProductType != null and projectProductType != ''">
+				AND a.project_product_type = #{projectProductType}
+			</if>
+			<if test="minAnnualRate != null and minAnnualRate != ''">
+				AND a.annual_rate BETWEEN #{minAnnualRate} AND #{maxAnnualRate}
+			</if>
+			<if test="projectType != null and projectType != ''">
+				AND a.project_type = #{projectType}
+			</if>
+			<if test="null != stateItem">
+				AND a.state in
+				<foreach item="stateItem" index="index" collection="stateItem" open="(" separator="," close=")">
+					#{stateItem}
+				</foreach>
+			</if>
+			<if test="subjectId !=null and subjectId != ''">
+				AND a.subject_id = #{subjectId}
+			</if>
+			<if test="null != wloanSubject">
+				AND ws.company_name LIKE
+				<if test="dbName == 'mysql'">concat('%',#{wloanSubject.companyName},'%')</if>
+			</if>
+			<!-- 上线开始时间查询. -->
+			<if test="beginTimeFromOnline != null and beginTimeFromOnline != ''">
+				AND a.online_date &gt;= #{beginTimeFromOnline}
+			</if>
+			<!-- 上线结束时间查询. -->
+			<if test="endTimeToOnline != null and endTimeToOnline != ''">
+				AND a.online_date &lt;= #{endTimeToOnline}
+			</if>
+			<!-- 放款开始时间查询. -->
+			<if test="beginRealLoanDate != null and beginRealLoanDate != ''">
+				AND a.real_loan_date &gt;= #{beginRealLoanDate}
+			</if>
+			<!-- 放款结束时间查询. -->
+			<if test="endRealLoanDate != null and endRealLoanDate != ''">
+				AND a.real_loan_date &lt;= #{endRealLoanDate}
+			</if>
+			<!-- 满标(包含还款中和已结束)项目开始时间查询. -->
+			<if test="beginTimeFromFull != null and beginTimeFromFull != ''">
+				AND a.full_date &gt;= #{beginTimeFromFull}
+			</if>
+			<!-- 满标(包含还款中和已结束)项目结束时间查询. -->
+			<if test="endTimeToFull != null and endTimeToFull != ''">
+				AND a.full_date &lt;= #{endTimeToFull}
+			</if>
+
+			<if test="creditUserApply != null and creditUserApply != ''">
+				<if test="creditUserApply.creditApplyName != null and creditUserApply.creditApplyName != ''">
+					AND cua.credit_apply_name LIKE
+					<if test="dbName == 'oracle'">'%'||#{creditUserApply.creditApplyName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{creditUserApply.creditApplyName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{creditUserApply.creditApplyName},'%')</if>
+				</if>
+
+			</if>
+			<if test="sn != null and sn != ''">
+				AND a.sn LIKE
+				<if test="dbName == 'oracle'">'%'||#{sn}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{sn}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{sn},'%')</if>
+			</if>
+			<if test="wloanSubject != null and wloanSubject != ''">
+				<if test="wloanSubject.companyName != null and wloanSubject.companyName != ''">
+					AND ws.company_name LIKE
+					<if test="dbName == 'oracle'">'%'||#{wloanSubject.companyName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{wloanSubject.companyName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{wloanSubject.companyName},'%')</if>
+				</if>
+			</if>
+			<if test="replaceRepayId != null and replaceRepayId != ''">
+				AND a.replace_repay_id = #{replaceRepayId}
+			</if>
+
+
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<!-- 查找项目编号是否存在. -->
+	<select id="findProSnExist" resultType="WloanTermProject">
+		SELECT
+		*
+		FROM wloan_term_project a
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="sn != null and sn != ''">
+				AND a.sn = #{sn}
+			</if>
+		</where>
+	</select>
+
+	<!-- 财务报表列表查询. -->
+	<select id="findExcelReportList" resultType="WloanTermProject">
+		SELECT
+		<include refid="wloanTermProjectColumns" />
+		FROM wloan_term_project a
+		<include refid="wloanTermProjectJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="beginDate != null and beginDate != ''">
+				AND a.loan_date &gt;= #{beginDate}
+			</if>
+			<if test="endDate != null and endDate != ''">
+				AND a.loan_date &lt;= #{endDate}
+			</if>
+			<if test="null != state and state != ''">
+				AND a.state = #{state}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="WloanTermProject">
+		SELECT
+		<include refid="wloanTermProjectColumns" />
+		FROM wloan_term_project a
+		<include refid="wloanTermProjectJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	
+	<select id="getWloanTermProject" resultType="WloanTermProject">
+		SELECT
+		a.id AS "id",
+		a.sn AS "sn",
+		a.name AS "name",
+		a.subject_id AS "subjectId",
+		a.guarantee_id AS "guaranteeId",
+		a.doc_id AS "docId",
+		a.locus AS "locus",
+		a.amount AS "amount",
+		a.annual_rate AS "annualRate",
+		a.publish_date AS "publishDate",
+		a.online_date AS "onlineDate",
+		a.full_date AS "fullDate",
+		a.loan_date AS "loanDate",
+		a.real_loan_date AS "realLoanDate",
+		a.end_date AS "endDate",
+		a.span AS "span",
+		a.repay_type AS "repayType",
+		a.min_amount AS "minAmount",
+		a.max_amount AS "maxAmount",
+		a.step_amount AS "stepAmount",
+		a.fee_rate AS "feeRate",
+		a.current_amount AS "currentAmount",
+		a.current_real_amount AS "currentRealAmount",
+		a.purpose AS "purpose",
+		a.project_case AS "projectCase",
+		a.state AS "state",
+		a.img_url AS "imgUrl",
+		a.detail_img_url AS "detailImgUrl",
+		a.guarantee_sn AS "guaranteeSn",
+		a.margin_percentage AS "marginPercentage",
+		a.guarantee_scheme AS "guaranteeScheme",
+		a.create_date AS "createDate",
+		a.create_by AS "createById",
+		a.update_date AS "updateDate",
+		a.update_by AS "updateById",
+		a.remark AS "remark",
+		a.contract_url AS "contractUrl",
+		a.project_type AS "projectType",
+		a.label AS "label",
+		a.iscanuse_coupon AS "isCanUseCoupon",
+		a.iscanuse_pluscoupon AS "isCanUsePlusCoupon",
+		a.del_flag AS "delFlag",
+		a.is_entrusted_pay AS "isEntrustedPay",
+		a.is_entrusted_withdraw AS "isEntrustedWithdraw",
+		a.project_repay_plan_type AS "projectRepayPlanType",
+		a.project_data_id AS "projectDataId",
+		a.is_replace_repay AS "isReplaceRepay",
+		a.replace_repay_id AS "replaceRepayId",
+		a.project_product_type AS "projectProductType",
+		a.borrower_residence AS "borrowerResidence",
+		a.borrower_electronic_sign_url AS "borrowerElectronicSignUrl",
+		a.replace_repay_residence AS "replaceRepayResidence",
+		a.replace_repay_electronic_sign_url AS "replaceRepayElectronicSignUrl",
+		a.source_of_repayment AS "sourceOfRepayment",
+		a.credit_user_apply_id AS "creditUserApplyId",
+		a.business_financial_situation AS "businessFinancialSituation",
+		a.ability_to_repay_situation AS "abilityToRepaySituation",
+		a.platform_overdue_situation AS "platformOverdueSituation",
+		a.litigation_situation AS "litigationSituation",
+		a.administrative_punishment_situation AS "administrativePunishmentSituation",
+		a.interest_rate_increase AS "interestRateIncrease",
+		a.repayment_guarantee_measures AS "repaymentGuaranteeMeasures"
+		FROM wloan_term_project a
+		left join wloan_term_project_plan p on a.id = p.project_id
+		left join ztmg_order_info z on z.order_id = p.sub_order_id
+		<where>
+			a.del_flag = '0'
+			and z.status = 'S'
+			and z.order_id = #{orderId}
+		</where>
+	</select>
+
+	<select id="findListByStateAndDate" resultType="WloanTermProject">
+		SELECT
+		a.id AS "id",
+		a.name AS "name",
+		a.state AS "state"
+		FROM wloan_term_project a
+		<where>
+			a.del_flag = '0'
+			and a.state = #{state}
+			and a.online_date &lt;= now()
+		</where>
+	</select>
+
+	<insert id="insert">
+		INSERT INTO wloan_term_project(
+		id,
+		sn,
+		name,
+		subject_id,
+		guarantee_id,
+		doc_id,
+		locus,
+		amount,
+		annual_rate,
+		publish_date,
+		online_date,
+		full_date,
+		loan_date,
+		real_loan_date,
+		end_date,
+		span,
+		repay_type,
+		min_amount,
+		max_amount,
+		step_amount,
+		fee_rate,
+		current_amount,
+		current_real_amount,
+		purpose,
+		project_case,
+		state,
+		img_url,
+		detail_img_url,
+		guarantee_sn,
+		margin_percentage,
+		guarantee_scheme,
+		create_date,
+		create_by,
+		update_date,
+		update_by,
+		remark,
+		contract_url,
+		project_type,
+		label,
+		iscanuse_coupon,
+		iscanuse_pluscoupon,
+		is_entrusted_pay,
+		is_entrusted_withdraw,
+		project_repay_plan_type,
+		project_data_id,
+		is_replace_repay,
+		replace_repay_id,
+		project_product_type,
+		borrower_residence,
+		borrower_electronic_sign_url,
+		replace_repay_residence,
+		replace_repay_electronic_sign_url,
+		source_of_repayment,
+		credit_user_apply_id,
+		business_financial_situation,
+		ability_to_repay_situation,
+		platform_overdue_situation,
+		litigation_situation,
+		administrative_punishment_situation,
+		interest_rate_increase,
+		repayment_guarantee_measures,
+		del_flag
+		) VALUES (
+		#{id},
+		#{sn},
+		#{name},
+		#{subjectId},
+		#{guaranteeId},
+		#{docId},
+		#{area.id},
+		#{amount},
+		#{annualRate},
+		#{publishDate},
+		#{onlineDate},
+		#{fullDate},
+		#{loanDate},
+		#{realLoanDate},
+		#{endDate},
+		#{span},
+		#{repayType},
+		#{minAmount},
+		#{maxAmount},
+		#{stepAmount},
+		#{feeRate},
+		#{currentAmount},
+		#{currentRealAmount},
+		#{purpose},
+		#{projectCase},
+		#{state},
+		#{imgUrl},
+		#{detailImgUrl},
+		#{guaranteeSn},
+		#{marginPercentage},
+		#{guaranteeScheme},
+		#{createDate},
+		#{createById},
+		#{updateDate},
+		#{updateById},
+		#{remark},
+		#{contractUrl},
+		#{projectType},
+		#{label},
+		#{isCanUseCoupon},
+		#{isCanUsePlusCoupon},
+		#{isEntrustedPay},
+		#{isEntrustedWithdraw},
+		#{projectRepayPlanType},
+		#{projectDataId},
+		#{isReplaceRepay},
+		#{replaceRepayId},
+		#{projectProductType},
+		#{borrowerResidence},
+		#{borrowerElectronicSignUrl},
+		#{replaceRepayResidence},
+		#{replaceRepayElectronicSignUrl},
+		#{sourceOfRepayment},
+		#{creditUserApplyId},
+		#{businessFinancialSituation},
+		#{abilityToRepaySituation},
+		#{platformOverdueSituation},
+		#{litigationSituation},
+		#{administrativePunishmentSituation},
+		#{interestRateIncrease},
+		#{repaymentGuaranteeMeasures},
+		#{delFlag}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE wloan_term_project SET
+		sn = #{sn},
+		name = #{name},
+		subject_id = #{subjectId},
+		guarantee_id = #{guaranteeId},
+		doc_id = #{docId},
+		locus = #{area.id},
+		amount = #{amount},
+		annual_rate = #{annualRate},
+		publish_date = #{publishDate},
+		online_date = #{onlineDate},
+		full_date = #{fullDate},
+		loan_date = #{loanDate},
+		real_loan_date = #{realLoanDate},
+		end_date = #{endDate},
+		span = #{span},
+		repay_type = #{repayType},
+		min_amount = #{minAmount},
+		max_amount = #{maxAmount},
+		step_amount = #{stepAmount},
+		fee_rate = #{feeRate},
+		current_amount = #{currentAmount},
+		current_real_amount = #{currentRealAmount},
+		purpose = #{purpose},
+		project_case = #{projectCase},
+		state = #{state},
+		img_url = #{imgUrl},
+		detail_img_url = #{detailImgUrl},
+		guarantee_sn = #{guaranteeSn},
+		margin_percentage = #{marginPercentage},
+		guarantee_scheme = #{guaranteeScheme},
+		update_date = #{updateDate},
+		update_by = #{updateById},
+		contract_url = #{contractUrl},
+		project_type = #{projectType},
+		label = #{label},
+		remark = #{remark},
+		iscanuse_coupon = #{isCanUseCoupon},
+		iscanuse_pluscoupon = #{isCanUsePlusCoupon},
+		is_entrusted_pay = #{isEntrustedPay},
+		is_entrusted_withdraw = #{isEntrustedWithdraw},
+		project_repay_plan_type = #{projectRepayPlanType},
+		project_data_id = #{projectDataId},
+		is_replace_repay = #{isReplaceRepay},
+		replace_repay_id = #{replaceRepayId},
+		project_product_type = #{projectProductType},
+		borrower_residence = #{borrowerResidence},
+		borrower_electronic_sign_url =
+		#{borrowerElectronicSignUrl},
+		replace_repay_residence = #{replaceRepayResidence},
+		replace_repay_electronic_sign_url = #{replaceRepayElectronicSignUrl},
+		source_of_repayment = #{sourceOfRepayment},
+		credit_user_apply_id = #{creditUserApplyId},
+		business_financial_situation = #{businessFinancialSituation},
+		ability_to_repay_situation = #{abilityToRepaySituation},
+		platform_overdue_situation = #{platformOverdueSituation},
+		litigation_situation = #{litigationSituation},
+		administrative_punishment_situation = #{administrativePunishmentSituation},
+		interest_rate_increase = #{interestRateIncrease},
+		repayment_guarantee_measures = #{repaymentGuaranteeMeasures}
+		WHERE id = #{id}
+	</update>
+
+	<!-- 标的融资进度更新 -->
+	<update id="updateCurrentAmountAndCurrentRealAmountById">
+		UPDATE
+		wloan_term_project
+		SET current_amount = (current_amount + #{investAmount}),
+		current_real_amount = (current_real_amount + #{investAmount})
+		WHERE id = #{id}
+	</update>
+
+	<!-- 更新标的状态 -->
+	<update id="updateStateById">
+		UPDATE
+		wloan_term_project
+		SET
+		state = #{state},
+		update_date = #{updateDate},
+		update_by = #{updateById},
+		publish_date = #{publishDate},
+		online_date = #{onlineDate},
+		full_date = #{fullDate},
+		loan_date = #{loanDate},
+		end_date = #{endDate},
+		real_loan_date = #{realLoanDate}
+		WHERE id = #{id}
+	</update>
+
+	<!-- 更改项目状态方法 -->
+	<update id="updateProState">
+		UPDATE wloan_term_project SET
+		state = #{state},
+		update_date = #{updateDate},
+		update_by = #{updateById},
+		amount = #{amount},
+		publish_date = #{publishDate},
+		online_date = #{onlineDate},
+		full_date = #{fullDate},
+		end_date = #{endDate},
+		real_loan_date = #{realLoanDate},
+		is_entrusted_withdraw = #{isEntrustedWithdraw},
+		contract_url = #{contractUrl}
+		WHERE id = #{id}
+	</update>
+
+	<update id="delete">
+		UPDATE wloan_term_project SET
+		del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+
+	<update id="updateWloanTermProjectState">
+		UPDATE wloan_term_project SET
+		state = #{state}
+		WHERE id = #{id}
+	</update>
+
+	<!-- 【增量】 -->
+	<!-- 国家应急数据中心，围绕散标-散标信息，第二阶段-增量. -->
+	<select id="findScatterInvestListZ" resultType="java.lang.String">
+		SELECT
+		a.id
+		FROM
+		wloan_term_project a
+		WHERE
+		1 = 1
+		AND a.del_flag = '0'
+		AND a.state IN (4, 5, 6, 7)
+		AND a.online_date &gt;= '2019-06-30 00:00:00'
+		ORDER BY
+		a.online_date ASC
+	</select>
+
+	<!-- 国家应急数据中心，围绕散标-借款户creId列表，第二阶段-增量. -->
+	<select id="findCreUserListZ" resultType="java.lang.String">
+		SELECT
+		b.loan_apply_id
+		FROM
+		wloan_term_project a
+		LEFT JOIN wloan_subject b ON b.id = a.subject_id
+		WHERE
+		1 = 1
+		AND a.del_flag = '0'
+		AND a.state IN (4, 5, 6, 7)
+		AND a.online_date &gt;= '2019-03-01 00:00:00'
+		GROUP BY
+		b.loan_apply_id
+	</select>
+	
+	<!-- 推送散标信息.(根据时间区间，获取需要推送标的的散标信息) -->
+	<select id="findScatterInvest" resultType="java.lang.String">
+		SELECT
+		a.id
+		FROM
+		wloan_term_project a
+		WHERE
+		1 = 1
+		AND a.del_flag = '0'
+		AND a.state IN (4, 5, 6, 7)
+		<if test="startTime != null and startTime != '' and endTime != null and endTime != ''">
+			AND a.online_date &gt;= #{startTime}
+			AND a.online_date &lt; #{endTime}
+		</if>
+		ORDER BY
+		a.online_date ASC
+	</select>
+
+	<!-- 国家应急数据中心，围绕散标-融资主体subId列表，第二阶段-增量. -->
+	<select id="findSubjectListZ" resultType="java.lang.String">
+		SELECT
+		b.id
+		FROM
+		wloan_term_project a
+		LEFT JOIN wloan_subject b ON b.id = a.subject_id
+		WHERE
+		1 = 1
+		AND a.del_flag = '0'
+		AND a.state IN (4, 5, 6, 7)
+		AND a.online_date &gt;= '2019-06-30 00:00:00'
+		GROUP BY
+		b.id
+	</select>
+
+	<!-- 【存量】 -->
+	<!-- 围绕散标，国家应急数据中心，存量（2019-03-01 00:00:00）before散标proId列表. -->
+	<select id="findScatterInvestList" resultType="java.lang.String">
+		SELECT
+		a.id
+		FROM
+		wloan_term_project a
+		WHERE
+		1 = 1
+		AND a.del_flag = '0'
+		AND a.state IN (6)
+		AND a.online_date &lt; '2019-03-01 00:00:00'
+		ORDER BY
+		a.online_date ASC
+	</select>
+
+	<!-- 围绕散标，国家应急数据中心，存量（2019-03-01 00:00:00）before借款户creId列表. -->
+	<select id="findCreUserListC" resultType="java.lang.String">
+		SELECT
+		b.loan_apply_id
+		FROM
+		wloan_term_project a
+		LEFT JOIN wloan_subject b ON b.id = a.subject_id
+		WHERE
+		1 = 1
+		AND a.del_flag = '0'
+		AND a.state IN (6)
+		AND a.online_date &lt; '2019-03-01 00:00:00'
+		GROUP BY
+		b.loan_apply_id
+	</select>
+
+	<!-- 围绕散标，国家应急数据中心，存量（2019-03-01 00:00:00）before融资主体subId列表. -->
+	<select id="findSubjectListC" resultType="java.lang.String">
+		SELECT
+		b.id
+		FROM
+		wloan_term_project a
+		LEFT JOIN wloan_subject b ON b.id = a.subject_id
+		WHERE
+		1 = 1
+		AND a.del_flag = '0'
+		AND a.state IN (6)
+		AND a.online_date &lt; '2019-03-01 00:00:00'
+		GROUP BY
+		b.id
+	</select>
+	
+	<select id="findProjectDtoList" resultType="WloanTermProjectDto">
+		SELECT
+		a.id AS "id",
+		a.sn AS "sn",
+		a.name AS "name",
+		a.subject_id AS "subjectId",
+		a.doc_id AS "docId",
+		a.amount AS "amount",
+		a.annual_rate AS "annualRate",
+		a.publish_date AS "publishDate",
+		a.online_date AS "onlineDate",
+		a.full_date AS "fullDate",
+		a.loan_date AS "loanDate",
+		a.real_loan_date AS "realLoanDate",
+		a.span AS "span",
+		a.state AS "state",
+		a.del_flag AS "delFlag",
+		a.project_product_type AS "projectProductType",
+		a.interest_rate_increase AS "interestRateIncrease",
+		a.credit_user_apply_id AS "creditUserApplyId",
+		b.company_name As "companyName"
+		from wloan_term_project a left join wloan_subject b on a.subject_id = b.id
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="projectProductType != null and projectProductType != ''">
+				AND a.project_product_type = #{projectProductType}
+			</if>
+		</where>
+		ORDER BY a.publish_date asc
+	</select>
+	
+	<select id="searchData" resultType="WloanTermProject">
+		SELECT
+			(SELECT count(DISTINCT a.subject_id) FROM wloan_term_project a WHERE 1 = 1 AND a.state in(4,5,6,7)
+				<if test="entTimeStr != null and entTimeStr != ''">
+					AND a.end_date &gt;= #{entTimeStr}
+					AND a.full_date &lt;= #{entTimeStr}
+				</if>
+				AND a.replace_repay_id = #{creditUserId}
+				AND a.del_flag = '0') as "dataStatistics.loanSupplierCount",
+			(SELECT count(DISTINCT a.subject_id) FROM wloan_term_project a WHERE 1 = 1 AND a.state in(4,5,6,7)
+				<if test="entTimeStr != null and entTimeStr != ''">
+					AND a.full_date &lt;= #{entTimeStr}
+				</if>
+				AND a.del_flag = '0'
+				AND a.replace_repay_id = #{creditUserId}) as "dataStatistics.totalSupplierCount",
+			(SELECT COUNT(1) FROM wloan_term_project a WHERE 1 = 1 AND a.state in(4,5,6,7)
+				<if test="entTimeStr != null and entTimeStr != ''">
+					AND a.end_date &gt;= #{entTimeStr}
+					AND a.full_date &lt;= #{entTimeStr}
+				</if>
+				AND a.del_flag = '0'
+				AND a.replace_repay_id = #{creditUserId}) as "dataStatistics.loanProjectCount",
+			(SELECT COUNT(1) FROM wloan_term_project a WHERE 1 = 1 AND a.state in(4,5,6,7)
+				<if test="entTimeStr != null and entTimeStr != ''">
+					AND a.full_date &lt;= #{entTimeStr}
+				</if>
+				AND a.del_flag = '0'
+			 	AND a.replace_repay_id = #{creditUserId}) as "dataStatistics.totalProjectCount",
+			(SELECT ROUND(SUM(a.current_amount),2) FROM wloan_term_project a WHERE 1 = 1 AND a.state in(4,5,6,7)
+				<if test="entTimeStr != null and entTimeStr != ''">
+					AND a.end_date &gt;= #{entTimeStr}
+					AND a.full_date &lt;= #{entTimeStr}
+				</if>
+				AND a.del_flag = '0'
+				AND a.replace_repay_id = #{creditUserId}) as "dataStatistics.loanPrincipal",
+			(SELECT ROUND(SUM(a.interest),2) FROM wloan_term_user_plan a LEFT JOIN wloan_term_project b ON b.id = a.project_id
+				WHERE 1 = 1 AND b.state in(4,5,6,7)
+				<if test="entTimeStr != null and entTimeStr != ''">
+					AND b.end_date &gt;= #{entTimeStr}
+					AND b.full_date &lt;= #{entTimeStr}
+					AND a.repayment_date &gt;= #{entTimeStr}
+				</if>
+				AND b.del_flag = '0'
+				AND b.replace_repay_id = #{creditUserId} AND a.state in(2,3)) as "dataStatistics.amountToPaid"
+			
+		FROM wloan_term_project 
+		WHERE del_flag = '0' limit 1
+	</select>
+	
+	<select id="searchAxtData" resultType="WloanTermProject">
+		SELECT
+			(SELECT count(DISTINCT a.subject_id) FROM wloan_term_project a WHERE 1 = 1 AND a.state in(4,5,6,7)
+				<if test="entTimeStr != null and entTimeStr != ''">
+					AND a.end_date &gt;= #{entTimeStr}
+					AND a.full_date &lt;= #{entTimeStr}
+				</if>
+				AND a.del_flag = '0'
+				AND a.project_product_type = '1') as "dataStatistics.loanSupplierCount",
+			(SELECT count(DISTINCT a.subject_id) FROM wloan_term_project a WHERE 1 = 1 AND a.state in(4,5,6,7)
+				<if test="entTimeStr != null and entTimeStr != ''">
+					AND a.full_date &lt;= #{entTimeStr}
+				</if>
+				AND a.del_flag = '0'
+				AND a.project_product_type = '1') as "dataStatistics.totalSupplierCount",
+			(SELECT COUNT(1) FROM wloan_term_project a WHERE 1 = 1 AND a.state in(4,5,6,7)
+				<if test="entTimeStr != null and entTimeStr != ''">
+					AND a.end_date &gt;= #{entTimeStr}
+					AND a.full_date &lt;= #{entTimeStr}
+				</if>
+				AND a.del_flag = '0'
+				AND a.project_product_type = '1') as "dataStatistics.loanProjectCount",
+			(SELECT COUNT(1) FROM wloan_term_project a WHERE 1 = 1 AND a.state in(4,5,6,7)
+				<if test="entTimeStr != null and entTimeStr != ''">
+					AND a.full_date &lt;= #{entTimeStr}
+				</if>
+				AND a.del_flag = '0'
+			 	AND a.project_product_type = '1') as "dataStatistics.totalProjectCount",
+			(SELECT ROUND(SUM(a.current_amount),2) FROM wloan_term_project a WHERE 1 = 1 AND a.state in(4,5,6,7)
+				<if test="entTimeStr != null and entTimeStr != ''">
+					AND a.end_date &gt;= #{entTimeStr}
+					AND a.full_date &lt;= #{entTimeStr}
+				</if>
+				AND a.del_flag = '0'
+				AND a.project_product_type = '1') as "dataStatistics.loanPrincipal",
+			(SELECT ROUND(SUM(a.interest),2) FROM wloan_term_user_plan a LEFT JOIN wloan_term_project b ON b.id = a.project_id
+				WHERE 1 = 1 AND b.state in(4,5,6,7)
+				<if test="entTimeStr != null and entTimeStr != ''">
+					AND b.end_date &gt;= #{entTimeStr}
+					AND b.full_date &lt;= #{entTimeStr}
+					AND a.repayment_date &gt;= #{entTimeStr}
+				</if>
+				AND b.del_flag = '0'
+				AND b.project_product_type = '1' AND a.state in(2,3)) as "dataStatistics.amountToPaid"
+			
+		FROM wloan_term_project 
+		WHERE del_flag = '0' limit 1
+	</select>
+	
+	<select id="searchIntervalData" resultType="WloanTermProject">
+		SELECT
+			(SELECT COUNT(1) FROM wloan_term_project a WHERE 1 = 1 AND a.state in(4,5,6,7)
+				<if test="startTimeStr != null and startTimeStr != ''">	
+					AND a.real_loan_date &gt;= #{startTimeStr} 
+				</if>
+				<if test="entTimeStr != null and entTimeStr != ''">		
+					AND a.real_loan_date &lt;= #{entTimeStr}
+				</if>
+				AND a.del_flag = '0'
+				AND a.replace_repay_id = #{creditUserId}) as "dataStatistics.loanAmountCount",
+			(SELECT COUNT(1) FROM wloan_term_project_plan a LEFT JOIN wloan_term_project b ON b.id = a.project_id
+				WHERE 1 = 1 AND b.state in(4,5,6,7)	AND b.replace_repay_id = #{creditUserId}
+				<if test="startTimeStr != null and startTimeStr != ''">	
+					AND a.repayment_date &gt;= #{startTimeStr} 
+				</if>
+				<if test="entTimeStr != null and entTimeStr != ''">
+					AND a.repayment_date &lt;= #{entTimeStr}
+				</if>
+				AND b.del_flag = '0'
+				AND a.state = '2') as "dataStatistics.repaymentAmountCount",
+			(SELECT SUM(a.current_amount) FROM wloan_term_project a WHERE 1 = 1 AND a.state in(4,5,6,7)
+				<if test="startTimeStr != null and startTimeStr != ''">	
+					AND a.real_loan_date &gt;= #{startTimeStr} 
+				</if>
+				<if test="entTimeStr != null and entTimeStr != ''">
+					AND a.real_loan_date &lt;= #{entTimeStr}
+				</if>
+				AND a.del_flag = '0'
+				AND a.replace_repay_id = #{creditUserId}) as "dataStatistics.loanAmount",
+			(SELECT SUM(a.interest) FROM wloan_term_user_plan a LEFT JOIN wloan_term_project b ON b.id = a.project_id
+				WHERE 1 = 1 AND b.state in(4,5,6,7) AND b.replace_repay_id = #{creditUserId}
+				<if test="startTimeStr != null and startTimeStr != ''">	
+					AND a.repayment_date &gt;= #{startTimeStr}
+				</if>
+				<if test="entTimeStr != null and entTimeStr != ''"> 
+					AND a.repayment_date &lt;= #{entTimeStr}
+				</if>
+				AND b.del_flag = '0'
+				AND a.state in(2,3)) as "dataStatistics.repaymentAmount"
+		FROM wloan_term_project 
+		WHERE del_flag = '0' limit 1
+	</select>
+	
+	
+	<select id="searchIntervalAxtData" resultType="WloanTermProject">
+		SELECT
+			(SELECT COUNT(1) FROM wloan_term_project a WHERE 1 = 1 AND a.state in(4,5,6,7)
+				<if test="startTimeStr != null and startTimeStr != ''">	
+					AND a.real_loan_date &gt;= #{startTimeStr} 
+				</if>
+				<if test="entTimeStr != null and entTimeStr != ''">
+					AND a.real_loan_date &lt;= #{entTimeStr}
+				</if>
+				AND a.del_flag = '0'
+				AND a.project_product_type = '1') as "dataStatistics.loanAmountCount",
+			(SELECT COUNT(1) FROM wloan_term_project_plan a LEFT JOIN wloan_term_project b ON b.id = a.project_id
+				WHERE 1 = 1 AND b.state in(4,5,6,7)	AND b.project_product_type = '1'
+				<if test="startTimeStr != null and startTimeStr != ''">	
+					AND a.repayment_date &gt;= #{startTimeStr} 
+				</if>
+				<if test="entTimeStr != null and entTimeStr != ''">
+					AND a.repayment_date &lt;= #{entTimeStr}
+				</if>
+				AND b.del_flag = '0'
+				AND a.state = '2') as "dataStatistics.repaymentAmountCount",
+			(SELECT SUM(a.current_amount) FROM wloan_term_project a WHERE 1 = 1 AND a.state in(4,5,6,7)
+				<if test="startTimeStr != null and startTimeStr != ''">	
+					AND a.real_loan_date &gt;= #{startTimeStr} 
+				</if>
+				<if test="entTimeStr != null and entTimeStr != ''">
+					AND a.real_loan_date &lt;= #{entTimeStr}
+				</if>
+				AND a.del_flag = '0'
+				AND a.project_product_type = '1') as "dataStatistics.loanAmount",
+			(SELECT SUM(a.interest) FROM wloan_term_user_plan a LEFT JOIN wloan_term_project b ON b.id = a.project_id
+				WHERE 1 = 1 AND b.state in(4,5,6,7) AND b.project_product_type = '1'
+				<if test="startTimeStr != null and startTimeStr != ''">	
+					AND a.repayment_date &gt;= #{startTimeStr} 
+				</if>
+				<if test="entTimeStr != null and entTimeStr != ''">
+					AND a.repayment_date &lt;= #{entTimeStr}
+				</if>
+				AND b.del_flag = '0'
+				AND a.state in(2,3)) as "dataStatistics.repaymentAmount"
+		FROM wloan_term_project 
+		WHERE del_flag = '0' limit 1
+	</select>
+	
+	<select id="searchAverageData" resultType="WloanTermProject">
+		SELECT
+			(SELECT COUNT(DISTINCT a.subject_id) FROM wloan_term_project a WHERE 1 = 1 AND a.state in(4,5,6,7)
+				<if test="entTimeStr != null and entTimeStr != ''">
+					AND a.end_date &gt;= #{entTimeStr}
+					AND a.full_date &lt;= #{entTimeStr}
+				</if>
+				AND a.del_flag = '0'
+				) as "dataStatistics.loanSupplierCount",
+			(SELECT COUNT(1) FROM wloan_term_project a WHERE 1 = 1 AND a.state in(4,5,6,7)
+				<if test="entTimeStr != null and entTimeStr != ''">
+					AND a.end_date &gt;= #{entTimeStr}
+					AND a.full_date &lt;= #{entTimeStr}
+				</if>
+				AND a.del_flag = '0'
+				) as "dataStatistics.loanProjectCount",
+			(SELECT SUM(a.span) FROM wloan_term_project a WHERE 1 = 1 AND a.state in(4,5,6,7)
+				<if test="entTimeStr != null and entTimeStr != ''">
+					AND a.end_date &gt;= #{entTimeStr}
+					AND a.full_date &lt;= #{entTimeStr}
+				</if>
+				AND a.del_flag = '0'
+				) as "dataStatistics.averageLoanPeriod",
+			(SELECT CONCAT(ROUND(SUM(a.current_amount*a.annual_rate)/SUM(a.current_amount),2),'%') FROM wloan_term_project a WHERE 1 = 1 AND a.state in(4,5,6,7)
+				<if test="entTimeStr != null and entTimeStr != ''">
+					AND a.end_date &gt;= #{entTimeStr}
+					AND a.full_date &lt;= #{entTimeStr}
+				</if>
+				AND a.del_flag = '0'
+				) as "dataStatistics.averageLoanInterestRate"
+		FROM wloan_term_project 
+		WHERE del_flag = '0' limit 1
+	</select>
+	
+	<select id="searchDistinct" resultType="WloanTermProject">
+		SELECT DISTINCT a.subject_id FROM wloan_term_project a WHERE 1 = 1 AND a.state in(4,5,6,7)
+			<if test="entTimeStr != null and entTimeStr != ''">
+				AND a.end_date &gt;= #{entTimeStr}
+				AND a.full_date &lt;= #{entTimeStr}
+			</if>
+			AND a.del_flag = '0'
+	</select>
+	
+	<select id="searchBySubjectId" resultType="WloanTermProject">
+		SELECT 
+			<include refid="wloanTermProjectOriginalColumns" />
+		FROM wloan_term_project a
+		 WHERE 1 = 1 
+			<if test="entTimeStr != null and entTimeStr != ''">
+				AND a.end_date &gt;= #{entTimeStr}
+				AND a.full_date &lt;= #{entTimeStr}
+			</if>
+			AND a.subject_id = #{subjectId}
+			AND a.del_flag = '0'
+	</select>
+
+</mapper>

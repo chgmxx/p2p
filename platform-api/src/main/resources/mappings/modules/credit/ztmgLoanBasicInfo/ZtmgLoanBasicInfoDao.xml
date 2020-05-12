@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper
+	namespace="com.power.platform.credit.dao.ztmgLoanBasicInfo.ZtmgLoanBasicInfoDao">
+
+	<sql id="ztmgLoanBasicInfoColumns">
+		a.id AS "id",
+		a.credit_user_id AS "creditUserId",
+		a.province AS "province",
+		a.city AS "city",
+		a.county AS "county",
+		a.street AS "street",
+		a.contributed_capital AS "contributedCapital",
+		a.industry AS "industry",
+		a.annual_revenue AS "annualRevenue",
+		a.liabilities AS "liabilities",
+		a.credit_information AS "creditInformation",
+		a.other_credit_information AS "otherCreditInformation",
+		a.create_date AS "createDate",
+		a.update_date AS "updateDate",
+		a.remark AS "remark",
+		a.company_name AS "companyName",
+		a.oper_name AS "operName",
+		a.registered_address AS "registeredAddress",
+		a.set_up_Time AS "setUpTime",
+		a.registered_capital AS "registeredCapital",
+		a.scope AS "scope",
+		a.declaration_file_path AS "declarationFilePath",
+		a.del_flag AS "delFlag"
+	</sql>
+
+	<sql id="ztmgLoanBasicInfoJoins">
+	</sql>
+
+	<select id="findByCreditUserId" resultType="ZtmgLoanBasicInfo">
+		SELECT
+		<include refid="ztmgLoanBasicInfoColumns" />
+		FROM ztmg_loan_basic_info a
+		<include refid="ztmgLoanBasicInfoJoins" />
+		WHERE a.credit_user_id = #{creditUserId}
+	</select>
+
+	<select id="get" resultType="ZtmgLoanBasicInfo">
+		SELECT
+		<include refid="ztmgLoanBasicInfoColumns" />
+		FROM ztmg_loan_basic_info a
+		<include refid="ztmgLoanBasicInfoJoins" />
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findList" resultType="ZtmgLoanBasicInfo">
+		SELECT
+		<include refid="ztmgLoanBasicInfoColumns" />
+		FROM ztmg_loan_basic_info a
+		<include refid="ztmgLoanBasicInfoJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="creditUserId != null and creditUserId != ''">
+				AND a.credit_user_id = #{creditUserId}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="ZtmgLoanBasicInfo">
+		SELECT
+		<include refid="ztmgLoanBasicInfoColumns" />
+		FROM ztmg_loan_basic_info a
+		<include refid="ztmgLoanBasicInfoJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<insert id="insert">
+		INSERT INTO ztmg_loan_basic_info(
+		id,
+		credit_user_id,
+		province,
+		city,
+		county,
+		street,
+		contributed_capital,
+		industry,
+		annual_revenue,
+		liabilities,
+		credit_information,
+		other_credit_information,
+		create_date,
+		update_date,
+		remark,
+		company_name,
+		oper_name,
+		registered_address,
+		set_up_Time,
+		registered_capital,
+		scope,
+		declaration_file_path,
+		del_flag
+		) VALUES (
+		#{id},
+		#{creditUserId},
+		#{province},
+		#{city},
+		#{county},
+		#{street},
+		#{contributedCapital},
+		#{industry},
+		#{annualRevenue},
+		#{liabilities},
+		#{creditInformation},
+		#{otherCreditInformation},
+		#{createDate},
+		#{updateDate},
+		#{remark},
+		#{companyName},
+		#{operName},
+		#{registeredAddress},
+		#{setUpTime},
+		#{registeredCapital},
+		#{scope},
+		#{declarationFilePath},
+		#{delFlag}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE ztmg_loan_basic_info SET
+		credit_user_id = #{creditUserId},
+		province = #{province},
+		city = #{city},
+		county = #{county},
+		street = #{street},
+		contributed_capital = #{contributedCapital},
+		industry = #{industry},
+		annual_revenue = #{annualRevenue},
+		liabilities = #{liabilities},
+		credit_information = #{creditInformation},
+		other_credit_information = #{otherCreditInformation},
+		update_date = #{updateDate},
+		remark = #{remark},
+		company_name = #{companyName},
+		oper_name = #{operName},
+		registered_address = #{registeredAddress},
+		set_up_Time = #{setUpTime},
+		registered_capital = #{registeredCapital},
+		scope = #{scope},
+		declaration_file_path = #{declarationFilePath}
+		WHERE id = #{id}
+	</update>
+
+	<!-- 重写更新方法，持久化数据库. -->
+	<update id="ztmgLoanBasicInfoUpdate">
+		UPDATE ztmg_loan_basic_info SET
+		credit_user_id = #{creditUserId},
+		province = #{province},
+		city = #{city},
+		county = #{county},
+		street = #{street},
+		contributed_capital = #{contributedCapital},
+		industry = #{industry},
+		annual_revenue = #{annualRevenue},
+		liabilities = #{liabilities},
+		credit_information = #{creditInformation},
+		other_credit_information = #{otherCreditInformation},
+		update_date = #{updateDate},
+		remark = #{remark},
+		company_name = #{companyName},
+		oper_name = #{operName},
+		registered_address = #{registeredAddress},
+		set_up_Time = #{setUpTime},
+		registered_capital = #{registeredCapital},
+		scope = #{scope},
+		declaration_file_path = #{declarationFilePath}
+		WHERE id = #{id}
+	</update>
+
+	<update id="delete">
+		UPDATE ztmg_loan_basic_info SET
+		del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+
+</mapper>

@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.power.platform.credit.dao.voucher.CreditVoucherInfoDao">
+    
+	<sql id="creditVoucherInfoColumns">
+		a.id AS "id",
+		a.user_id AS "userId",
+		a.phone AS "phone",
+		a.bank_name AS "bankName",
+		a.bank_no AS "bankNo",
+		a.to_name AS "toName",
+		a.to_phone AS "toPhone",
+		a.to_addr AS "toAddr",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		u2.name AS "user.name"
+	</sql>
+	
+	<sql id="creditVoucherInfoJoins">
+		LEFT JOIN sys_user u2 ON u2.id = a.user_id
+	</sql>
+    
+	<select id="get" resultType="CreditVoucherInfo">
+		SELECT 
+			<include refid="creditVoucherInfoColumns"/>
+		FROM credit_voucher_info a
+		<include refid="creditVoucherInfoJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="CreditVoucherInfo">
+		SELECT 
+			<include refid="creditVoucherInfoColumns"/>
+		FROM credit_voucher_info a
+		<include refid="creditVoucherInfoJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="CreditVoucherInfo">
+		SELECT 
+			<include refid="creditVoucherInfoColumns"/>
+		FROM credit_voucher_info a
+		<include refid="creditVoucherInfoJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO credit_voucher_info(
+			id,
+			user_id,
+			phone,
+			bank_name,
+			bank_no,
+			to_name,
+			to_phone,
+			to_addr,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			#{id},
+			#{userId},
+			#{phone},
+			#{bankName},
+			#{bankNo},
+			#{toName},
+			#{toPhone},
+			#{toAddr},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE credit_voucher_info SET 	
+			user_id = #{userId},
+			phone = #{phone},
+			bank_name = #{bankName},
+			bank_no = #{bankNo},
+			to_name = #{toName},
+			to_phone = #{toPhone},
+			to_addr = #{toAddr},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE credit_voucher_info SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

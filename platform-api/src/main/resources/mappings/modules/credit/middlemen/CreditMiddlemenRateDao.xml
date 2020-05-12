@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.power.platform.credit.dao.middlemen.CreditMiddlemenRateDao">
+    
+	<sql id="creditMiddlemenRateColumns">
+		a.id AS "id",
+		a.credit_user_id AS "creditUserId",
+		a.span AS "span",
+		a.rate AS "rate",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.service_rate AS "serviceRate",
+		b.enterpriseFullName AS "userInfo.enterpriseFullName"
+	</sql>
+	
+	<sql id="creditMiddlemenRateJoins">
+	  JOIN credit_user_info b ON a.credit_user_id = b.id
+	</sql>
+    
+	<select id="get" resultType="CreditMiddlemenRate">
+		SELECT 
+			<include refid="creditMiddlemenRateColumns"/>
+		FROM credit_middlemen_rate a
+		<include refid="creditMiddlemenRateJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="CreditMiddlemenRate">
+		SELECT 
+			<include refid="creditMiddlemenRateColumns"/>
+		FROM credit_middlemen_rate a
+		<include refid="creditMiddlemenRateJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="span != null and span != ''">
+				AND a.span = #{span}
+			</if>
+			<if test="rate != null and rate != ''">
+				AND a.rate = #{rate}
+			</if>
+			<if test="creditUserId != null and creditUserId != ''">
+				AND a.credit_user_id = #{creditUserId}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="CreditMiddlemenRate">
+		SELECT 
+			<include refid="creditMiddlemenRateColumns"/>
+		FROM credit_middlemen_rate a
+		<include refid="creditMiddlemenRateJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO credit_middlemen_rate(
+			id,
+			credit_user_id,
+			span,
+			rate,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			service_rate
+		) VALUES (
+			#{id},
+			#{creditUserId},
+			#{span},
+			#{rate},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{serviceRate}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE credit_middlemen_rate SET 	
+			credit_user_id = #{creditUserId},
+			span = #{span},
+			rate = #{rate},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			service_rate = #{serviceRate}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE credit_middlemen_rate SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

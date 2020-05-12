@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.power.platform.cgb.dao.ZtmgReplaceRepayOrderHistoryDao">
+
+	<sql id="ztmgReplaceRepayOrderHistoryColumns">
+		a.id AS "id",
+		a.pro_name AS "proName",
+		a.pro_sn AS "proSn",
+		a.sub_name AS "subName",
+		a.grant_amount AS "grantAmount",
+		a.repay_plan_id AS "repayPlanId",
+		a.repay_amount AS "repayAmount",
+		a.repay_type AS "repayType",
+		a.repay_date AS "repayDate",
+		a.cancel_date AS "cancelDate",
+		a.grant_date AS "grantDate",
+		a.status AS "status",
+		a.create_date AS "createDate",
+		a.update_date AS "updateDate",
+		a.remark AS "remark",
+		a.del_flag AS "delFlag"
+	</sql>
+
+	<sql id="ztmgReplaceRepayOrderHistoryJoins">
+	</sql>
+
+	<select id="get" resultType="ZtmgReplaceRepayOrderHistory">
+		SELECT
+		<include refid="ztmgReplaceRepayOrderHistoryColumns" />
+		FROM ztmg_replace_repay_order_history a
+		<include refid="ztmgReplaceRepayOrderHistoryJoins" />
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findReplaceRepayOrderListByProSnAndRepayDate" resultType="ZtmgReplaceRepayOrderHistory">
+		SELECT
+		<include refid="ztmgReplaceRepayOrderHistoryColumns" />
+		FROM ztmg_replace_repay_order_history a
+		<include refid="ztmgReplaceRepayOrderHistoryJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="proSn != null and proSn != ''">
+				AND a.pro_sn = #{proSn}
+			</if>
+			<if test="repayDate != null">
+				AND a.repay_date = #{repayDate}
+			</if>
+		</where>
+	</select>
+
+	<select id="findList" resultType="ZtmgReplaceRepayOrderHistory">
+		SELECT
+		<include refid="ztmgReplaceRepayOrderHistoryColumns" />
+		FROM ztmg_replace_repay_order_history a
+		<include refid="ztmgReplaceRepayOrderHistoryJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="proSn != null and proSn != ''">
+				AND a.pro_sn LIKE
+				<if test="dbName == 'oracle'">'%'||#{proSn}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{proSn}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{proSn},'%')</if>
+			</if>
+			<!-- 还款状态，S：成功，AS：受理成功，F：失败 -->
+			<if test="status != null and status != ''">
+				AND a.status = #{status}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="ZtmgReplaceRepayOrderHistory">
+		SELECT
+		<include refid="ztmgReplaceRepayOrderHistoryColumns" />
+		FROM ztmg_replace_repay_order_history a
+		<include refid="ztmgReplaceRepayOrderHistoryJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<insert id="insert">
+		INSERT INTO ztmg_replace_repay_order_history(
+		id,
+		pro_name,
+		pro_sn,
+		sub_name,
+		grant_amount,
+		repay_plan_id,
+		repay_amount,
+		repay_type,
+		repay_date,
+		cancel_date,
+		grant_date,
+		status,
+		create_date,
+		update_date,
+		remark,
+		del_flag
+		) VALUES (
+		#{id},
+		#{proName},
+		#{proSn},
+		#{subName},
+		#{grantAmount},
+		#{repayPlanId},
+		#{repayAmount},
+		#{repayType},
+		#{repayDate},
+		#{cancelDate},
+		#{grantDate},
+		#{status},
+		#{createDate},
+		#{updateDate},
+		#{remark},
+		#{delFlag}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE ztmg_replace_repay_order_history SET
+		pro_name = #{proName},
+		pro_sn = #{proSn},
+		sub_name = #{subName},
+		grant_amount = #{grantAmount},
+		repay_plan_id = #{repayPlanId},
+		repay_amount = #{repayAmount},
+		repay_type = #{repayType},
+		repay_date = #{repayDate},
+		cancel_date = #{cancelDate},
+		grant_date = #{grantDate},
+		status = #{status},
+		update_date = #{updateDate},
+		remark = #{remark}
+		WHERE id = #{id}
+	</update>
+
+	<update id="delete">
+		UPDATE ztmg_replace_repay_order_history SET
+		del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+
+</mapper>

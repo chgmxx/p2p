@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.power.platform.ifcert.dao.LendProductDao">
+
+	<sql id="lendProductColumns">
+		a.version AS "version",
+		a.sourcecode AS "sourceCode",
+		a.sourcefinancingcode AS "sourceFinancingCode",
+		a.financingstarttime AS "financingStartTime",
+		a.productname AS "productName",
+		a.rate AS "rate",
+		a.minrate AS "minRate",
+		a.maxrate AS "maxRate",
+		a.term AS "term",
+		a.batchnum AS "batchNum",
+		a.sendtime AS "sendTime"
+	</sql>
+
+	<sql id="lendProductJoins">
+	</sql>
+
+	<select id="get" resultType="LendProduct">
+		SELECT
+		<include refid="lendProductColumns" />
+		FROM lendproduct a
+		<include refid="lendProductJoins" />
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findList" resultType="LendProduct">
+		SELECT
+		<include refid="lendProductColumns" />
+		FROM lendproduct a
+		<include refid="lendProductJoins" />
+		<where>
+			<!-- 批次号. -->
+			<if test="batchNum != null and batchNum != ''">
+				AND a.batchnum = #{batchNum}
+			</if>
+			<if test="sendTime != null and sendTime != ''">
+				AND a.sendTime = #{sendTime}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="LendProduct">
+		SELECT
+		<include refid="lendProductColumns" />
+		FROM lendproduct a
+		<include refid="lendProductJoins" />
+		<where>
+
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+
+	<insert id="insert">
+		INSERT INTO lendproduct(
+		version,
+		sourcecode,
+		sourcefinancingcode,
+		financingstarttime,
+		productname,
+		rate,
+		minrate,
+		maxrate,
+		term,
+		batchnum,
+		sendtime
+		) VALUES (
+		#{version},
+		#{sourceCode},
+		#{sourceFinancingCode},
+		#{financingStartTime},
+		#{productName},
+		#{rate},
+		#{minRate},
+		#{maxRate},
+		#{term},
+		#{batchNum},
+		#{sendTime}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE lendproduct SET
+		version = #{version},
+		sourcecode = #{sourceCode},
+		sourcefinancingcode = #{sourceFinancingCode},
+		financingstarttime = #{financingStartTime},
+		productname = #{productName},
+		rate = #{rate},
+		minrate = #{minRate},
+		maxrate = #{maxRate},
+		term = #{term},
+		batchnum = #{batchNum},
+		sendtime = #{sendTime}
+		WHERE id = #{id}
+	</update>
+
+	<update id="delete">
+		DELETE FROM lendproduct
+		WHERE id = #{id}
+	</update>
+
+</mapper>

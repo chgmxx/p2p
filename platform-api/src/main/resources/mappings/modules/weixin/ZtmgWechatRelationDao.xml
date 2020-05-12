@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.power.platform.weixin.dao.ZtmgWechatRelationDao">
+
+	<sql id="ztmgWechatRelationColumns">
+		a.id AS "id",
+		a.open_id AS "openId",
+		a.nickname AS "nickname",
+		a.head_portrait_url AS "headPortraitUrl",
+		a.user_id AS "userId",
+		a.account_id AS "accountId",
+		a.state AS "state",
+		a.bind_date AS "bindDate",
+		a.create_date AS "createDate",
+		a.create_by AS "createBy.id",
+		a.update_date AS "updateDate",
+		a.update_by AS "updateBy.id",
+		a.del_flag AS "delFlag"
+	</sql>
+
+	<sql id="ztmgWechatRelationJoins">
+	</sql>
+
+	<select id="get" resultType="ZtmgWechatRelation">
+		SELECT
+		<include refid="ztmgWechatRelationColumns" />
+		FROM ztmg_wechat_relation a
+		<include refid="ztmgWechatRelationJoins" />
+		WHERE a.id = #{id}
+	</select>
+
+	<!-- 根据openId查询微信关系是否建立. -->
+	<select id="findByOpenId" resultType="ZtmgWechatRelation">
+		SELECT
+		<include refid="ztmgWechatRelationColumns" />
+		FROM ztmg_wechat_relation a
+		<include refid="ztmgWechatRelationJoins" />
+		<where>
+			a.del_flag = 0
+			<if test="openId != null and openId != ''">
+				AND a.open_id = #{openId}
+			</if>
+		</where>
+	</select>
+
+	<select id="findList" resultType="ZtmgWechatRelation">
+		SELECT
+		<include refid="ztmgWechatRelationColumns" />
+		FROM ztmg_wechat_relation a
+		<include refid="ztmgWechatRelationJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="openId != null and openId != ''">
+				AND a.open_id = #{openId}
+			</if>
+			<if test="nickname != null and nickname != ''">
+				AND a.nickname = #{nickname}
+			</if>
+			<if test="userId != null and userId != ''">
+				AND a.user_id = #{userId}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="ZtmgWechatRelation">
+		SELECT
+		<include refid="ztmgWechatRelationColumns" />
+		FROM ztmg_wechat_relation a
+		<include refid="ztmgWechatRelationJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<insert id="insert">
+		INSERT INTO ztmg_wechat_relation(
+		id,
+		open_id,
+		nickname,
+		head_portrait_url,
+		user_id,
+		account_id,
+		state,
+		bind_date,
+		create_date,
+		create_by,
+		update_date,
+		update_by,
+		del_flag
+		) VALUES (
+		#{id},
+		#{openId},
+		#{nickname},
+		#{headPortraitUrl},
+		#{userId},
+		#{accountId},
+		#{state},
+		#{bindDate},
+		#{createDate},
+		#{createBy.id},
+		#{updateDate},
+		#{updateBy.id},
+		#{delFlag}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE ztmg_wechat_relation SET
+		open_id = #{openId},
+		nickname = #{nickname},
+		head_portrait_url = #{headPortraitUrl},
+		user_id = #{userId},
+		account_id = #{accountId},
+		state = #{state},
+		bind_date = #{bindDate},
+		update_date = #{updateDate},
+		update_by = #{updateBy.id}
+		WHERE id = #{id}
+	</update>
+
+	<update id="delete">
+		UPDATE ztmg_wechat_relation SET
+		del_flag = 1
+		WHERE id = #{id}
+	</update>
+
+</mapper>

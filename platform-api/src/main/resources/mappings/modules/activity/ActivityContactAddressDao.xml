@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.power.platform.activity.dao.ActivityContactAddressDao">
+
+	<sql id="activityContactAddressColumns">
+		a.id AS "id",
+		a.user_id AS "userId",
+		a.province AS "province",
+		a.city AS "city",
+		a.county AS "county",
+		a.street AS "street",
+		a.name AS "name",
+		a.mobile_phone AS "mobilePhone",
+		a.create_date AS "createDate",
+		a.update_date AS "updateDate"
+	</sql>
+
+	<sql id="activityContactAddressJoins">
+	</sql>
+
+	<select id="get" resultType="ActivityContactAddress">
+		SELECT
+		<include refid="activityContactAddressColumns" />
+		FROM activity_contact_address a
+		<include refid="activityContactAddressJoins" />
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findList" resultType="ActivityContactAddress">
+		SELECT
+		<include refid="activityContactAddressColumns" />
+		FROM activity_contact_address a
+		<include refid="activityContactAddressJoins" />
+		<where>
+
+			<if test="name != null and name != ''">
+				AND a.name LIKE
+				<if test="dbName == 'oracle'">'%'||#{name}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{name}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{name},'%')</if>
+			</if>
+			<if test="mobilePhone != null and mobilePhone != ''">
+				AND a.mobile_phone = #{mobilePhone}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="ActivityContactAddress">
+		SELECT
+		<include refid="activityContactAddressColumns" />
+		FROM activity_contact_address a
+		<include refid="activityContactAddressJoins" />
+		<where>
+
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<insert id="insert">
+		INSERT INTO activity_contact_address(
+		id,
+		user_id,
+		province,
+		city,
+		county,
+		street,
+		name,
+		mobile_phone,
+		create_date,
+		update_date
+		) VALUES (
+		#{id},
+		#{userId},
+		#{province},
+		#{city},
+		#{county},
+		#{street},
+		#{name},
+		#{mobilePhone},
+		#{createDate},
+		#{updateDate}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE activity_contact_address SET
+		user_id = #{userId},
+		province = #{province},
+		city = #{city},
+		county = #{county},
+		street = #{street},
+		name = #{name},
+		mobile_phone = #{mobilePhone},
+		update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+
+	<update id="delete">
+		DELETE FROM activity_contact_address
+		WHERE id = #{id}
+	</update>
+
+</mapper>

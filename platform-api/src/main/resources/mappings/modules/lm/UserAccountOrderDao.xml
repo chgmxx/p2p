@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.power.platform.lanmao.dao.UserAccountOrderDao">
+
+	<sql id="userAccountOrderColumns">
+		a.id AS "id",
+		a.user_id AS "userId",
+		a.account_id AS "accountId",
+		a.trans_id AS "transId",
+		a.user_role AS "userRole",
+		a.biz_type AS "bizType",
+		a.in_out_type AS "inOutType",
+		a.amount AS "amount",
+		a.status AS "status",
+		a.create_date AS "createDate",
+		a.update_date AS "updateDate"
+	</sql>
+
+	<sql id="userAccountOrderJoins">
+		LEFT JOIN sys_user u2 ON u2.id = a.user_id
+	</sql>
+
+	<select id="get" resultType="UserAccountOrder">
+		SELECT
+		<include refid="userAccountOrderColumns" />
+		FROM user_account_order a
+		<include refid="userAccountOrderJoins" />
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findList" resultType="UserAccountOrder">
+		SELECT
+		<include refid="userAccountOrderColumns" />
+		FROM user_account_order a
+		<include refid="userAccountOrderJoins" />
+		<where>
+
+			<if test="userRole != null and userRole != ''">
+				AND a.user_role = #{userRole}
+			</if>
+			<if test="bizType != null and bizType != ''">
+				AND a.biz_type = #{bizType}
+			</if>
+			<if test="inOutType != null and inOutType != ''">
+				AND a.in_out_type = #{inOutType}
+			</if>
+			<if test="status != null and status != ''">
+				AND a.status = #{status}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="UserAccountOrder">
+		SELECT
+		<include refid="userAccountOrderColumns" />
+		FROM user_account_order a
+		<include refid="userAccountOrderJoins" />
+		<where>
+
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<insert id="insert">
+		INSERT INTO user_account_order(
+		id,
+		user_id,
+		account_id,
+		trans_id,
+		user_role,
+		biz_type,
+		in_out_type,
+		amount,
+		status,
+		create_date,
+		update_date
+		) VALUES (
+		#{id},
+		#{userId},
+		#{accountId},
+		#{transId},
+		#{userRole},
+		#{bizType},
+		#{inOutType},
+		#{amount},
+		#{status},
+		#{createDate},
+		#{updateDate}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE user_account_order SET
+		user_id = #{userId},
+		account_id = #{accountId},
+		trans_id = #{transId},
+		user_role = #{userRole},
+		biz_type = #{bizType},
+		in_out_type = #{inOutType},
+		amount = #{amount},
+		status = #{status},
+		update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+
+	<update id="delete">
+		DELETE FROM user_account_order
+		WHERE id = #{id}
+	</update>
+
+</mapper>

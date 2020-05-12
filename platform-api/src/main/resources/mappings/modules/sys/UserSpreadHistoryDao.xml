@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.power.platform.userinfo.dao.UserSpreadHistoryDao">
+    
+	<sql id="userSpreadHistoryColumns">
+		a.id AS "id",
+		a.user_id AS "user.id",
+		a.recom_type AS "recomType",
+		a.create_time AS "createTime",
+		a.opernname AS "opernname"
+	</sql>
+	
+	<sql id="userSpreadHistoryJoins">
+	</sql>
+    
+	<select id="get" resultType="UserSpreadHistory">
+		SELECT 
+			<include refid="userSpreadHistoryColumns"/>
+		FROM user_spread_history a
+		<include refid="userSpreadHistoryJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="UserSpreadHistory">
+		SELECT 
+			<include refid="userSpreadHistoryColumns"/>
+		FROM user_spread_history a
+		<include refid="userSpreadHistoryJoins"/>
+		<where>
+			
+			<if test="user != null and user.id != null and user.id != ''">
+				AND a.user_id = #{user.id}
+			</if>
+			<if test="recomType != null and recomType != ''">
+				AND a.recom_type = #{recomType}
+			</if>
+			<if test="beginCreateTime != null and endCreateTime != null and beginCreateTime != '' and endCreateTime != ''">
+				AND a.create_time BETWEEN #{beginCreateTime} AND #{endCreateTime}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="UserSpreadHistory">
+		SELECT 
+			<include refid="userSpreadHistoryColumns"/>
+		FROM user_spread_history a
+		<include refid="userSpreadHistoryJoins"/>
+		<where>
+			
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO user_spread_history(
+			id,
+			user_id,
+			recom_type,
+			create_time,
+			opernname
+		) VALUES (
+			#{id},
+			#{user.id},
+			#{recomType},
+			#{createTime},
+			#{opernname}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE user_spread_history SET 	
+			opernname = #{opernname}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		DELETE FROM user_spread_history
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

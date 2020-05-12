@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://10.20.91.130/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.power.platform.weixin.dao.MsgBaseDao">
+
+	<sql id="msgBaseColumns">
+		a.id AS "id",
+		a.msg_type AS "msgType",
+		a.input_code AS "inputCode",
+		a.rule AS "rule",
+		a.enable AS "enable",
+		a.read_count AS "readCount",
+		a.favour_count AS "favourCount",
+		a.createtime AS "createDate"
+	</sql>
+	<select id="findList" resultType="MsgBase">
+		SELECT <include refid="msgBaseColumns"/>
+		FROM t_wxcms_msg_base a
+		<where>
+			1 = 1
+			<if test="msgtype != null and msgtype != '' ">
+			    AND  MSGTYPE = #{msgtype}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+		 
+	</select>
+
+	<select id="get" resultType="MsgBase">
+		SELECT  <include refid="msgBaseColumns"/> FROM t_wxcms_msg_base a WHERE ID = #{id}
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO t_wxcms_msg_base 
+		(ID, MSG_TYPE,INPUT_CODE,RULE,ENABLE,READ_COUNT,FAVOUR_COUNT,CREATETIME ) 
+		VALUES (#{id}, #{msgType},#{inputCode},#{rule},#{enable},#{readCount},#{favourCount},#{createDate} ) 
+	</insert>
+
+	<update id="update">
+		UPDATE t_wxcms_msg_base 
+		SET MSG_TYPE = #{msgType},
+		INPUT_CODE = #{inputCode},
+		RULE = #{rule},
+		ENABLE = #{enable},
+		READ_COUNT = #{readCount},
+		FAVOUR_COUNT = #{favourCount},
+		CREATETIME = #{createDate} 
+		WHERE ID = #{id} 
+	</update>
+	
+	<delete id="delete" >
+		DELETE FROM t_wxcms_msg_base WHERE ID = #{id}
+	</delete>
+
+</mapper>

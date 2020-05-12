@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.power.platform.credit.dao.bankcardinfo.CreditBankCardInfoDao">
+    
+	<sql id="creditBankCardInfoColumns">
+		a.id AS "id",
+		a.credit_user_id AS "creditUserId",
+		a.bank_card_no AS "bankCardNo",
+		a.bank_name AS "bankName",
+		a.mobile AS "mobile",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remark AS "remark",
+		a.del_flag AS "delFlag",
+		b.name AS "creditUserInfo.name"
+	</sql>
+	
+	<sql id="creditBankCardInfoJoins">
+	 LEFT JOIN credit_user_info b ON a.credit_user_id = b.id
+	</sql>
+    
+	<select id="get" resultType="CreditBankCardInfo">
+		SELECT 
+			<include refid="creditBankCardInfoColumns"/>
+		FROM credit_bank_card_info a
+		<include refid="creditBankCardInfoJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="CreditBankCardInfo">
+		SELECT 
+			<include refid="creditBankCardInfoColumns"/>
+		FROM credit_bank_card_info a
+		<include refid="creditBankCardInfoJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="creditUserId != null and creditUserId != ''">
+				AND a.credit_user_id = #{creditUserId}
+			</if>
+			<if test="bankCardNo != null and bankCardNo != ''">
+				AND a.bank_card_no LIKE 
+					<if test="dbName == 'oracle'">'%'||#{bankCardNo}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{bankCardNo}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{bankCardNo},'%')</if>
+			</if>
+			<if test="mobile != null and mobile != ''">
+				AND a.mobile LIKE 
+					<if test="dbName == 'oracle'">'%'||#{mobile}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{mobile}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{mobile},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="CreditBankCardInfo">
+		SELECT 
+			<include refid="creditBankCardInfoColumns"/>
+		FROM credit_bank_card_info a
+		<include refid="creditBankCardInfoJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO credit_bank_card_info(
+			id,
+			credit_user_id,
+			bank_card_no,
+			bank_name,
+			mobile,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remark,
+			del_flag
+		) VALUES (
+			#{id},
+			#{creditUserId},
+			#{bankCardNo},
+			#{bankName},
+			#{mobile},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remark},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE credit_bank_card_info SET 	
+			credit_user_id = #{creditUserId},
+			bank_card_no = #{bankCardNo},
+			bank_name = #{bankName},
+			mobile = #{mobile},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remark = #{remark}
+		WHERE id = #{id}
+	</update>
+	
+	<delete id="delete">
+		DELETE from credit_bank_card_info
+		WHERE id = #{id}
+	</delete>
+	
+</mapper>

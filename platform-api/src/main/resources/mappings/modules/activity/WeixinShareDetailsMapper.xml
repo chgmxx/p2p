@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.power.platform.activity.dao.WeixinShareDetailsDao">
+
+	<!-- 推广用户数 -->
+	<select id="queryUsers" resultType="java.lang.Integer">
+		SELECT COUNT(*) FROM w_weixin_sharedetails a
+		WHERE a.user_id = #{userId}
+	</select>
+
+	<!-- 推广用户获得奖励 -->
+	<select id="queryAmount" resultType="java.lang.Double">
+		SELECT IFNULL(sum(a.amount),0)
+		FROM w_weixin_sharedetails a
+		WHERE a.user_id = #{userId}
+	</select>
+
+</mapper>
+
+

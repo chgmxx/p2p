@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.power.platform.ifcert.dao.BatchNumCheckDao">
+
+	<sql id="batchNumCheckColumns">
+		a.id AS "id",
+		a.batch_num AS "batchNum",
+		a.create_time AS "createTime",
+		a.inf_type AS "infType",
+		a.error_message AS "errorMessage",
+		a.status AS "status",
+		a.message AS "message",
+		a.code AS "code"
+	</sql>
+
+	<sql id="batchNumCheckJoins">
+	</sql>
+
+	<select id="get" resultType="BatchNumCheck">
+		SELECT
+		<include refid="batchNumCheckColumns" />
+		FROM batch_num_check a
+		<include refid="batchNumCheckJoins" />
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findList" resultType="BatchNumCheck">
+		SELECT
+		<include refid="batchNumCheckColumns" />
+		FROM batch_num_check a
+		<include refid="batchNumCheckJoins" />
+		<where>
+
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+
+	<insert id="insert">
+		INSERT INTO batch_num_check(
+		id,
+		batch_num,
+		create_time,
+		inf_type,
+		error_message,
+		status,
+		message,
+		code
+		) VALUES (
+		#{id},
+		#{batchNum},
+		#{createTime},
+		#{infType},
+		#{errorMessage},
+		#{status},
+		#{message},
+		#{code}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE batch_num_check SET
+		batch_num = #{batchNum},
+		create_time = #{createTime},
+		inf_type = #{infType},
+		error_message = #{errorMessage},
+		status = #{status},
+		message = #{message},
+		code = #{code}
+		WHERE id = #{id}
+	</update>
+
+	<update id="delete">
+		DELETE FROM batch_num_check
+		WHERE id = #{id}
+	</update>
+
+</mapper>

@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.power.platform.lanmao.dao.CgbBigrechargeWhiteDao">
+
+	<sql id="cgbBigrechargeWhiteColumns">
+		a.id AS "id",
+		a.platform_id AS "platformId",
+		a.user_id AS "userId",
+		a.user_role AS "userRole",
+		a.real_name AS "realName",
+		a.bank_no AS "bankNo",
+		a.bank_code AS "bankCode",
+		a.status AS "status",
+		a.operation_desc AS "operationDesc",
+		a.create_date AS "createDate",
+		a.update_date AS "updateDate"
+	</sql>
+
+	<sql id="cgbBigrechargeWhiteJoins">
+	</sql>
+
+	<select id="get" resultType="CgbBigrechargeWhite">
+		SELECT
+		<include refid="cgbBigrechargeWhiteColumns" />
+		FROM cgb_bigrecharge_white a
+		<include refid="cgbBigrechargeWhiteJoins" />
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findList" resultType="CgbBigrechargeWhite">
+		SELECT
+		<include refid="cgbBigrechargeWhiteColumns" />
+		FROM cgb_bigrecharge_white a
+		<include refid="cgbBigrechargeWhiteJoins" />
+		<where>
+
+			<if test="platformId != null and platformId != ''">
+				AND a.platform_id = #{platformId}
+			</if>
+			<if test="userId != null and userId != ''">
+				AND a.user_id = #{userId}
+			</if>
+			<if test="realName != null and realName != ''">
+				AND a.real_name LIKE
+				<if test="dbName == 'oracle'">'%'||#{realName}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{realName}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{realName},'%')</if>
+			</if>
+			<if test="bankNo != null and bankNo != ''">
+				AND a.bank_no LIKE
+				<if test="dbName == 'oracle'">'%'||#{bankNo}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{bankNo}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{bankNo},'%')</if>
+			</if>
+			<if test="bankCode != null and bankCode != ''">
+				AND a.bank_code = #{bankCode}
+			</if>
+			<if test="status != null and status != ''">
+				AND a.status = #{status}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="CgbBigrechargeWhite">
+		SELECT
+		<include refid="cgbBigrechargeWhiteColumns" />
+		FROM cgb_bigrecharge_white a
+		<include refid="cgbBigrechargeWhiteJoins" />
+		<where>
+
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<insert id="insert">
+		INSERT INTO cgb_bigrecharge_white(
+		id,
+		platform_id,
+		user_id,
+		user_role,
+		real_name,
+		bank_no,
+		bank_code,
+		status,
+		operation_desc,
+		create_date,
+		update_date
+		) VALUES (
+		#{id},
+		#{platformId},
+		#{userId},
+		#{userRole},
+		#{realName},
+		#{bankNo},
+		#{bankCode},
+		#{status},
+		#{operationDesc},
+		#{createDate},
+		#{updateDate}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE cgb_bigrecharge_white SET
+		platform_id = #{platformId},
+		user_id = #{userId},
+		user_role = #{userRole},
+		real_name = #{realName},
+		bank_no = #{bankNo},
+		bank_code = #{bankCode},
+		status = #{status},
+		operation_desc = #{operationDesc},
+		update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+
+	<update id="delete">
+		DELETE FROM cgb_bigrecharge_white
+		WHERE id = #{id}
+	</update>
+
+</mapper>

@@ -1,0 +1,1463 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.power.platform.regular.dao.WloanTermInvestDao">
+
+	<sql id="wloanTermInvestOriginalColumns">
+		a.id AS "id",
+		a.sn AS "sn",
+		a.freeze_sn AS "freezeSn",
+		a.unfreeze_sn AS "unfreezeSn",
+		a.project_id AS "projectId",
+		a.user_id AS
+		"userId",
+		a.amount AS "amount",
+		a.interest AS "interest",
+		a.fee_amount AS
+		"feeAmount",
+		a.begin_date AS "beginDate",
+		a.end_date AS "endDate",
+		a.ip
+		AS "ip",
+		a.state AS "state",
+		a.bid_state AS "bidState",
+		a.voucher_amount
+		AS "voucherAmount",
+		a.contract_pdf_path AS "contractPdfPath",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks
+		AS "remarks",
+		a.del_flag AS "delFlag"
+	</sql>
+
+	<sql id="wloanTermInvestColumns">
+		a.id AS "id",
+		a.sn AS "sn",
+		a.freeze_sn AS "freezeSn",
+		a.unfreeze_sn AS "unfreezeSn",
+		a.project_id AS "projectId",
+		a.user_id AS "userId",
+		a.amount AS "amount",
+		a.interest AS "interest",
+		a.fee_amount AS "feeAmount",
+		a.begin_date AS "beginDate",
+		a.end_date AS "endDate",
+		a.ip AS "ip",
+		a.state AS "state",
+		a.bid_state AS "bidState",
+		a.voucher_amount AS "voucherAmount",
+		a.contract_pdf_path AS "contractPdfPath",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		b.id AS "userInfo.id",
+		b.name AS "userInfo.name",
+		b.real_name AS "userInfo.realName",
+		b.account_id AS "userInfo.accountId",
+		b.certificate_no AS "userInfo.certificateNo",
+		b.register_date AS "userInfo.registerDate",
+		c.id AS "wloanTermProject.id",
+		c.subject_id AS "wloanTermProject.subjectId",
+		c.name AS "wloanTermProject.name",
+		c.state AS "wloanTermProject.state",
+		c.span AS "wloanTermProject.span",
+		c.annual_rate AS "wloanTermProject.annualRate",
+		c.end_date AS "wloanTermProject.endDate",
+		c.full_date AS "wloanTermProject.fullDate",
+		c.loan_date AS "wloanTermProject.loanDate",
+		c.sn AS "wloanTermProject.sn",
+		c.amount AS "wloanTermProject.amount",
+		c.project_type AS "wloanTermProject.projectType",
+		c.project_product_type AS "wloanTermProject.projectProductType",
+		p.platform_name AS "partnerForm.platformName"
+	</sql>
+
+	<sql id="wloanTermInvestJoins">
+		JOIN user_info b ON b.id = a.user_id
+		JOIN wloan_term_project
+		c ON c.id = a.project_id
+		LEFT JOIN ztmg_partner_platform p ON
+		b.recommend_user_id = p.id
+	</sql>
+
+	<select id="get" resultType="WloanTermInvest">
+		SELECT
+		<include refid="wloanTermInvestColumns" />
+		FROM wloan_term_invest a
+		<include refid="wloanTermInvestJoins" />
+		WHERE a.id = #{id}
+	</select>
+
+	<!-- 查询合同路径为空串的数据. -->
+	<select id="findContractPdfPathAnEmptyString" resultType="WloanTermInvest">
+		SELECT
+		a.id AS "id",
+		a.sn AS "sn",
+		a.freeze_sn AS "freezeSn",
+		a.unfreeze_sn AS "unfreezeSn",
+		a.project_id AS "projectId",
+		a.user_id AS "userId",
+		a.amount AS "amount",
+		a.interest AS "interest",
+		a.fee_amount AS "feeAmount",
+		a.begin_date AS "beginDate",
+		a.end_date AS "endDate",
+		a.ip AS "ip",
+		a.state AS "state",
+		a.bid_state AS "bidState",
+		a.voucher_amount AS "voucherAmount",
+		a.contract_pdf_path AS "contractPdfPath",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		b.id AS "userInfo.id",
+		b.name AS "userInfo.name",
+		b.real_name AS "userInfo.realName",
+		b.account_id AS "userInfo.accountId",
+		b.certificate_no AS "userInfo.certificateNo",
+		b.register_date AS "userInfo.registerDate",
+		c.id AS "wloanTermProject.id",
+		c.subject_id AS "wloanTermProject.subjectId",
+		c.guarantee_id AS "wloanTermProject.guaranteeId",
+		c.max_amount AS "wloanTermProject.maxAmount",
+		c.purpose AS "wloanTermProject.purpose",
+		c.name AS "wloanTermProject.name",
+		c.state AS "wloanTermProject.state",
+		c.span AS "wloanTermProject.span",
+		c.annual_rate AS "wloanTermProject.annualRate",
+		c.end_date AS "wloanTermProject.endDate",
+		c.full_date AS "wloanTermProject.fullDate",
+		c.loan_date AS "wloanTermProject.loanDate",
+		c.sn AS "wloanTermProject.sn",
+		c.amount AS "wloanTermProject.amount",
+		c.project_type AS
+		"wloanTermProject.projectType",
+		c.project_product_type AS "wloanTermProject.projectProductType"
+		FROM
+		wloan_term_invest a
+		JOIN
+		wloan_term_project c ON c.id = a.project_id
+		LEFT JOIN user_info b ON b.id = a.user_id
+		WHERE
+		1 = 1
+		AND a.del_flag = '0'
+		AND c.del_flag = '0'
+		AND c.state IN (4, 5, 6, 7)
+		AND a.begin_date &lt; '2018-07-01'
+		AND a.state IN (1, 9)
+		AND a.contract_pdf_path = ''
+		ORDER BY a.begin_date ASC
+	</select>
+
+	<!-- 查询合同路径为NULL的数据. -->
+	<select id="findContractPdfPathAnIsNull" resultType="WloanTermInvest">
+		SELECT
+		a.id AS "id",
+		a.sn AS "sn",
+		a.freeze_sn AS "freezeSn",
+		a.unfreeze_sn AS "unfreezeSn",
+		a.project_id AS "projectId",
+		a.user_id AS "userId",
+		a.amount AS "amount",
+		a.interest AS "interest",
+		a.fee_amount AS "feeAmount",
+		a.begin_date AS "beginDate",
+		a.end_date AS "endDate",
+		a.ip AS "ip",
+		a.state AS "state",
+		a.bid_state AS "bidState",
+		a.voucher_amount AS "voucherAmount",
+		a.contract_pdf_path AS "contractPdfPath",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		b.id AS "userInfo.id",
+		b.name AS "userInfo.name",
+		b.real_name AS "userInfo.realName",
+		b.account_id
+		AS "userInfo.accountId",
+		b.certificate_no AS "userInfo.certificateNo",
+		b.register_date AS "userInfo.registerDate",
+		c.id AS "wloanTermProject.id",
+		c.subject_id AS "wloanTermProject.subjectId",
+		c.guarantee_id AS "wloanTermProject.guaranteeId",
+		c.max_amount AS "wloanTermProject.maxAmount",
+		c.purpose AS "wloanTermProject.purpose",
+		c.name AS "wloanTermProject.name",
+		c.state AS "wloanTermProject.state",
+		c.span AS "wloanTermProject.span",
+		c.annual_rate AS "wloanTermProject.annualRate",
+		c.end_date AS "wloanTermProject.endDate",
+		c.full_date AS "wloanTermProject.fullDate",
+		c.loan_date AS "wloanTermProject.loanDate",
+		c.sn AS "wloanTermProject.sn",
+		c.amount AS "wloanTermProject.amount",
+		c.project_type AS "wloanTermProject.projectType",
+		c.project_product_type AS "wloanTermProject.projectProductType"
+		FROM
+		wloan_term_invest a
+		JOIN
+		wloan_term_project c ON c.id = a.project_id
+		LEFT JOIN user_info b ON b.id = a.user_id
+		WHERE
+		1 = 1
+		AND a.del_flag = '0'
+		AND c.del_flag = '0'
+		AND c.state IN (4, 5, 6, 7)
+		AND a.begin_date &lt; '2018-07-01'
+		AND a.state IN (1, 9)
+		AND a.contract_pdf_path IS NULL
+		ORDER BY a.begin_date ASC
+	</select>
+
+	<!-- 当前出借人数量. -->
+	<select id="findNowLoanUserInfoNumbers" resultType="java.lang.Integer">
+		SELECT
+		COUNT(*) FROM (SELECT a.user_id FROM wloan_term_user_plan a WHERE 1 =
+		1 AND a.state = '2' GROUP BY a.user_id) AS c
+	</select>
+
+	<!-- 累计出借人数量. -->
+	<select id="findLoanUserInfoTotalNumbers" resultType="WloanTermInvest">
+		SELECT *
+		FROM
+		(SELECT a.user_id AS 'userInfo.id',u.certificate_no AS
+		'userInfo.certificateNo' FROM wloan_term_invest a LEFT JOIN user_info
+		u ON u.id = a.user_id WHERE 1 = 1 AND a.del_flag = '0' AND a.state
+		IN(1,9) GROUP BY a.user_id) AS c
+
+	</select>
+
+	<!-- 根据月份 累计出借人数量. -->
+	<select id="findLoanUserInfoTotalNumbersByMonth" resultType="WloanTermInvest">
+		SELECT *
+		FROM
+		(SELECT a.user_id AS 'userInfo.id',u.certificate_no AS
+		'userInfo.certificateNo' FROM wloan_term_invest a LEFT JOIN user_info
+		u ON u.id = a.user_id WHERE 1 = 1 AND a.del_flag = '0' AND a.state
+		IN(1,9) AND a.begin_date &lt;= #{endTime} GROUP BY a.user_id) AS c
+	</select>
+
+
+	<!-- 出借人出借总额倒序列表. -->
+	<select id="findLoanUserInvestList" resultType="WloanTermInvest">
+		SELECT * FROM
+		(SELECT i.user_id,SUM(i.amount) AS 'amount' FROM wloan_term_invest i
+		LEFT JOIN wloan_term_project p ON p.id = i.project_id WHERE i.del_flag
+		= '0' AND i.state IN (1, 9) AND p.state IN (4,5,6,7) GROUP BY
+		i.user_id
+		) AS c WHERE 1 = 1 ORDER BY c.amount DESC
+	</select>
+
+	<!-- 累计为用户赚取的总收益. -->
+	<select id="findInterestTotalAmount" resultType="java.lang.Double">
+		SELECT
+		SUM(a.interest) FROM wloan_term_invest a WHERE 1 = 1 AND a.del_flag =
+		'0' AND a.state IN(1,9)
+
+	</select>
+
+	<!-- 根据月份累计为用户赚取的总收益. -->
+	<select id="findInterestTotalAmountByMonth" resultType="java.lang.Double">
+
+		SELECT SUM(i.interest) FROM wloan_term_invest i WHERE 1 = 1 AND i.del_flag = '0'
+		AND i.state IN(1,9)
+		AND i.begin_date &lt;= #{endTime}
+		ORDER BY i.begin_date DESC;
+	</select>
+
+	<!-- 2018年度报告平台为用户赚取总收益. -->
+	<select id="findTotalInterestByPlatform" resultType="java.lang.Double">
+		SELECT
+		SUM(a.interest)
+		FROM
+		wloan_term_invest a
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="null != stateItem">
+				AND a.state in
+				<foreach item="stateItem" index="index" collection="stateItem" open="(" separator="," close=")">
+					#{stateItem}
+				</foreach>
+			</if>
+			<if test="beginBeginDate != null and beginBeginDate != ''">
+				AND a.begin_date &gt;= #{beginBeginDate}
+			</if>
+			<if test="endBeginDate != null and endBeginDate != ''">
+				AND a.begin_date &lt;= #{endBeginDate}
+			</if>
+		</where>
+	</select>
+
+	<!-- 用户累计出借笔数. -->
+	<select id="findCountNumByInvest" resultType="java.lang.Integer">
+		SELECT
+		COUNT(a.id)
+		FROM
+		wloan_term_invest a LEFT JOIN wloan_term_project b ON b.id = a.project_id
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="null != stateItem">
+				AND a.state in
+				<foreach item="stateItem" index="index" collection="stateItem" open="(" separator="," close=")">
+					#{stateItem}
+				</foreach>
+			</if>
+			<if test="userId != null and userId != ''">
+				AND a.user_id = #{userId}
+			</if>
+			<if test="beginBeginDate != null and beginBeginDate != ''">
+				AND a.begin_date &gt;= #{beginBeginDate}
+			</if>
+			<if test="endBeginDate != null and endBeginDate != ''">
+				AND a.begin_date &lt;= #{endBeginDate}
+			</if>
+			<if test="wloanTermProject != null">
+				<if test="null != wloanTermProject.stateItem">
+					AND b.state IN
+					<foreach item="wloanTermProject.stateItem" index="index" collection="wloanTermProject.stateItem" open="(" separator="," close=")">
+						#{wloanTermProject.stateItem}
+					</foreach>
+				</if>
+				<if test="wloanTermProject.projectProductType != null and wloanTermProject.projectProductType != ''">
+					AND b.project_product_type = #{wloanTermProject.projectProductType}
+				</if>
+			</if>
+		</where>
+	</select>
+
+	<!-- 已结束项目，用户累计收益. -->
+	<select id="findSumInterestByInvest" resultType="java.lang.Double">
+		SELECT
+		SUM(a.interest)
+		FROM
+		wloan_term_invest a LEFT JOIN wloan_term_project b ON b.id = a.project_id
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="null != stateItem">
+				AND a.state in
+				<foreach item="stateItem" index="index" collection="stateItem" open="(" separator="," close=")">
+					#{stateItem}
+				</foreach>
+			</if>
+			<if test="userId != null and userId != ''">
+				AND a.user_id = #{userId}
+			</if>
+			<if test="beginBeginDate != null and beginBeginDate != ''">
+				AND a.begin_date &gt;= #{beginBeginDate}
+			</if>
+			<if test="endBeginDate != null and endBeginDate != ''">
+				AND a.begin_date &lt;= #{endBeginDate}
+			</if>
+			<if test="wloanTermProject != null">
+				<if test="null != wloanTermProject.stateItem">
+					AND b.state IN
+					<foreach item="wloanTermProject.stateItem" index="index" collection="wloanTermProject.stateItem" open="(" separator="," close=")">
+						#{wloanTermProject.stateItem}
+					</foreach>
+				</if>
+				<if test="wloanTermProject.projectProductType != null and wloanTermProject.projectProductType != ''">
+					AND b.project_product_type = #{wloanTermProject.projectProductType}
+				</if>
+			</if>
+		</where>
+	</select>
+
+	<!-- 用户累计出借金额. -->
+	<select id="findSumAmountByInvest" resultType="java.lang.Double">
+		SELECT
+		SUM(a.amount)
+		FROM
+		wloan_term_invest a LEFT JOIN wloan_term_project b ON b.id = a.project_id
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="null != stateItem">
+				AND a.state in
+				<foreach item="stateItem" index="index" collection="stateItem" open="(" separator="," close=")">
+					#{stateItem}
+				</foreach>
+			</if>
+			<if test="userId != null and userId != ''">
+				AND a.user_id = #{userId}
+			</if>
+			<if test="beginBeginDate != null and beginBeginDate != ''">
+				AND a.begin_date &gt;= #{beginBeginDate}
+			</if>
+			<if test="endBeginDate != null and endBeginDate != ''">
+				AND a.begin_date &lt;= #{endBeginDate}
+			</if>
+			<if test="wloanTermProject != null">
+				<if test="null != wloanTermProject.stateItem">
+					AND b.state IN
+					<foreach item="wloanTermProject.stateItem" index="index" collection="wloanTermProject.stateItem" open="(" separator="," close=")">
+						#{wloanTermProject.stateItem}
+					</foreach>
+				</if>
+				<if test="wloanTermProject.projectProductType != null and wloanTermProject.projectProductType != ''">
+					AND b.project_product_type = #{wloanTermProject.projectProductType}
+				</if>
+			</if>
+		</where>
+	</select>
+
+	<!-- 累计出借总额. -->
+	<select id="findInvestTotalAmount" resultType="java.lang.Double">
+		SELECT
+		SUM(i.amount) FROM wloan_term_invest i LEFT JOIN wloan_term_project p
+		ON p.id = i.project_id WHERE i.del_flag = '0' AND i.state IN (1, 9)
+		AND p.state IN (4,5,6,7)
+	</select>
+
+	<!-- 根据月份查询 累计出借总额. -->
+	<select id="findInvestTotalAmountByMonth" resultType="java.lang.Double">
+		SELECT
+		SUM(i.amount) FROM wloan_term_invest i LEFT JOIN wloan_term_project p
+		ON p.id = i.project_id WHERE i.del_flag = '0' AND i.state IN (1, 9)
+		AND i.begin_date &lt;= #{endTime}
+		AND p.state IN (4,5,6,7)
+	</select>
+
+	<!-- 项目投资笔数. -->
+	<select id="findProjectInvestNumbers" resultType="WloanTermInvest">
+		SELECT
+		<include refid="wloanTermInvestColumns" />
+		FROM wloan_term_invest a
+		<include refid="wloanTermInvestJoins" />
+		<where>
+			a.del_flag = 0
+			AND a.state IN (1,9)
+			<if test="projectId != null and projectId != ''">
+				AND a.project_id = #{projectId}
+			</if>
+		</where>
+		ORDER BY a.begin_date ASC
+	</select>
+
+	<!-- 查询客户投资记录. -->
+	<select id="findWloanTermInvestExists" resultType="WloanTermInvest">
+		SELECT
+		<include refid="wloanTermInvestOriginalColumns" />
+		FROM wloan_term_invest a
+		<where>
+			a.del_flag = 0
+			<if test="userId != null and userId != ''">
+				and a.user_id = #{userId}
+			</if>
+			and a.state = 1
+		</where>
+	</select>
+
+	<!-- 2016年9月份客户投资记录. -->
+	<select id="getSpetInvestInfo" resultType="WloanTermInvest">
+		SELECT
+		<include refid="wloanTermInvestColumns" />
+		FROM wloan_term_invest a
+		<include refid="wloanTermInvestJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="userId != null and userId != ''">
+				and a.user_id = #{userId}
+			</if>
+			<if test="beginInvestDate != null and beginInvestDate != ''">
+				AND a.begin_date &gt;= #{beginInvestDate}
+			</if>
+			<if test="endInvestDate != null and endInvestDate != ''">
+				AND a.begin_date &lt;= #{endInvestDate}
+			</if>
+		</where>
+		ORDER BY a.begin_date DESC
+	</select>
+
+	<!-- 老用户. -->
+	<select id="findStatisticalOldUserList" resultType="WloanTermInvest">
+		SELECT
+		<include refid="wloanTermInvestColumns" />
+		FROM wloan_term_invest a
+		<include refid="wloanTermInvestJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			AND a.state IN (1,9)
+			AND c.state IN (4,
+			5, 6, 7)
+			<if test="amount != null and amount != ''">
+				AND a.amount &gt;= #{amount}
+			</if>
+			<if test="beginBeginDate != null and beginBeginDate != ''">
+				AND a.begin_date &gt;= #{beginBeginDate}
+			</if>
+			<if test="endBeginDate != null and endBeginDate != ''">
+				AND a.begin_date &lt;= #{endBeginDate}
+			</if>
+			<if test="userInfo != null">
+				<if test="userInfo.beginRegisterDate != null and userInfo.beginRegisterDate != ''">
+					AND b.register_date &gt;= #{userInfo.beginRegisterDate}
+				</if>
+				<if test="userInfo.endRegisterDate != null and userInfo.endRegisterDate != ''">
+					AND b.register_date &lt;= #{userInfo.endRegisterDate}
+				</if>
+			</if>
+			<if test="partnerForm != null and partnerForm != ''">
+				<if test="partnerForm.platformName != null and partnerForm.platformName != ''">
+					AND p.platform_name LIKE
+					<if test="dbName == 'oracle'">'%'||#{partnerForm.platformName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{partnerForm.platformName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{partnerForm.platformName},'%')</if>
+				</if>
+
+			</if>
+			<if test="wloanTermProject != null">
+				<if test="wloanTermProject.span != null and wloanTermProject.span != ''">
+					and c.span = #{wloanTermProject.span}
+				</if>
+			</if>
+			AND a.user_id IN (
+			SELECT
+			d.user_id
+			FROM
+			wloan_term_invest d
+			WHERE
+			d.begin_date &lt; #{beginBeginDate}
+			)
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.begin_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<!-- 新用户. -->
+	<select id="findStatisticalNewUserList" resultType="WloanTermInvest">
+		SELECT
+		<include refid="wloanTermInvestColumns" />
+		FROM wloan_term_invest a
+		<include refid="wloanTermInvestJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			AND a.state IN (1,9)
+			AND c.state IN (4,
+			5, 6, 7)
+			<if test="amount != null and amount != ''">
+				AND a.amount &gt;= #{amount}
+			</if>
+			<if test="beginBeginDate != null and beginBeginDate != ''">
+				AND a.begin_date &gt;= #{beginBeginDate}
+			</if>
+			<if test="endBeginDate != null and endBeginDate != ''">
+				AND a.begin_date &lt;= #{endBeginDate}
+			</if>
+			<if test="userInfo != null">
+				<if test="userInfo.beginRegisterDate != null and userInfo.beginRegisterDate != ''">
+					AND b.register_date &gt;= #{userInfo.beginRegisterDate}
+				</if>
+				<if test="userInfo.endRegisterDate != null and userInfo.endRegisterDate != ''">
+					AND b.register_date &lt;= #{userInfo.endRegisterDate}
+				</if>
+			</if>
+			<if test="partnerForm != null and partnerForm != ''">
+				<if test="partnerForm.platformName != null and partnerForm.platformName != ''">
+					AND p.platform_name LIKE
+					<if test="dbName == 'oracle'">'%'||#{partnerForm.platformName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{partnerForm.platformName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{partnerForm.platformName},'%')</if>
+				</if>
+			</if>
+			<if test="wloanTermProject != null">
+				<if test="wloanTermProject.span != null and wloanTermProject.span != ''">
+					and c.span = #{wloanTermProject.span}
+				</if>
+			</if>
+			AND a.user_id NOT IN (
+			SELECT
+			d.user_id
+			FROM
+			wloan_term_invest d
+			WHERE
+			d.begin_date &lt; #{beginBeginDate}
+			)
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.begin_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<!-- 新老用户. -->
+	<select id="findStatisticalAllList" resultType="WloanTermInvest">
+		SELECT
+		<include refid="wloanTermInvestColumns" />
+		FROM wloan_term_invest a
+		<include refid="wloanTermInvestJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			AND a.state IN (1,9)
+			AND c.state IN (4,
+			5, 6, 7)
+			<if test="amount != null and amount != ''">
+				AND a.amount &gt;= #{amount}
+			</if>
+			<if test="beginBeginDate != null and beginBeginDate != ''">
+				AND a.begin_date &gt;= #{beginBeginDate}
+			</if>
+			<if test="endBeginDate != null and endBeginDate != ''">
+				AND a.begin_date &lt;= #{endBeginDate}
+			</if>
+			<if test="wloanTermProject != null">
+				<if test="wloanTermProject.span != null and wloanTermProject.span != ''">
+					and c.span = #{wloanTermProject.span}
+				</if>
+			</if>
+			<if test="userInfo != null">
+				<if test="userInfo.beginRegisterDate != null and userInfo.beginRegisterDate != ''">
+					AND b.register_date &gt;= #{userInfo.beginRegisterDate}
+				</if>
+				<if test="userInfo.endRegisterDate != null and userInfo.endRegisterDate != ''">
+					AND b.register_date &lt;= #{userInfo.endRegisterDate}
+				</if>
+			</if>
+			<if test="partnerForm != null and partnerForm != ''">
+				<if test="partnerForm.platformName != null and partnerForm.platformName != ''">
+					AND p.platform_name LIKE
+					<if test="dbName == 'oracle'">'%'||#{partnerForm.platformName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{partnerForm.platformName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{partnerForm.platformName},'%')</if>
+				</if>
+
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.begin_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<!-- 用户类型（新用户）-融资总额，30天融资总额，90天融资总额，180天融资总额，360天融资总额. -->
+	<select id="findNewUserFinancingTotalAmount" resultType="java.lang.Double">
+		SELECT
+		SUM(a.amount)
+		FROM wloan_term_invest a
+		<include refid="wloanTermInvestJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			AND a.state IN (1, 9)
+			AND c.state IN
+			(4, 5, 6, 7)
+			<if test="amount != null and amount != ''">
+				AND a.amount &gt;= #{amount}
+			</if>
+			<if test="beginBeginDate != null and beginBeginDate != ''">
+				AND a.begin_date &gt;= #{beginBeginDate}
+			</if>
+			<if test="endBeginDate != null and endBeginDate != ''">
+				AND a.begin_date &lt;= #{endBeginDate}
+			</if>
+			<if test="wloanTermProject != null">
+				<if test="wloanTermProject.span != null and wloanTermProject.span != ''">
+					and c.span = #{wloanTermProject.span}
+				</if>
+			</if>
+			<if test="userInfo != null">
+			</if>
+			<if test="partnerForm != null and partnerForm != ''">
+			</if>
+			AND a.user_id NOT IN (
+			SELECT
+			d.user_id
+			FROM
+			wloan_term_invest d
+			WHERE
+			d.begin_date &lt; #{beginBeginDate}
+			)
+		</where>
+	</select>
+	<!-- 用户类型（新用户）-投资人次. -->
+	<select id="findNewUserInvestTotalCount" resultType="java.lang.Integer">
+		SELECT
+		COUNT(a.id)
+		FROM wloan_term_invest a
+		<include refid="wloanTermInvestJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			AND a.state IN (1, 9)
+			AND c.state IN
+			(4, 5, 6, 7)
+			<if test="amount != null and amount != ''">
+				AND a.amount &gt;= #{amount}
+			</if>
+			<if test="beginBeginDate != null and beginBeginDate != ''">
+				AND a.begin_date &gt;= #{beginBeginDate}
+			</if>
+			<if test="endBeginDate != null and endBeginDate != ''">
+				AND a.begin_date &lt;= #{endBeginDate}
+			</if>
+			<if test="wloanTermProject != null">
+				<if test="wloanTermProject.span != null and wloanTermProject.span != ''">
+					and c.span = #{wloanTermProject.span}
+				</if>
+			</if>
+			<if test="userInfo != null">
+			</if>
+			<if test="partnerForm != null and partnerForm != ''">
+			</if>
+			AND a.user_id NOT IN (
+			SELECT
+			d.user_id
+			FROM
+			wloan_term_invest d
+			WHERE
+			d.begin_date &lt; #{beginBeginDate}
+			)
+		</where>
+	</select>
+	<!-- 用户类型（新用户）-投资人数. -->
+	<select id="findNewUserInvestPeopleTotalCount" resultType="java.lang.Integer">
+		SELECT
+		COUNT(DISTINCT a.user_id)
+		FROM wloan_term_invest a
+		<include refid="wloanTermInvestJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			AND a.state IN (1, 9)
+			AND c.state IN
+			(4, 5, 6, 7)
+			<if test="amount != null and amount != ''">
+				AND a.amount &gt;= #{amount}
+			</if>
+			<if test="beginBeginDate != null and beginBeginDate != ''">
+				AND a.begin_date &gt;= #{beginBeginDate}
+			</if>
+			<if test="endBeginDate != null and endBeginDate != ''">
+				AND a.begin_date &lt;= #{endBeginDate}
+			</if>
+			<if test="wloanTermProject != null">
+				<if test="wloanTermProject.span != null and wloanTermProject.span != ''">
+					and c.span = #{wloanTermProject.span}
+				</if>
+			</if>
+			<if test="userInfo != null">
+			</if>
+			<if test="partnerForm != null and partnerForm != ''">
+			</if>
+			AND a.user_id NOT IN (
+			SELECT
+			d.user_id
+			FROM
+			wloan_term_invest d
+			WHERE
+			d.begin_date &lt; #{beginBeginDate}
+			)
+		</where>
+	</select>
+	<!-- 用户类型（老用户）-融资总额，30天融资总额，90天融资总额，180天融资总额，360天融资总额. -->
+	<select id="findOldUserFinancingTotalAmount" resultType="java.lang.Double">
+		SELECT
+		SUM(a.amount)
+		FROM wloan_term_invest a
+		<include refid="wloanTermInvestJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			AND a.state IN (1, 9)
+			AND c.state IN
+			(4, 5, 6, 7)
+			<if test="amount != null and amount != ''">
+				AND a.amount &gt;= #{amount}
+			</if>
+			<if test="beginBeginDate != null and beginBeginDate != ''">
+				AND a.begin_date &gt;= #{beginBeginDate}
+			</if>
+			<if test="endBeginDate != null and endBeginDate != ''">
+				AND a.begin_date &lt;= #{endBeginDate}
+			</if>
+			<if test="wloanTermProject != null">
+				<if test="wloanTermProject.span != null and wloanTermProject.span != ''">
+					and c.span = #{wloanTermProject.span}
+				</if>
+			</if>
+			<if test="userInfo != null">
+			</if>
+			<if test="partnerForm != null and partnerForm != ''">
+			</if>
+			AND a.user_id IN (
+			SELECT
+			d.user_id
+			FROM
+			wloan_term_invest d
+			WHERE
+			d.begin_date &lt; #{beginBeginDate}
+			)
+		</where>
+	</select>
+	<!-- 用户类型（老用户）-投资人次. -->
+	<select id="findOldUserInvestTotalCount" resultType="java.lang.Integer">
+		SELECT
+		COUNT(a.id)
+		FROM wloan_term_invest a
+		<include refid="wloanTermInvestJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			AND a.state IN (1, 9)
+			AND c.state IN
+			(4, 5, 6, 7)
+			<if test="amount != null and amount != ''">
+				AND a.amount &gt;= #{amount}
+			</if>
+			<if test="beginBeginDate != null and beginBeginDate != ''">
+				AND a.begin_date &gt;= #{beginBeginDate}
+			</if>
+			<if test="endBeginDate != null and endBeginDate != ''">
+				AND a.begin_date &lt;= #{endBeginDate}
+			</if>
+			<if test="wloanTermProject != null">
+				<if test="wloanTermProject.span != null and wloanTermProject.span != ''">
+					and c.span = #{wloanTermProject.span}
+				</if>
+			</if>
+			<if test="userInfo != null">
+			</if>
+			<if test="partnerForm != null and partnerForm != ''">
+			</if>
+			AND a.user_id IN (
+			SELECT
+			d.user_id
+			FROM
+			wloan_term_invest d
+			WHERE
+			d.begin_date &lt; #{beginBeginDate}
+			)
+		</where>
+	</select>
+	<!-- 用户类型（老用户）-投资人数. -->
+	<select id="findOldUserInvestPeopleTotalCount" resultType="java.lang.Integer">
+		SELECT
+		COUNT(DISTINCT a.user_id)
+		FROM wloan_term_invest a
+		<include refid="wloanTermInvestJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			AND a.state IN (1, 9)
+			AND c.state IN
+			(4, 5, 6, 7)
+			<if test="amount != null and amount != ''">
+				AND a.amount &gt;= #{amount}
+			</if>
+			<if test="beginBeginDate != null and beginBeginDate != ''">
+				AND a.begin_date &gt;= #{beginBeginDate}
+			</if>
+			<if test="endBeginDate != null and endBeginDate != ''">
+				AND a.begin_date &lt;= #{endBeginDate}
+			</if>
+			<if test="wloanTermProject != null">
+				<if test="wloanTermProject.span != null and wloanTermProject.span != ''">
+					and c.span = #{wloanTermProject.span}
+				</if>
+			</if>
+			<if test="userInfo != null">
+			</if>
+			<if test="partnerForm != null and partnerForm != ''">
+			</if>
+			AND a.user_id IN (
+			SELECT
+			d.user_id
+			FROM
+			wloan_term_invest d
+			WHERE
+			d.begin_date &lt; #{beginBeginDate}
+			)
+		</where>
+	</select>
+	<!-- 用户类型（全部）-融资总额，30天融资总额，90天融资总额，180天融资总额，360天融资总额. -->
+	<select id="findAllUserFinancingTotalAmount" resultType="java.lang.Double">
+		SELECT
+		SUM(a.amount)
+		FROM wloan_term_invest a
+		<include refid="wloanTermInvestJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			AND a.state IN (1, 9)
+			AND c.state IN
+			(4, 5, 6, 7)
+			<if test="amount != null and amount != ''">
+				AND a.amount &gt;= #{amount}
+			</if>
+			<if test="beginBeginDate != null and beginBeginDate != ''">
+				AND a.begin_date &gt;= #{beginBeginDate}
+			</if>
+			<if test="endBeginDate != null and endBeginDate != ''">
+				AND a.begin_date &lt;= #{endBeginDate}
+			</if>
+			<if test="wloanTermProject != null">
+				<if test="wloanTermProject.span != null and wloanTermProject.span != ''">
+					and c.span = #{wloanTermProject.span}
+				</if>
+			</if>
+			<if test="userInfo != null">
+			</if>
+			<if test="partnerForm != null and partnerForm != ''">
+			</if>
+		</where>
+	</select>
+	<!-- 用户类型（全部）-投资人次. -->
+	<select id="findAllUserInvestTotalCount" resultType="java.lang.Integer">
+		SELECT
+		COUNT(a.id)
+		FROM wloan_term_invest a
+		<include refid="wloanTermInvestJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			AND a.state IN (1, 9)
+			AND c.state IN
+			(4, 5, 6, 7)
+			<if test="amount != null and amount != ''">
+				AND a.amount &gt;= #{amount}
+			</if>
+			<if test="beginBeginDate != null and beginBeginDate != ''">
+				AND a.begin_date &gt;= #{beginBeginDate}
+			</if>
+			<if test="endBeginDate != null and endBeginDate != ''">
+				AND a.begin_date &lt;= #{endBeginDate}
+			</if>
+			<if test="wloanTermProject != null">
+				<if test="wloanTermProject.span != null and wloanTermProject.span != ''">
+					and c.span = #{wloanTermProject.span}
+				</if>
+			</if>
+			<if test="userInfo != null">
+			</if>
+			<if test="partnerForm != null and partnerForm != ''">
+			</if>
+		</where>
+	</select>
+	<!-- 用户类型（全部）-投资人数. -->
+	<select id="findAllUserInvestPeopleTotalCount" resultType="java.lang.Integer">
+		SELECT
+		COUNT(DISTINCT a.user_id)
+		FROM wloan_term_invest a
+		<include refid="wloanTermInvestJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			AND a.state IN (1, 9)
+			AND c.state IN
+			(4, 5, 6, 7)
+			<if test="amount != null and amount != ''">
+				AND a.amount &gt;= #{amount}
+			</if>
+			<if test="beginBeginDate != null and beginBeginDate != ''">
+				AND a.begin_date &gt;= #{beginBeginDate}
+			</if>
+			<if test="endBeginDate != null and endBeginDate != ''">
+				AND a.begin_date &lt;= #{endBeginDate}
+			</if>
+			<if test="wloanTermProject != null">
+				<if test="wloanTermProject.span != null and wloanTermProject.span != ''">
+					and c.span = #{wloanTermProject.span}
+				</if>
+			</if>
+			<if test="userInfo != null">
+			</if>
+			<if test="partnerForm != null and partnerForm != ''">
+			</if>
+		</where>
+	</select>
+
+	<select id="findList" resultType="WloanTermInvest">
+		SELECT
+		<include refid="wloanTermInvestColumns" />
+		FROM wloan_term_invest a
+		<include refid="wloanTermInvestJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="amount != null and amount != ''">
+				AND a.amount = #{amount}
+			</if>
+			<if test="beginBeginDate != null and beginBeginDate != ''">
+				AND a.begin_date &gt;= #{beginBeginDate}
+			</if>
+			<if test="endBeginDate != null and endBeginDate != ''">
+				AND a.begin_date &lt;= #{endBeginDate}
+			</if>
+			<if test="userId != null and userId != ''">
+				AND a.user_id = #{userId}
+			</if>
+			<if test="beginEndDate != null and endEndDate != null and beginEndDate != '' and endEndDate != ''">
+				AND a.end_date BETWEEN #{beginEndDate} AND #{endEndDate}
+			</if>
+			<if test="createDate != null and createDate != ''">
+				AND a.create_date BETWEEN '2017-05-01' AND now()
+			</if>
+			<if test="state != null and state != ''">
+				AND a.state = #{state}
+			</if>
+			<if test="wloanTermProject != null">
+				<if test="wloanTermProject.id != null and wloanTermProject.id != ''">
+					and c.id = #{wloanTermProject.id}
+				</if>
+				<if test="wloanTermProject.name != null and wloanTermProject.name != ''">
+					and c.name LIKE
+					<if test="dbName == 'mysql'">concat('%',#{wloanTermProject.name},'%')</if>
+				</if>
+				<if test="wloanTermProject.endEndDate != null and wloanTermProject.endEndDate != ''">
+					and c.end_date between now() and
+					#{wloanTermProject.endEndDate}
+				</if>
+				<if test="wloanTermProject.beginTimeFromOnline != null and wloanTermProject.beginTimeFromOnline != '' and wloanTermProject.endTimeToOnline != null and wloanTermProject.endTimeToOnline != ''">
+					and c.loan_date between
+					#{wloanTermProject.beginTimeFromOnline} and
+					#{wloanTermProject.endTimeToOnline}
+				</if>
+				<if test="wloanTermProject.beginTimeFromFull != null and wloanTermProject.beginTimeFromFull != '' and wloanTermProject.endTimeToFull != null and wloanTermProject.endTimeToFull != ''">
+					and c.full_date between #{wloanTermProject.beginTimeFromFull}
+					and #{wloanTermProject.endTimeToFull}
+				</if>
+				<if test="null != wloanTermProject.projectTypeItem">
+					AND c.project_product_type IN
+					<foreach item="wloanTermProject.projectTypeItem" index="index" collection="wloanTermProject.projectTypeItem" open="(" separator="," close=")">
+						#{wloanTermProject.projectTypeItem}
+					</foreach>
+				</if>
+				<if test="null != wloanTermProject.stateItem">
+					AND c.state IN
+					<foreach item="wloanTermProject.stateItem" index="index" collection="wloanTermProject.stateItem" open="(" separator="," close=")">
+						#{wloanTermProject.stateItem}
+					</foreach>
+				</if>
+				<if test="wloanTermProject.projectProductType != null and wloanTermProject.projectProductType != ''">
+					AND c.project_product_type = #{wloanTermProject.projectProductType}
+				</if>
+				<if test="wloanTermProject.state != null and wloanTermProject.state != ''">
+					AND c.state = #{wloanTermProject.state}
+				</if>
+			</if>
+			<if test="userInfo != null">
+				<if test="userInfo.id != null and userInfo.id != ''">
+					and b.id = #{userInfo.id}
+				</if>
+				<if test="userInfo.name != null and userInfo.name != ''">
+					and b.name LIKE
+					<if test="dbName == 'mysql'">concat('%',#{userInfo.name},'%')</if>
+				</if>
+				<if test="userInfo.realName != null and userInfo.realName != ''">
+					and b.real_name LIKE
+					<if test="dbName == 'mysql'">concat('%',#{userInfo.realName},'%')</if>
+				</if>
+			</if>
+			<if test=" id!=null and id != ''">
+				AND a.id = #{id}
+			</if>
+			<if test="null != stateItem">
+				AND a.state in
+				<foreach item="stateItem" index="index" collection="stateItem" open="(" separator="," close=")">
+					#{stateItem}
+				</foreach>
+			</if>
+			<if test=" projectId!=null and projectId !=''">
+				AND a.project_id = #{projectId}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.begin_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+
+
+
+
+	<select id="findAllList" resultType="WloanTermInvest">
+		SELECT
+		<include refid="wloanTermInvestColumns" />
+		FROM wloan_term_invest a
+		<include refid="wloanTermInvestJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findInvestAmountByProjectAndUser" resultType="java.lang.Double">
+		SELECT
+		SUM(a.amount) from wloan_term_invest a
+		WHERE a.project_id =
+		#{projectId}
+		AND a.user_id = #{userId}
+		AND a.id = #{Id}
+	</select>
+
+	<select id="findInvestAmountByProjectAndUser1" resultType="java.lang.Double">
+		SELECT SUM(a.amount) from wloan_term_invest a
+		WHERE a.project_id =
+		#{projectId}
+		AND a.user_id = #{userId}
+	</select>
+	<!-- 公益捐赠 -->
+	<select id="volunterrList" resultType="WloanTermInvest">
+		SELECT
+		a.id AS "id",
+		b. NAME
+		AS "userinfo.name",
+		a.user_id AS "userId",
+		a.create_date AS "createDate"
+		FROM
+		wloan_term_invest a
+		JOIN user_info b ON b.id = a.user_id
+		WHERE
+		a.create_date BETWEEN '2017-05-01' AND '2017-05-31'
+		ORDER BY
+		a.create_date DESC
+	</select>
+	<insert id="insert">
+		INSERT INTO wloan_term_invest(
+		id,
+		sn,
+		freeze_sn,
+		unfreeze_sn,
+		project_id,
+		user_id,
+		amount,
+		interest,
+		fee_amount,
+		begin_date,
+		end_date,
+		ip,
+		state,
+		bid_state,
+		voucher_amount,
+		contract_pdf_path,
+		create_by,
+		create_date,
+		update_by,
+		update_date,
+		remarks,
+		del_flag
+		) VALUES (
+		#{id},
+		#{sn},
+		#{freezeSn},
+		#{unfreezeSn},
+		#{wloanTermProject.id},
+		#{userInfo.id},
+		#{amount},
+		#{interest},
+		#{feeAmount},
+		#{beginDate},
+		#{endDate},
+		#{ip},
+		#{state},
+		#{bidState},
+		#{voucherAmount},
+		#{contractPdfPath},
+		#{createBy.id},
+		#{createDate},
+		#{updateBy.id},
+		#{updateDate},
+		#{remarks},
+		#{delFlag}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE wloan_term_invest SET
+		sn = #{sn},
+		freeze_sn =
+		#{freezeSn},
+		unfreeze_sn = #{unfreezeSn},
+		project_id =
+		#{wloanTermProject.id},
+		user_id = #{userInfo.id},
+		amount = #{amount},
+		interest = #{interest},
+		fee_amount = #{feeAmount},
+		begin_date =
+		#{beginDate},
+		end_date = #{endDate},
+		ip = #{ip},
+		state = #{state},
+		bid_state = #{bidState},
+		voucher_amount = #{voucherAmount},
+		contract_pdf_path = #{contractPdfPath},
+		update_by = #{updateBy.id},
+		update_date = #{updateDate},
+		remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+
+	<update id="delete">
+		UPDATE wloan_term_invest SET
+		del_flag =
+		#{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	<!-- 定期投资总额（包括已完成项目） -->
+	<select id="selectAmountTotle" resultType="java.lang.Double">
+		SELECT
+		IFNULL(sum(b.amount),0)
+		FROM wloan_term_invest b LEFT JOIN
+		wloan_term_project p ON b.project_id = p.id
+		WHERE b.state IN (3,8,9)
+		AND p.state IN ( 4,5,6,7 ) AND b.user_id = #{userId}
+	</select>
+	<!-- 定期投资待收本金 -->
+	<select id="selectToBePrincipal" resultType="java.lang.Double">
+		SELECT
+		IFNULL(sum(b.amount),0)
+		FROM wloan_term_invest b LEFT JOIN
+		wloan_term_project p ON b.project_id = p.id
+		WHERE b.state IN (3,8,9)
+		AND p.state IN ( 4,5,6 ) AND b.user_id = #{userId}
+	</select>
+	<!-- 定期投资已收收益 -->
+	<select id="selectBeInterest" resultType="java.lang.Double">
+		SELECT
+		IFNULL(sum(interest),0)
+		FROM wloan_term_user_plan WHERE user_id =
+		#{userId} and state = 3
+	</select>
+	<!-- 定期投资总收益 -->
+	<select id="selectToBeInterest" resultType="java.lang.Double">
+		SELECT
+		IFNULL(sum(b.interest),0)
+		FROM wloan_term_invest b LEFT JOIN
+		wloan_term_project p ON b.project_id = p.id
+		WHERE b.state IN (3,8,9)
+		AND p.state IN ( 4,5,6,7 ) AND b.user_id = #{userId}
+	</select>
+	<!-- 当日投资金额 -->
+	<select id="countAmount" resultType="java.lang.Double">
+		SELECT
+		IFNULL(sum(b.amount),0)
+		FROM wloan_term_invest b LEFT JOIN
+		wloan_term_project p ON b.project_id = p.id
+		WHERE b.state IN (3,8,9)
+		AND p.state IN ( 4,5,6,7 ) AND b.user_id = #{userId}
+		AND begin_date
+		&gt;= #{beginDate} AND begin_date &lt; #{endDate}
+	</select>
+	<!-- 用户投资排行 -->
+	<select id="ranList" resultType="WloanTermInvest">
+		SELECT
+		<include refid="wloanTermInvestColumns" />
+		FROM wloan_term_invest a
+		<include refid="wloanTermInvestJoins" />
+		<where>
+			1=1
+			<if test="beginDate != null and beginDate != ''">
+				AND a.begin_date &gt;= #{beginDate}
+			</if>
+			<if test="beginDate != null and beginDate != ''">
+				AND a.begin_date &lt; #{endDate}
+			</if>
+		</where>
+		ORDER BY a.amount DESC,a.begin_date DESC
+	</select>
+
+	<!-- 投资订单查询Task -->
+	<select id="findCheckInvest" resultType="WloanTermInvest">
+		SELECT
+		<include refid="wloanTermInvestColumns" />
+		FROM wloan_term_invest a
+		<include refid="wloanTermInvestJoins" />
+		<where>
+			AND a.begin_date &lt;= SUBDATE(now(),interval 20 minute)
+			AND
+			a.state = 0
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.begin_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<!-- 2018世界杯活动出借排行榜 -->
+	<select id="findWorldCupInvest" resultType="WloanTermInvest">
+		SELECT
+		k.phone AS
+		'userInfo.name',
+		k.amount AS 'amount',
+		k.beginDate AS 'beginDate'
+		FROM
+		(SELECT
+		b.`name` AS "phone",
+		sum(a.amount) AS "amount",
+		MIN(a.begin_date) AS "beginDate"
+		FROM
+		wloan_term_invest a
+		JOIN user_info
+		b ON a.user_id = b.id
+		WHERE
+		a.begin_date &gt; #{beginBeginDate}
+		AND
+		a.begin_date &lt; #{endBeginDate}
+		AND a.state = 1
+		GROUP BY a.user_id
+		ORDER BY SUM(a.amount) DESC) k
+		WHERE k.amount >= 50000
+		LIMIT 5
+	</select>
+
+	<!-- 根据项目ID查询出借总额 -->
+	<select id="getInvestTotalAmount" resultType="java.lang.Double">
+		SELECT
+		SUM(a.amount)
+		FROM wloan_term_invest a
+		WHERE 1 = 1
+		AND a.del_flag ='0'
+		AND a.state = 1
+		AND a.project_id = #{projectId}
+	</select>
+
+	<!-- 根据项目ID查询所有投资记录 -->
+	<select id="findListByProjectId" resultType="WloanTermInvest">
+		SELECT
+		<include refid="wloanTermInvestColumns" />
+		FROM wloan_term_invest a
+		<include refid="wloanTermInvestJoins" />
+		<where>
+			a.del_flag = '0'
+			AND a.state IN (1, 9)
+			<if test=" projectId!=null and projectId !=''">
+				AND a.project_id = #{projectId}
+			</if>
+		</where>
+	</select>
+
+	<!-- 查询客户投资记录. -->
+	<select id="findInvestTotalAmountByUserId" resultType="java.lang.Double">
+		SELECT
+		SUM(a.amount) AS "amount"
+		FROM
+		wloan_term_invest a
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="userId != null and userId != ''">
+				AND a.user_id = #{userId}
+			</if>
+			AND a.state IN (1, 9)
+		</where>
+	</select>
+
+	<!-- 围绕散标，2019-03-01 00:00:00 before存量用户信息. -->
+	<select id="findUserInfoList" resultType="java.lang.String">
+		SELECT
+		a.user_id
+		FROM
+		wloan_term_invest a
+		WHERE
+		1 = 1
+		AND a.del_flag = '0'
+		AND a.state = '1'
+		AND a.project_id IN (
+		SELECT
+		a.id
+		FROM
+		wloan_term_project a
+		WHERE
+		1 = 1
+		AND a.del_flag = '0'
+		AND a.state IN (6)
+		AND a.online_date &lt; '2019-03-01 00:00:00'
+		)
+		GROUP BY
+		a.user_id
+	</select>
+
+	<!-- 围绕散标，出借人增量用户信息. -->
+	<select id="findIfCertUserInfoListZ" resultType="java.lang.String">
+		SELECT
+		a.user_id
+		FROM
+		wloan_term_invest a
+		WHERE
+		1 = 1
+		AND a.del_flag = '0'
+		AND a.state = '1'
+		AND a.project_id IN (
+		SELECT
+		a.id
+		FROM
+		wloan_term_project a
+		WHERE
+		1 = 1
+		AND a.del_flag = '0'
+		AND a.state IN (4, 5, 6, 7)
+		AND a.online_date &gt;= '2019-06-30 00:00:00'
+		)
+		GROUP BY
+		a.user_id
+	</select>
+
+	<select id="findInvestPage" resultType="WloanTermInvest">
+		SELECT
+			b.id as 'lenderStatistics.lenderId' ,
+			(
+				SELECT u.real_name FROM user_info u WHERE 1=1 and u.id = b.id
+			) AS 'lenderStatistics.lenderName',
+			(
+				SELECT u.`name` FROM user_info u WHERE 1=1 and u.id = b.id
+			) AS 'lenderStatistics.lenderPhone',
+			min(b.register_date) as 'lenderStatistics.registrationTime' ,min(a.create_date) as 'lenderStatistics.firstLendingTime',
+			ROUND(SUM(a.interest),2) AS 'lenderStatistics.totalInterestReceived',
+			CONCAT(ROUND(SUM(a.interest)*100/(SUM(a.amount*c.span/365)),2),'%') AS 'lenderStatistics.annualizedRate',
+			(SELECT ROUND(SUM(i.interest),2) from wloan_term_user_plan i LEFT JOIN wloan_term_project w on i.project_id=w.id  where 1=1 
+				AND w.project_product_type = '2'
+				AND w.state = 6 AND i.state =2 AND i.user_id = b.id) AS 'lenderStatistics.gylBalance',
+			(SELECT ROUND(SUM(i.interest),2) from wloan_term_user_plan i LEFT JOIN wloan_term_project w on i.project_id=w.id  where 1=1 
+				AND w.project_product_type = '1'
+				AND w.state = 6 AND i.state =2 AND i.user_id = b.id) AS 'lenderStatistics.axtBalance',
+			(SELECT ROUND(SUM(i.interest),2) from wloan_term_user_plan i LEFT JOIN wloan_term_project w on i.project_id=w.id  where 1=1 
+				AND w.state = 6 AND i.state =2 AND i.user_id = b.id) AS 'lenderStatistics.totalBalance'
+		from wloan_term_invest a LEFT JOIN user_info b on a.user_id=b.id 
+				LEFT JOIN wloan_term_project c on a.project_id=c.id  where 1=1 
+				AND a.del_flag = '0' AND c.id != ''
+				AND a.state IN (1,9) AND b.id !='' GROUP BY b.id
+	</select>
+	
+	
+	<select id="findInvest" resultType="WloanTermInvest">
+		SELECT
+		<include refid="wloanTermInvestOriginalColumns" />
+		FROM wloan_term_invest a
+		<where>
+			a.del_flag = '0'
+			AND a.create_date &gt;= #{beginInvestDate}
+			AND a.create_date &lt; #{endInvestDate}
+			AND a.user_id !=''
+		</where>
+	</select>
+</mapper>

@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.power.platform.lanmao.dao.AsyncTransactionLogDao">
+
+	<sql id="asyncTransactionLogColumns">
+		a.id AS "id",
+		a.async_request_no AS "asyncRequestNo",
+		a.freeze_request_no AS "freezeRequestNo",
+		a.biz_type AS "bizType",
+		a.biz_origin AS "bizOrigin",
+		a.create_time AS "createTime",
+		a.transaction_time AS "transactionTime",
+		a.status AS "status",
+		a.error_code AS "errorCode",
+		a.error_message AS "errorMessage",
+		a.create_date AS "createDate",
+		a.update_date AS "updateDate"
+	</sql>
+
+	<sql id="asyncTransactionLogJoins">
+	</sql>
+
+	<select id="get" resultType="AsyncTransactionLog">
+		SELECT
+		<include refid="asyncTransactionLogColumns" />
+		FROM async_transaction_log a
+		<include refid="asyncTransactionLogJoins" />
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findList" resultType="AsyncTransactionLog">
+		SELECT
+		<include refid="asyncTransactionLogColumns" />
+		FROM async_transaction_log a
+		<include refid="asyncTransactionLogJoins" />
+		<where>
+
+			<if test="asyncRequestNo != null and asyncRequestNo != ''">
+				AND a.async_request_no = #{asyncRequestNo}
+			</if>
+			<if test="freezeRequestNo != null and freezeRequestNo != ''">
+				AND a.freeze_request_no = #{freezeRequestNo}
+			</if>
+			<if test="bizType != null and bizType != ''">
+				AND a.biz_type = #{bizType}
+			</if>
+			<if test="bizOrigin != null and bizOrigin != ''">
+				AND a.biz_origin = #{bizOrigin}
+			</if>
+			<if test="createTime != null and createTime != ''">
+				AND a.create_time = #{createTime}
+			</if>
+			<if test="transactionTime != null and transactionTime != ''">
+				AND a.transaction_time = #{transactionTime}
+			</if>
+			<if test="status != null and status != ''">
+				AND a.status = #{status}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="AsyncTransactionLog">
+		SELECT
+		<include refid="asyncTransactionLogColumns" />
+		FROM async_transaction_log a
+		<include refid="asyncTransactionLogJoins" />
+		<where>
+
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<insert id="insert">
+		INSERT INTO async_transaction_log(
+		id,
+		async_request_no,
+		freeze_request_no,
+		biz_type,
+		biz_origin,
+		create_time,
+		transaction_time,
+		status,
+		error_code,
+		error_message,
+		create_date,
+		update_date
+		) VALUES (
+		#{id},
+		#{asyncRequestNo},
+		#{freezeRequestNo},
+		#{bizType},
+		#{bizOrigin},
+		#{createTime},
+		#{transactionTime},
+		#{status},
+		#{errorCode},
+		#{errorMessage},
+		#{createDate},
+		#{updateDate}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE async_transaction_log SET
+		async_request_no = #{asyncRequestNo},
+		freeze_request_no = #{freezeRequestNo},
+		biz_type = #{bizType},
+		biz_origin = #{bizOrigin},
+		create_time = #{createTime},
+		transaction_time = #{transactionTime},
+		status = #{status},
+		error_code = #{errorCode},
+		error_message = #{errorMessage},
+		update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+
+	<update id="delete">
+		DELETE FROM async_transaction_log
+		WHERE id = #{id}
+	</update>
+
+</mapper>

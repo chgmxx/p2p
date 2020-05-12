@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://10.20.91.130/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.power.platform.weixin.dao.AccountMenuDao">
+
+	<sql id="accountMenuColumns">
+		a.id AS "id",
+		a.mtype AS "mtype",
+		a.eventtype AS "eventType",
+		a.name AS "name",
+		a.inputcode AS "inputcode",
+		a.url AS "url",
+		a.sort AS "sort",
+		a.parentid AS "parentid",
+		m.name AS "parentName",
+		a.createtime AS "createDate",
+		g.id AS "accountMenuGroup.id",
+		b.id AS "msgBase.id"
+	</sql>
+	<sql id="accountMenuJoins"> 
+		LEFT JOIN t_wxcms_account_menu m ON a.parentid = m.id 
+		LEFT JOIN t_wxcms_msg_base b ON a.msgid = b.id
+		LEFT JOIN t_wxcms_account_menu_group g ON a.gid = g.id
+	</sql>
+	
+	<select id="findList" resultType="AccountMenu">
+		SELECT <include refid="accountMenuColumns"/>
+		from t_wxcms_account_menu a 
+		<include refid="accountMenuJoins"/>
+		 WHERE a.gid = #{accountMenuGroup.id}
+	</select>
+  
+	<select id="parentMenuList" resultType="AccountMenu">
+		SELECT a.id AS "id",  a.name AS "name"
+		FROM t_wxcms_account_menu a
+		WHERE a.parentid = '0' 
+		AND a.gid = #{accountMenuGroup.id}
+		ORDER BY sort
+	</select>
+	
+	<select id="listWxMenus"  parameterType="java.lang.String" resultType="AccountMenu">
+		SELECT  <include refid="accountMenuColumns"/>
+		FROM t_wxcms_account_menu a
+		<include refid="accountMenuJoins"/>
+		where a.gid = #{gid}
+		ORDER BY parentId, sort
+	</select>
+ 
+	<select id="get" resultType="AccountMenu">
+		SELECT <include refid="accountMenuColumns"/>
+		FROM t_wxcms_account_menu a 
+		<include refid="accountMenuJoins"/>
+		WHERE a.id = #{id}
+	</select>
+
+	<insert id="insert">
+		INSERT INTO t_wxcms_account_menu (ID, MTYPE,EVENTTYPE,NAME,INPUTCODE,URL,SORT,MSGID,PARENTID,GID,CREATETIME )  
+		VALUES (#{id}, #{mtype},#{eventType},#{name},#{inputcode},#{url},#{sort},#{msgBase.id},#{parentid},#{accountMenuGroup.id},#{createDate} ) 
+	</insert>
+
+	<update id="update">
+		UPDATE t_wxcms_account_menu 
+		SET MTYPE = #{mtype},
+		EVENTTYPE = #{eventType},
+		NAME = #{name},
+		INPUTCODE = #{inputcode},
+		URL = #{url},
+		SORT = #{sort},
+		PARENTID = #{parentid},
+		CREATETIME = #{createDate},
+		MSGID = #{msgBase.id},
+		GID = #{accountMenuGroup.id}
+		WHERE ID = #{id} 
+	</update>
+
+	<delete id="delete">
+		DELETE FROM t_wxcms_account_menu WHERE ID = #{id}
+	</delete>
+
+</mapper>

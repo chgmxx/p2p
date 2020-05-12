@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.power.platform.credit.dao.companyInfo.CreditCompanyInfoDao">
+
+	<sql id="creditCompanyInfoColumns">
+		a.id AS "id",
+		a.credit_user_id AS "creditUserId",
+		a.company_name AS "companyName",
+		a.bank_account_no AS "bankAccountNo",
+		a.bank_name AS "bankName",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remark AS "remark",
+		a.del_flag AS "delFlag"
+	</sql>
+
+	<sql id="creditCompanyInfoJoins">
+	</sql>
+
+	<!-- 根据用户id获取公司信息列表. -->
+	<select id="getCreditCompanyInfoList" resultType="CreditCompanyInfo">
+		SELECT
+		<include refid="creditCompanyInfoColumns" />
+		FROM credit_company_info a
+		<include refid="creditCompanyInfoJoins" />
+		WHERE a.credit_user_id = #{creditUserId}
+	</select>
+
+	<select id="get" resultType="CreditCompanyInfo">
+		SELECT
+		<include refid="creditCompanyInfoColumns" />
+		FROM credit_company_info a
+		<include refid="creditCompanyInfoJoins" />
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findList" resultType="CreditCompanyInfo">
+		SELECT
+		<include refid="creditCompanyInfoColumns" />
+		FROM credit_company_info a
+		<include refid="creditCompanyInfoJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="companyName != null and companyName != ''">
+				AND a.company_name LIKE
+				<if test="dbName == 'oracle'">'%'||#{companyName}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{companyName}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{companyName},'%')</if>
+			</if>
+			<if test="bankAccountNo != null and bankAccountNo != ''">
+				AND a.bank_account_no LIKE
+				<if test="dbName == 'oracle'">'%'||#{bankAccountNo}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{bankAccountNo}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{bankAccountNo},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="CreditCompanyInfo">
+		SELECT
+		<include refid="creditCompanyInfoColumns" />
+		FROM credit_company_info a
+		<include refid="creditCompanyInfoJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<insert id="insert">
+		INSERT INTO credit_company_info(
+		id,
+		credit_user_id,
+		company_name,
+		bank_account_no,
+		bank_name,
+		create_by,
+		create_date,
+		update_by,
+		update_date,
+		remark,
+		del_flag
+		) VALUES (
+		#{id},
+		#{creditUserId},
+		#{companyName},
+		#{bankAccountNo},
+		#{bankName},
+		#{createBy.id},
+		#{createDate},
+		#{updateBy.id},
+		#{updateDate},
+		#{remark},
+		#{delFlag}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE credit_company_info SET
+		credit_user_id = #{creditUserId},
+		company_name = #{companyName},
+		bank_account_no = #{bankAccountNo},
+		bank_name = #{bankName},
+		update_by = #{updateBy.id},
+		update_date = #{updateDate},
+		remark = #{remark}
+		WHERE id = #{id}
+	</update>
+
+	<update id="delete">
+		UPDATE credit_company_info SET
+		del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+
+	<delete id="deleteCompanyInfoById">
+		DELETE FROM credit_company_info
+		WHERE id = #{id}
+	</delete>
+
+</mapper>

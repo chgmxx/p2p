@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.power.platform.plan.dao.WloanTermWrepayDao">
+
+	<sql id="wloanTermWrepayColumns">
+	</sql>
+ 
+	
+	<select id="findList" resultType="WloanTermWrepay">
+		 
+	</select>
+	
+ 
+	
+	
+	
+	<insert id="insert">
+		INSERT INTO wloan_term_wrepay(
+		id,
+		project_id,
+		plan_id,
+		repayment_date,
+		amount,
+		principal,
+		interest,
+		state,
+		sn,
+		fee_amount,
+		in_user_id,
+		in_account_id,
+		ip,
+		bid_id
+		)values(
+		#{id},
+		#{wloanTermProject.id},
+		#{wloanTermUserPlan.id},
+		#{repaymentDate},
+		#{amount},
+		#{principal},
+		#{interest},
+		#{state},
+		#{sn},
+		#{feeAmount},
+		#{userInfo.id},
+		#{accountInfo.id},
+		#{ip},
+		#{wloanTermInvest.id}
+		)
+	</insert>
+
+
+</mapper>

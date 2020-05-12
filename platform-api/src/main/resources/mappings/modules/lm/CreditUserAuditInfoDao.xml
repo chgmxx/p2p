@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.power.platform.lanmao.dao.CreditUserAuditInfoDao">
+
+	<sql id="creditUserAuditInfoColumns">
+		a.id AS "id",
+		a.platform_user_no AS "platformUserNo",
+		a.audit_status AS "auditStatus",
+		a.user_role AS "userRole",
+		a.bankcard_no AS "bankcardNo",
+		a.bankcode AS "bankcode",
+		a.remark AS "remark",
+		a.code AS "code",
+		a.status AS "status",
+		a.error_code AS "errorCode",
+		a.error_message AS "errorMessage",
+		a.create_date AS "createDate",
+		a.update_date AS "updateDate"
+	</sql>
+
+	<sql id="creditUserAuditInfoJoins">
+	</sql>
+
+	<select id="get" resultType="CreditUserAuditInfo">
+		SELECT
+		<include refid="creditUserAuditInfoColumns" />
+		FROM credit_user_audit_info a
+		<include refid="creditUserAuditInfoJoins" />
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findList" resultType="CreditUserAuditInfo">
+		SELECT
+		<include refid="creditUserAuditInfoColumns" />
+		FROM credit_user_audit_info a
+		<include refid="creditUserAuditInfoJoins" />
+		<where>
+
+			<if test="platformUserNo != null and platformUserNo != ''">
+				AND a.platform_user_no = #{platformUserNo}
+			</if>
+			<if test="auditStatus != null and auditStatus != ''">
+				AND a.audit_status = #{auditStatus}
+			</if>
+			<if test="userRole != null and userRole != ''">
+				AND a.user_role LIKE
+				<if test="dbName == 'oracle'">'%'||#{userRole}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{userRole}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{userRole},'%')</if>
+			</if>
+			<if test="bankcardNo != null and bankcardNo != ''">
+				AND a.bankcard_no LIKE
+				<if test="dbName == 'oracle'">'%'||#{bankcardNo}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{bankcardNo}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{bankcardNo},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="CreditUserAuditInfo">
+		SELECT
+		<include refid="creditUserAuditInfoColumns" />
+		FROM credit_user_audit_info a
+		<include refid="creditUserAuditInfoJoins" />
+		<where>
+
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<insert id="insert">
+		INSERT INTO credit_user_audit_info(
+		id,
+		platform_user_no,
+		audit_status,
+		user_role,
+		bankcard_no,
+		bankcode,
+		remark,
+		code,
+		status,
+		error_code,
+		error_message,
+		create_date,
+		update_date
+		) VALUES (
+		#{id},
+		#{platformUserNo},
+		#{auditStatus},
+		#{userRole},
+		#{bankcardNo},
+		#{bankcode},
+		#{remark},
+		#{code},
+		#{status},
+		#{errorCode},
+		#{errorMessage},
+		#{createDate},
+		#{updateDate}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE credit_user_audit_info SET
+		platform_user_no = #{platformUserNo},
+		audit_status = #{auditStatus},
+		user_role = #{userRole},
+		bankcard_no = #{bankcardNo},
+		bankcode = #{bankcode},
+		remark = #{remark},
+		code = #{code},
+		status = #{status},
+		error_code = #{errorCode},
+		error_message = #{errorMessage},
+		update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+
+	<update id="delete">
+		DELETE FROM credit_user_audit_info
+		WHERE id = #{id}
+	</update>
+
+</mapper>

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"  
+    xsi:noNamespaceSchemaLocation="ehcache.xsd" dynamicConfig="true" 
+    monitoring="autodetect" updateCheck="false" name="defaultCache">
+
+	<diskStore path="../temp/jeesite/ehcache" />
+
+	<!-- 默认缓存配置. 自动失效：最后一次访问时间间隔300秒失效，若没有访问过自创建时间600秒失效。-->
+<!-- 	<defaultCache maxEntriesLocalHeap="1000" eternal="false" timeToIdleSeconds="300" timeToLiveSeconds="600"
+		overflowToDisk="true" statistics="true"/> -->
+	<defaultCache maxElementsInMemory="10000" eternal="false" timeToIdleSeconds="120" timeToLiveSeconds="120" 
+    	maxEntriesLocalDisk="10000000" diskExpiryThreadIntervalSeconds="120" memoryStoreEvictionPolicy="LFU" statistics="true">
+    	<persistence strategy="localTempSwap"/>
+    </defaultCache>
+	
+	<!-- 系统缓存 -->
+	<!-- <cache name="sysCache" maxEntriesLocalHeap="1000" eternal="true" overflowToDisk="true" statistics="true"/> -->
+	<cache name="sysCache" maxElementsInMemory="10000" eternal="false" timeToIdleSeconds="120" timeToLiveSeconds="120" 
+    	maxEntriesLocalDisk="10000000" diskExpiryThreadIntervalSeconds="120" memoryStoreEvictionPolicy="LFU" statistics="true">
+    	<persistence strategy="localTempSwap"/>
+    </cache>
+	
+	<!-- 用户缓存 -->
+	<cache name="userCache" maxElementsInMemory="10000" eternal="false" timeToIdleSeconds="120" timeToLiveSeconds="120" 
+    	maxEntriesLocalDisk="10000000" diskExpiryThreadIntervalSeconds="120" memoryStoreEvictionPolicy="LFU" statistics="true">
+    	<persistence strategy="localTempSwap"/>
+    </cache>
+	
+	<!-- 集团缓存 -->
+	<cache name="corpCache" maxElementsInMemory="10000" eternal="false" timeToIdleSeconds="120" timeToLiveSeconds="120" 
+    	maxEntriesLocalDisk="10000000" diskExpiryThreadIntervalSeconds="120" memoryStoreEvictionPolicy="LFU" statistics="true">
+    	<persistence strategy="localTempSwap"/>
+    </cache>
+	
+	<!-- 内容管理模块缓存 -->
+	<cache name="cmsCache" maxElementsInMemory="10000" eternal="false" timeToIdleSeconds="120" timeToLiveSeconds="120" 
+    	maxEntriesLocalDisk="10000000" diskExpiryThreadIntervalSeconds="120" memoryStoreEvictionPolicy="LFU" statistics="true">
+    	<persistence strategy="localTempSwap"/>
+    </cache>
+    
+	<!-- 工作流模块缓存 -->
+	<cache name="actCache" maxElementsInMemory="10000" eternal="false" timeToIdleSeconds="120" timeToLiveSeconds="120" 
+    	maxEntriesLocalDisk="10000000" diskExpiryThreadIntervalSeconds="120" memoryStoreEvictionPolicy="LFU" statistics="true">
+    	<persistence strategy="localTempSwap"/>
+    </cache>
+	
+    <!-- 简单页面缓存 -->
+    <cache name="pageCachingFilter" maxElementsInMemory="10000" eternal="false" timeToIdleSeconds="120" timeToLiveSeconds="120" 
+    	maxEntriesLocalDisk="10000000" diskExpiryThreadIntervalSeconds="120" memoryStoreEvictionPolicy="LFU" statistics="true">
+    	<persistence strategy="localTempSwap"/>
+    </cache>
+	
+	<!-- 系统活动会话缓存 
+    <cache name="activeSessionsCache" maxElementsInMemory="10000" eternal="false" timeToIdleSeconds="120" timeToLiveSeconds="120" 
+    	maxEntriesLocalDisk="10000000" diskExpiryThreadIntervalSeconds="120" memoryStoreEvictionPolicy="LFU" statistics="true">
+    	<persistence strategy="localTempSwap"/>
+    </cache>-->
+    
+    <!-- 踢出会话缓存       
+    <cache name="shiro-kickout-session"  maxElementsInMemory="10000" eternal="false" timeToIdleSeconds="120" timeToLiveSeconds="120" 
+    	maxEntriesLocalDisk="10000000" diskExpiryThreadIntervalSeconds="120" memoryStoreEvictionPolicy="LFU" statistics="true">
+    	<persistence strategy="localTempSwap"/>
+    </cache> -->
+    	
+</ehcache>

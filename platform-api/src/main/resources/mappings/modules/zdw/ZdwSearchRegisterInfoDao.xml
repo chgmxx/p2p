@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.power.platform.zdw.dao.ZdwSearchRegisterInfoDao">
+
+	<sql id="zdwSearchRegisterInfoColumns">
+		a.id AS "id",
+		a.query_person AS "queryPerson",
+		a.guarantor_company_name AS "guarantorCompanyName",
+		a.query_date_time AS "queryDateTime",
+		a.query_prove_no AS "queryProveNo",
+		a.query_prove_file_path AS "queryProveFilePath",
+		a.no AS "no",
+		a.register_prove_no AS "registerProveNo",
+		a.register_date_time AS "registerDateTime",
+		a.register_expire_date_time AS "registerExpireDateTime",
+		a.register_type AS "registerType",
+		a.pledgee_name AS "pledgeeName",
+		a.register_prove_file_path AS "registerProveFilePath"
+	</sql>
+
+	<sql id="zdwSearchRegisterInfoJoins">
+	</sql>
+
+	<select id="get" resultType="ZdwSearchRegisterInfo">
+		SELECT
+		<include refid="zdwSearchRegisterInfoColumns" />
+		FROM zdw_search_register_info a
+		<include refid="zdwSearchRegisterInfoJoins" />
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findList" resultType="ZdwSearchRegisterInfo">
+		SELECT
+		<include refid="zdwSearchRegisterInfoColumns" />
+		FROM zdw_search_register_info a
+		<include refid="zdwSearchRegisterInfoJoins" />
+		<where>
+			<if test="guarantorCompanyName != null and guarantorCompanyName != ''">
+				AND a.guarantor_company_name LIKE
+				<if test="dbName == 'oracle'">'%'||#{guarantorCompanyName}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{guarantorCompanyName}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{guarantorCompanyName},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.no ASC
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="ZdwSearchRegisterInfo">
+		SELECT
+		<include refid="zdwSearchRegisterInfoColumns" />
+		FROM zdw_search_register_info a
+		<include refid="zdwSearchRegisterInfoJoins" />
+		<where>
+
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+
+	<insert id="insert">
+		INSERT INTO zdw_search_register_info(
+		id,
+		query_person,
+		guarantor_company_name,
+		query_date_time,
+		query_prove_no,
+		query_prove_file_path,
+		no,
+		register_prove_no,
+		register_date_time,
+		register_expire_date_time,
+		register_type,
+		pledgee_name,
+		register_prove_file_path
+		) VALUES (
+		#{id},
+		#{queryPerson},
+		#{guarantorCompanyName},
+		#{queryDateTime},
+		#{queryProveNo},
+		#{queryProveFilePath},
+		#{no},
+		#{registerProveNo},
+		#{registerDateTime},
+		#{registerExpireDateTime},
+		#{registerType},
+		#{pledgeeName},
+		#{registerProveFilePath}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE zdw_search_register_info SET
+		query_person = #{queryPerson},
+		guarantor_company_name = #{guarantorCompanyName},
+		query_date_time = #{queryDateTime},
+		query_prove_no = #{queryProveNo},
+		query_prove_file_path = #{queryProveFilePath},
+		no = #{no},
+		register_prove_no = #{registerProveNo},
+		register_date_time = #{registerDateTime},
+		register_expire_date_time = #{registerExpireDateTime},
+		register_type = #{registerType},
+		pledgee_name = #{pledgeeName},
+		register_prove_file_path = #{registerProveFilePath}
+		WHERE id = #{id}
+	</update>
+
+	<update id="delete">
+		DELETE FROM zdw_search_register_info
+		WHERE id = #{id}
+	</update>
+
+</mapper>

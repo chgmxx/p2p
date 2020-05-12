@@ -1,0 +1,363 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.power.platform.bouns.dao.UserAwardDao">
+
+	<sql id="userAwardColumns">
+		a.id AS "id",
+		a.user_id AS "userId",
+		a.create_time AS "createTime",
+		a.update_time AS "updateTime",
+		a.award_id AS "awardId",
+		a.state AS "state",
+		a.express_no AS "expressNo",
+		a.express_name AS "expressName",
+		a.address_id AS "addressId",
+		a.need_amount AS "needAmount",
+		a.deadline AS "deadline",
+		a.voucher_id AS "voucherId",
+		b.id AS "userInfo.id",
+		b.name AS "userInfo.name",
+		b.real_name AS "userInfo.realName",
+		c.docs AS "awardInfo.docs",
+		c.name AS "awardInfo.name",
+		c.need_amount AS "awardInfo.needAmount",
+		c.id AS "awardInfo.id",
+		c.is_true AS "awardInfo.isTrue",
+		c.img_web AS "awardInfo.imgWeb",
+		c.img_wap AS "awardInfo.imgWap",
+		c.deadline AS "awardInfo.deadline",
+		ar.name as "userConsigneeAddress.provinceCode",
+		ara.name as "userConsigneeAddress.cityCode",
+		d.address as "userConsigneeAddress.address",
+		d.name as
+		"userConsigneeAddress.username",
+		d.mobile as "userConsigneeAddress.mobile"
+	</sql>
+	
+	<sql id="userAwardColumns2">
+		a.id AS "id",
+		a.user_id AS "userId",
+		a.create_time AS "createTime",
+		a.update_time AS "updateTime",
+		a.award_id AS "awardId",
+		a.state AS "state",
+		a.express_no AS "expressNo",
+		a.express_name AS "expressName",
+		a.address_id AS "addressId",
+		a.need_amount AS "needAmount",
+		a.deadline AS "deadline",
+		a.voucher_id AS "voucherId",
+		b.id AS "userInfo.id",
+		b.name AS "userInfo.name",
+		b.real_name AS "userInfo.realName",
+		c.docs AS "awardInfo.docs",
+		c.name AS "awardInfo.name",
+		c.need_amount AS "awardInfo.needAmount",
+		c.id AS "awardInfo.id",
+		c.is_true AS "awardInfo.isTrue",
+		c.img_web AS "awardInfo.imgWeb",
+		c.img_wap AS "awardInfo.imgWap",
+		c.deadline AS "awardInfo.deadline"
+	</sql>
+
+	<sql id="userAwardJoins2">
+		LEFT JOIN user_info b ON b.id = a.user_id
+		LEFT JOIN award_info c ON c.id = a.award_id
+	</sql>
+	
+	<sql id="userAwardJoins">
+		LEFT JOIN user_info b ON b.id = a.user_id
+		LEFT JOIN award_info c ON c.id = a.award_id
+		LEFT JOIN user_consignee_address d ON d.id = a.address_id
+		LEFT JOIN sys_area ar ON ar.sort = d.province_code
+		LEFT JOIN sys_area ara ON ara.sort = d.city_code
+	</sql>
+
+	<select id="get" resultType="UserAward">
+		SELECT
+		<include refid="userAwardColumns" />
+		FROM user_award a
+		<include refid="userAwardJoins" />
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findList" resultType="UserAward">
+		SELECT
+		<include refid="userAwardColumns2" />
+		FROM user_award a
+		<include refid="userAwardJoins2" />
+		<where>
+			<if test="beginDate != null and beginDate != ''">
+				AND a.create_time &gt;= #{beginDate}
+			</if>
+			<if test="endDate != null and endDate != ''">
+				AND a.create_time &lt;= #{endDate}
+			</if>
+			<if test="userInfo != null">
+				<if test="userInfo.id != null and userInfo.id != ''">
+					AND b.id = #{userInfo.id}
+				</if>
+				<if test="userInfo.name != null and userInfo.name != ''">
+					AND b.name LIKE
+					<if test="dbName == 'mysql'">concat('%',#{userInfo.name},'%')</if>
+				</if>
+				<if test="userInfo.realName != null and userInfo.realName != ''">
+					AND b.real_name LIKE
+					<if test="dbName == 'mysql'">concat('%',#{userInfo.realName},'%')</if>
+				</if>
+			</if>
+			<if test="expressNo != null and expressNo != ''">
+				AND a.express_no = #{expressNo}
+			</if>
+			<if test="userId != null and userId != ''">
+				AND a.user_id = #{userId}
+			</if>
+			<if test="awardInfo != null">
+				<if test="awardInfo.isTrue != null and awardInfo.isTrue != ''">
+					AND c.is_true = #{awardInfo.isTrue}
+				</if>
+			</if>
+			<if test="state != null and state != ''">
+				AND a.state = #{state}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			ORDER BY a.create_time desc
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findList2" resultType="UserAward">
+		SELECT
+		<include refid="userAwardColumns" />
+		FROM user_award a
+		<include refid="userAwardJoins" />
+		<where>
+			<if test="beginDate != null and beginDate != ''">
+				AND a.create_time &gt;= #{beginDate}
+			</if>
+			<if test="endDate != null and endDate != ''">
+				AND a.create_time &lt;= #{endDate}
+			</if>
+			<if test="userInfo != null">
+				<if test="userInfo.id != null and userInfo.id != ''">
+					AND b.id = #{userInfo.id}
+				</if>
+				<if test="userInfo.name != null and userInfo.name != ''">
+					AND b.name LIKE
+					<if test="dbName == 'mysql'">concat('%',#{userInfo.name},'%')</if>
+				</if>
+				<if test="userInfo.realName != null and userInfo.realName != ''">
+					AND b.real_name LIKE
+					<if test="dbName == 'mysql'">concat('%',#{userInfo.realName},'%')</if>
+				</if>
+			</if>
+			<if test="expressNo != null and expressNo != ''">
+				AND a.express_no = #{expressNo}
+			</if>
+			<if test="userId != null and userId != ''">
+				AND a.user_id = #{userId}
+			</if>
+			<if test="awardInfo != null">
+				<if test="awardInfo.isTrue != null and awardInfo.isTrue != ''">
+					AND c.is_true = #{awardInfo.isTrue}
+				</if>
+			</if>
+			<if test="state != null and state != ''">
+				AND a.state = #{state}
+			</if>
+			<if test="awardGetType==0">
+				    AND a.need_amount = 0
+			 </if>
+			 <if test="awardGetType==1">
+				    AND a.need_amount &gt; 0
+			 </if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			ORDER BY a.create_time desc
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="UserAward">
+		SELECT
+		<include refid="userAwardColumns" />
+		FROM user_award a
+		<include refid="userAwardJoins" />
+		<where>
+
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+
+	<insert id="insert">
+		INSERT INTO user_award(
+		id,
+		user_id,
+		create_time,
+		update_time,
+		award_id,
+		state,
+		express_no,
+		express_name,
+		address_id,
+		need_amount,
+		deadline,
+		voucher_id
+		) VALUES (
+		#{id},
+		#{userId},
+		#{createTime},
+		#{updateTime},
+		#{awardId},
+		#{state},
+		#{expressNo},
+		#{expressName},
+		#{addressId},
+		#{needAmount},
+		#{deadline},
+		#{voucherId}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE user_award SET
+		user_id = #{userId},
+		create_time = #{createTime},
+		update_time = #{updateTime},
+		award_id = #{awardId},
+		state = #{state},
+		express_no = #{expressNo},
+		express_name = #{expressName},
+		address_id = #{addressId},
+		need_amount = #{needAmount},
+		deadline = #{deadline},
+		voucher_id = #{voucherId}
+		WHERE id = #{id}
+	</update>
+
+	<update id="delete">
+		DELETE FROM user_award
+		WHERE id = #{id}
+	</update>
+	
+	<!-- 兑奖类型0 -->
+	<select id="findNeedAmount0" resultType="UserAward">
+		SELECT
+		<include refid="userAwardColumns2" />
+		FROM user_award a
+		<include refid="userAwardJoins2" />
+		<where>
+			<if test="beginDate != null and beginDate != ''">
+				AND a.create_time &gt;= #{beginDate}
+			</if>
+			<if test="endDate != null and endDate != ''">
+				AND a.create_time &lt;= #{endDate}
+			</if>
+			<if test="userInfo != null">
+				<if test="userInfo.id != null and userInfo.id != ''">
+					AND b.id = #{userInfo.id}
+				</if>
+				<if test="userInfo.name != null and userInfo.name != ''">
+					AND b.name LIKE
+					<if test="dbName == 'mysql'">concat('%',#{userInfo.name},'%')</if>
+				</if>
+				<if test="userInfo.realName != null and userInfo.realName != ''">
+					AND b.real_name LIKE
+					<if test="dbName == 'mysql'">concat('%',#{userInfo.realName},'%')</if>
+				</if>
+			</if>
+			<if test="expressNo != null and expressNo != ''">
+				AND a.express_no = #{expressNo}
+			</if>
+			<if test="userId != null and userId != ''">
+				AND a.user_id = #{userId}
+			</if>
+			<if test="awardInfo != null">
+				<if test="awardInfo.isTrue != null and awardInfo.isTrue != ''">
+					AND c.is_true = #{awardInfo.isTrue}
+				</if>
+			</if>
+			<if test="state != null and state != ''">
+				AND a.state = #{state}
+			</if>
+				AND a.need_amount = 0
+		</where>
+		ORDER BY a.create_time desc
+	</select>
+	
+	<!-- 兑奖类型1  -->
+	<select id="findNeedAmount1" resultType="UserAward">
+		SELECT
+		<include refid="userAwardColumns2" />
+		FROM user_award a
+		<include refid="userAwardJoins2" />
+		<where>
+			<if test="beginDate != null and beginDate != ''">
+				AND a.create_time &gt;= #{beginDate}
+			</if>
+			<if test="endDate != null and endDate != ''">
+				AND a.create_time &lt;= #{endDate}
+			</if>
+			<if test="userInfo != null">
+				<if test="userInfo.id != null and userInfo.id != ''">
+					AND b.id = #{userInfo.id}
+				</if>
+				<if test="userInfo.name != null and userInfo.name != ''">
+					AND b.name LIKE
+					<if test="dbName == 'mysql'">concat('%',#{userInfo.name},'%')</if>
+				</if>
+				<if test="userInfo.realName != null and userInfo.realName != ''">
+					AND b.real_name LIKE
+					<if test="dbName == 'mysql'">concat('%',#{userInfo.realName},'%')</if>
+				</if>
+			</if>
+			<if test="expressNo != null and expressNo != ''">
+				AND a.express_no = #{expressNo}
+			</if>
+			<if test="userId != null and userId != ''">
+				AND a.user_id = #{userId}
+			</if>
+			<if test="awardInfo != null">
+				<if test="awardInfo.isTrue != null and awardInfo.isTrue != ''">
+					AND c.is_true = #{awardInfo.isTrue}
+				</if>
+			</if>
+			<if test="state != null and state != ''">
+				AND a.state = #{state}
+			</if>
+				AND a.need_amount &gt; 0
+		</where>
+		ORDER BY a.create_time desc
+	</select>
+	
+	<!-- 查询待下单且过了失效日期 -->
+	<select id="findToDeadList" resultType="UserAward">
+		SELECT
+		<include refid="userAwardColumns2" />
+		FROM user_award a
+		<include refid="userAwardJoins2" />
+		<where>
+		    1 = 1
+		    AND a.state = 0
+		    AND c.is_true = 0
+		    AND a.deadline IS NOT NULL
+		    AND a.deadline &lt;= now()
+		</where>
+	</select>
+
+</mapper>

@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.power.platform.current.dao.invest.WloanCurrentProjectInvestDao">
+    
+	<sql id="wloanCurrentProjectInvestColumns">
+		a.id 				AS "id",
+		a.project_id 		AS "projectId",
+		a.user_id 			AS "userid",
+		a.amount 			AS "amount",
+		a.bid_date 			AS "bidDate",
+		a.vouvher_amount 	AS "vouvherAmount",
+		a.user_invest 		AS "userInvest",
+		a.contract_url 		AS "contractUrl",
+		a.del_flag 			AS "delFlag",
+		b.id 				AS "currentProjectInfo.id",
+		b.name 				AS "currentProjectInfo.name",
+		c.id 				AS "userInfo.id",
+		c.name 				AS "userInfo.name",
+		c.real_name 		AS "userInfo.realName"
+	</sql>
+	
+	<sql id="wloanCurrentProjectInvestJoins">
+		JOIN wloan_current_project b ON a.project_id = b.id
+		JOIN user_info c ON a.user_id = c.id
+	</sql>
+    
+	<select id="get" resultType="WloanCurrentProjectInvest">
+		SELECT 
+			<include refid="wloanCurrentProjectInvestColumns"/>
+		FROM wloan_current_project_invest a
+		<include refid="wloanCurrentProjectInvestJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="WloanCurrentProjectInvest">
+		SELECT 
+			<include refid="wloanCurrentProjectInvestColumns"/>
+		FROM wloan_current_project_invest a
+		<include refid="wloanCurrentProjectInvestJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="projectId != null and projectId != ''">
+				AND a.project_id = #{projectId } 
+			</if>
+			<if test="userid != null and userid != ''">
+				AND a.user_id = #{userid } 
+			</if>
+			<if test="currentProjectInfo != null">
+				<if test="currentProjectInfo.name != null and currentProjectInfo.name != ''">
+					and b.name LIKE
+					<if test="dbName == 'mysql'">concat('%',#{currentProjectInfo.name},'%')</if>
+				</if>
+			</if>
+			<if test="userInfo != null">
+				<if test="userInfo.name != null and userInfo.name != ''">
+					and c.name LIKE
+					<if test="dbName == 'mysql'">concat('%',#{userInfo.name},'%')</if>
+				</if>
+				<if test="userInfo.realName != null and userInfo.realName != ''">
+					and c.real_name LIKE
+					<if test="dbName == 'mysql'">concat('%',#{userInfo.realName},'%')</if>
+				</if>
+			</if>
+			<if test="userInvest != null and userInvest != ''">
+				AND a.user_invest = #{userInvest} 
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.bid_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="WloanCurrentProjectInvest">
+		SELECT 
+			<include refid="wloanCurrentProjectInvestColumns"/>
+		FROM wloan_current_project_invest a
+		<include refid="wloanCurrentProjectInvestJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO wloan_current_project_invest(
+			id,
+			project_id,
+			user_id,
+			amount,
+			bid_date,
+			vouvher_amount,
+			user_invest,
+			contract_url,
+			del_flag
+		) VALUES (
+			#{id},
+			#{projectId},
+			#{userid},
+			#{amount},
+			#{bidDate},
+			#{vouvherAmount},
+			#{userInvest},
+			#{contractUrl},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE wloan_current_project_invest SET 	
+			project_id = #{projectId},
+			user_id = #{userid},
+			amount = #{amount},
+			bid_date = #{bidDate},
+			vouvher_amount = #{vouvherAmount},
+			user_invest = #{userInvest},
+			contract_url = #{contractUrl}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE wloan_current_project_invest SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	<!-- 根据用户ID查询投资列表(按投资时间升序) -->
+	<select id="findListOrderBy" resultType="WloanCurrentProjectInvest">
+		SELECT 
+		a.id 				AS "id",
+		a.project_id 		AS "projectId",
+		a.user_id 			AS "userid",
+		a.amount 			AS "amount",
+		a.bid_date 			AS "bidDate",
+		a.vouvher_amount 	AS "vouvherAmount",
+		a.user_invest 		AS "userInvest",
+		a.contract_url 		AS "contractUrl"
+		FROM     wloan_current_project_invest a
+        WHERE    a.user_id = #{userId} and del_flag = '0'
+		ORDER BY a.bid_date desc
+	</select>
+	
+</mapper>

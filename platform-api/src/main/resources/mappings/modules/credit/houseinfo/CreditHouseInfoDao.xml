@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.power.platform.credit.dao.houseinfo.CreditHouseInfoDao">
+    
+	<sql id="creditHouseInfoColumns">
+		a.id AS "id",
+		a.credit_user_id AS "creditUserId",
+		a.area_province AS "areaProvince",
+		a.area_city AS "areaCity",
+		a.address AS "address",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remark AS "remark",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<sql id="creditHouseInfoColumns1">
+		a.id AS "id",
+		a.credit_user_id AS "creditUserId",
+		a.area_province AS "areaProvince",
+		a.area_city AS "areaCity",
+		a.address AS "address",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remark AS "remark",
+		a.del_flag AS "delFlag",
+		b.name AS "creditUserInfo.name",
+		ar.name AS "province.name",
+		ara.name AS "city.name",
+	    GROUP_CONCAT(c.url) AS "creditAnnexFile.url"
+	</sql>
+	
+	<sql id="creditHouseInfoJoins1">
+	LEFT JOIN credit_user_info b ON a.credit_user_id = b.id
+	LEFT JOIN sys_area ar ON ar.sort = a.area_province
+	LEFT JOIN sys_area ara ON ara.sort = a.area_city
+	LEFT JOIN credit_annex_file c ON a.id = c.other_id
+	</sql>
+	
+	<sql id="creditHouseInfoJoins">
+	
+	</sql>
+    
+	<select id="get" resultType="CreditHouseInfo">
+		SELECT 
+			<include refid="creditHouseInfoColumns"/>
+		FROM credit_house_info a
+		<include refid="creditHouseInfoJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="CreditHouseInfo">
+		SELECT 
+			<include refid="creditHouseInfoColumns"/>
+		FROM credit_house_info a
+		<include refid="creditHouseInfoJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="creditUserId != null and creditUserId != ''">
+				AND a.credit_user_id = #{creditUserId}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<!-- 用于后台查询 -->
+	<select id="findList1" resultType="CreditHouseInfo">
+		SELECT 
+			<include refid="creditHouseInfoColumns1"/>
+		FROM credit_house_info a
+		<include refid="creditHouseInfoJoins1"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="creditUserId != null and creditUserId != ''">
+				AND a.credit_user_id = #{creditUserId}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			    GROUP BY c.other_id
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="CreditHouseInfo">
+		SELECT 
+			<include refid="creditHouseInfoColumns"/>
+		FROM credit_house_info a
+		<include refid="creditHouseInfoJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO credit_house_info(
+			id,
+			credit_user_id,
+			area_province,
+			area_city,
+			address,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remark,
+			del_flag
+		) VALUES (
+			#{id},
+			#{creditUserId},
+			#{areaProvince},
+			#{areaCity},
+			#{address},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remark},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE credit_house_info SET 	
+			credit_user_id = #{creditUserId},
+			area_province = #{areaProvince},
+			area_city = #{areaCity},
+			address = #{address},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remark = #{remark}
+		WHERE id = #{id}
+	</update>
+	
+	<delete id="delete">
+	  DELETE from credit_house_info
+	  WHERE id = #{id}
+	</delete>
+	
+</mapper>

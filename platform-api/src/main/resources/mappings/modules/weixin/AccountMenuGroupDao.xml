@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://10.20.91.130/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.power.platform.weixin.dao.AccountMenuGroupDao">
+
+
+	<sql id="accountMenuGroupColumns">
+		a.id AS "id",
+		a.name AS "name",
+		a.enable AS "enable",
+		a.createtime AS "createDate" 
+	</sql>
+	<select id="findList" resultType="AccountMenuGroup">
+		SELECT <include refid="accountMenuGroupColumns"/>
+		FROM t_wxcms_account_menu_group a
+		ORDER BY ID
+	</select>
+
+	<select id="get" resultType="AccountMenuGroup">
+		SELECT <include refid="accountMenuGroupColumns"/>
+		FROM t_wxcms_account_menu_group a
+		WHERE ID = #{id}
+	</select>
+
+	<insert id="insert">
+		INSERT INTO t_wxcms_account_menu_group ( NAME,ENABLE,ID,CREATETIME )  
+		VALUES ( #{name},#{enable},#{id},#{createDate} ) 
+	</insert>
+	
+	<update id="updateMenuGroupDisable">
+		UPDATE t_wxcms_account_menu_group SET ENABLE = 0
+	</update>
+	
+	<update id="updateMenuGroupEnable" >
+		UPDATE t_wxcms_account_menu_group SET ENABLE = 1 WHERE ID = #{id}
+	</update>
+
+	<update id="update">
+		UPDATE t_wxcms_account_menu_group SET NAME = #{name},ENABLE = #{enable},CREATETIME = #{createDate} WHERE ID = #{id} 
+	</update>
+
+	<delete id="deleteAllMenu">
+		DELETE FROM t_wxcms_account_menu WHERE GID = #{id}
+	</delete>
+
+	<delete id="delete">
+		DELETE FROM t_wxcms_account_menu_group WHERE ID = #{id}
+	</delete>
+</mapper>

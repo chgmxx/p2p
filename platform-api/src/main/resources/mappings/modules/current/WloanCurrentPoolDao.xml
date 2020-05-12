@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.power.platform.current.dao.WloanCurrentPoolDao">
+    
+	<sql id="wloanCurrentPoolColumns">
+		a.id 					AS "id",
+		a.name 					AS "name",
+		a.amount				AS "amount",
+		a.surplus_amount 		AS "surplusAmount",
+		a.annual_rate 			AS "annualRate",
+		a.min_amount 			AS "minAmount",
+		a.max_amount 			AS "maxAmount",
+		a.step_amount 			AS "stepAmount",
+		a.create_date 			AS "createDate",
+		a.create_by 			AS "createBy.id",
+		a.update_date 			AS "updateDate",
+		a.update_by 			AS "updateBy.id",
+		a.remark 				AS "remark",
+		a.del_flag 				AS "delFlag"
+	</sql>
+	
+	<sql id="wloanCurrentPoolJoins">
+	</sql>
+    
+	<select id="get" resultType="WloanCurrentPool">
+		SELECT 
+			<include refid="wloanCurrentPoolColumns"/>
+		FROM wloan_current_pool a
+		<include refid="wloanCurrentPoolJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="WloanCurrentPool">
+		SELECT 
+			<include refid="wloanCurrentPoolColumns"/>
+		FROM wloan_current_pool a
+		<include refid="wloanCurrentPoolJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="name != null and name != ''">
+				AND a.name LIKE 
+					<if test="dbName == 'mysql'">concat('%',#{name},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="WloanCurrentPool">
+		SELECT 
+			<include refid="wloanCurrentPoolColumns"/>
+		FROM wloan_current_pool a
+		<include refid="wloanCurrentPoolJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO wloan_current_pool(
+			id,
+			name,
+			amount,
+			surplus_amount,
+			annual_rate,
+			min_amount,
+			max_amount,
+			step_amount,
+			create_date,
+			create_by,
+			update_date,
+			update_by,
+			remark,
+			del_flag
+		) VALUES (
+			#{id},
+			#{name},
+			#{amount},
+			#{surplusAmount},
+			#{annualRate},
+			#{minAmount},
+			#{maxAmount},
+			#{stepAmount},
+			#{createDate},
+			#{createBy.id},
+			#{updateDate},
+			#{updateBy.id},
+			#{remark},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE wloan_current_pool SET 	
+			name = #{name},
+			amount = #{amount},
+			surplus_amount = #{surplusAmount},
+			annual_rate = #{annualRate},
+			min_amount = #{minAmount},
+			max_amount = #{maxAmount},
+			step_amount = #{stepAmount},
+			update_date = #{updateDate},
+			update_by = #{updateBy.id},
+			remark = #{remark}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE wloan_current_pool SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://10.20.91.130/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.power.platform.weixin.dao.MsgTextDao">
+	<sql id="msgTextColumns">
+		a.id AS "id",
+		a.content AS "content",
+		a.createdate AS "createDate",
+		b.id AS "msgBase.id",
+		b.msg_type AS "msgBase.msgType",
+		b.input_code AS "msgBase.inputCode",
+		b.rule AS "msgBase.rule",
+		b.enable AS "msgBase.enable",
+		b.read_count AS "msgBase.readCount",
+		b.favour_count AS "msgBase.favourCount",
+		b.createtime AS "msgBase.createDate"
+	</sql>
+	
+	<select id="findList" resultType="MsgText">
+		SELECT <include refid="msgTextColumns"/>
+		FROM t_wxcms_msg_text a 
+		LEFT JOIN t_wxcms_msg_base b 
+		ON a.base_id = b.id
+		<where>
+			1 = 1
+			<if test="content !=null  and content != '' ">
+				and a.content like concat('%', #{content}, '%')  
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="get" resultType="MsgText">
+		SELECT <include refid="msgTextColumns"/> 
+		FROM t_wxcms_msg_text a
+		LEFT JOIN t_wxcms_msg_base b 
+		ON a.base_id = b.id
+		WHERE a.ID = #{id}
+	</select>
+	
+	<select id="getMsgTextByInputCode" resultType="MsgText">
+		SELECT <include refid="msgTextColumns"/>
+		FROM t_wxcms_msg_text a 
+		LEFT JOIN t_wxcms_msg_base b 
+		ON a.base_id = b.id
+		where b.input_code = #{inputcode}
+	</select>
+	 
+	<select id="getMsgTextByBaseId" parameterType="java.lang.String" resultType="MsgText">
+		SELECT <include refid="msgTextColumns"/>
+		FROM t_wxcms_msg_text a 
+		LEFT JOIN t_wxcms_msg_base b 
+		ON a.base_id = b.id
+		AND b.id = #{id}
+	</select>
+	
+	<select id="getRandomMsg" parameterType="java.lang.String" resultType="MsgText">
+		SELECT t.* from t_wxcms_msg_text t , t_wxcms_msg_base b
+		WHERE b.inputCode = #{inputCode} and t.base_id = b.id 
+		ORDER BY RAND() LIMIT 1
+	</select>
+	
+	<select id="getRandomMsg2" resultType="MsgText">
+		SELECT t.* from t_wxcms_msg_text t , t_wxcms_msg_base b
+		WHERE t.base_id = b.id 
+		ORDER BY RAND() LIMIT 1
+	</select>
+
+	<insert id="insert" >
+		INSERT INTO t_wxcms_msg_text (ID, CONTENT, BASE_ID, CREATEDATE)  
+		VALUES (#{id}, #{content}, #{msgBase.id}, #{createDate}) 
+	</insert>
+
+	<update id="update" >
+		UPDATE t_wxcms_msg_text SET CONTENT = #{content} WHERE ID = #{id} 
+	</update>
+
+	<delete id="delete">
+		DELETE FROM t_wxcms_msg_text WHERE ID = #{id}
+	</delete>
+
+</mapper>

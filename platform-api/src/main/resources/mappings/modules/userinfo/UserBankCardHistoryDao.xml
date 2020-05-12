@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.power.platform.userinfo.dao.UserBankCardHistoryDao">
+
+	<sql id="userBankCardHistoryColumns">
+		a.id AS "id",
+		a.user_id AS "userId",
+		a.real_name AS "realName",
+		a.mobile_phone AS "mobilePhone",
+		a.identity_card_no AS "identityCardNo",
+		a.old_bank_card_no AS "oldBankCardNo",
+		a.new_bank_card_no AS "newBankCardNo",
+		a.state AS "state",
+		a.replace_date AS "replaceDate",
+		a.remarks AS "remarks",
+		a.identity_card_forward_side_pic_url AS "identityCardForwardSidePicUrl",
+		a.identity_card_back_side_pic_url AS "identityCardBackSidePicUrl",
+		a.identity_card_and_person_pic_url AS "identityCardAndPersonPicUrl",
+		a.create_date,
+		a.update_date,
+		a.del_flag AS "delFlag"
+	</sql>
+
+	<sql id="userBankCardHistoryJoins">
+	</sql>
+
+	<select id="get" resultType="UserBankCardHistory">
+		SELECT
+		<include refid="userBankCardHistoryColumns" />
+		FROM user_bank_card_history a
+		<include refid="userBankCardHistoryJoins" />
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findList" resultType="UserBankCardHistory">
+		SELECT
+		<include refid="userBankCardHistoryColumns" />
+		FROM user_bank_card_history a
+		<include refid="userBankCardHistoryJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="realName != null and realName != ''">
+				AND a.real_name LIKE
+				<if test="dbName == 'oracle'">'%'||#{realName}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{realName}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{realName},'%')</if>
+			</if>
+			<if test="mobilePhone != null and mobilePhone != ''">
+				AND a.mobile_phone LIKE
+				<if test="dbName == 'oracle'">'%'||#{mobilePhone}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{mobilePhone}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{mobilePhone},'%')</if>
+			</if>
+			<if test="state != null and state != ''">
+				AND a.state = #{state}
+			</if>
+			<if test="beginReplaceDate != null and beginReplaceDate != ''">
+				AND a.replace_date &gt;= #{beginReplaceDate}
+			</if>
+			<if test="endReplaceDate != null and endReplaceDate != ''">
+				AND a.replace_date &lt;= #{endReplaceDate}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="UserBankCardHistory">
+		SELECT
+		<include refid="userBankCardHistoryColumns" />
+		FROM user_bank_card_history a
+		<include refid="userBankCardHistoryJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+
+	<insert id="insert">
+		INSERT INTO user_bank_card_history(
+		id,
+		user_id,
+		real_name,
+		mobile_phone,
+		identity_card_no,
+		old_bank_card_no,
+		new_bank_card_no,
+		state,
+		replace_date,
+		remarks,
+		identity_card_forward_side_pic_url,
+		identity_card_back_side_pic_url,
+		identity_card_and_person_pic_url,
+		create_date,
+		update_date,
+		del_flag
+		) VALUES (
+		#{id},
+		#{userId},
+		#{realName},
+		#{mobilePhone},
+		#{identityCardNo},
+		#{oldBankCardNo},
+		#{newBankCardNo},
+		#{state},
+		#{replaceDate},
+		#{remarks},
+		#{identityCardForwardSidePicUrl},
+		#{identityCardBackSidePicUrl},
+		#{identityCardAndPersonPicUrl},
+		#{createDate},
+		#{updateDate},
+		#{delFlag}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE user_bank_card_history SET
+		user_id = #{userId},
+		real_name = #{realName},
+		mobile_phone = #{mobilePhone},
+		identity_card_no = #{identityCardNo},
+		old_bank_card_no = #{oldBankCardNo},
+		new_bank_card_no = #{newBankCardNo},
+		state = #{state},
+		remarks = #{remarks},
+		identity_card_forward_side_pic_url = #{identityCardForwardSidePicUrl},
+		identity_card_back_side_pic_url = #{identityCardBackSidePicUrl},
+		identity_card_and_person_pic_url = #{identityCardAndPersonPicUrl},
+		update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+
+	<update id="delete">
+		UPDATE user_bank_card_history SET
+		del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+
+	<!-- 判断客户是否在重复提交更换银行卡操作. -->
+	<select id="checkUserBankCardHistoryExist" resultType="UserBankCardHistory">
+		SELECT
+		<include refid="userBankCardHistoryColumns" />
+		FROM
+		user_bank_card_history a
+		WHERE
+		1 = 1
+		AND a.user_id = #{userId}
+		AND a.state = #{state}
+	</select>
+
+</mapper>

@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.power.platform.bouns.dao.UserBounsPointDao">
+    
+	<sql id="userBounsPointColumns">
+		a.id AS "id",
+		a.user_id AS "userInfo.id",
+		a.score AS "score",
+		a.create_date AS "createDate",
+		a.update_date AS "updateDate",
+		u.name AS "userInfo.name",
+		u.real_name AS "userInfo.realName"
+	</sql>
+	
+	<sql id="userBounsPointJoins">
+		LEFT JOIN user_info u ON u.id = a.user_id
+	</sql>
+    
+	<select id="get" resultType="UserBounsPoint">
+		SELECT 
+			<include refid="userBounsPointColumns"/>
+		FROM user_bouns_point a
+		<include refid="userBounsPointJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="UserBounsPoint">
+		SELECT 
+			<include refid="userBounsPointColumns"/>
+		FROM user_bouns_point a
+		<include refid="userBounsPointJoins"/>
+		<where>
+			1 = 1
+			<if test="userInfo != null">
+				<if test="userInfo.name != null and userInfo.name != ''">
+					AND u.name LIKE
+					<if test="dbName == 'mysql'">concat('%',#{userInfo.name},'%')</if>
+				</if>
+				<if test="userInfo.realName != null and userInfo.realName != ''">
+					AND u.real_name LIKE
+					<if test="dbName == 'mysql'">concat('%',#{userInfo.realName},'%')</if>
+				</if>
+			</if>
+			<if test="userId != null and userId != ''">
+				AND a.user_id = #{userId }
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="UserBounsPoint">
+		SELECT 
+			<include refid="userBounsPointColumns"/>
+		FROM user_bouns_point a
+		<include refid="userBounsPointJoins"/>
+		<where>
+			
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO user_bouns_point(
+			id,
+			user_id,
+			score,
+			create_date,
+			update_date
+		) VALUES (
+			#{id},
+			#{userInfo.id},
+			#{score},
+			#{createDate},
+			#{updateDate}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE user_bouns_point SET 	
+			score = #{score},
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		DELETE FROM user_bouns_point
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

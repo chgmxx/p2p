@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.power.platform.ifcert.dao.RepayPlanDao">
+
+	<sql id="repayPlanColumns">
+		a.version AS "version",
+		a.sourcecode AS "sourceCode",
+		a.sourceproductcode AS "sourceProductCode",
+		a.useridcardhash AS "userIdcardHash",
+		a.totalissue AS "totalIssue",
+		a.issue AS "issue",
+		a.replanid AS "replanId",
+		a.curfund AS "curFund",
+		a.curinterest AS "curInterest",
+		a.curservicecharge AS "curServiceCharge",
+		a.repaytime AS "repayTime",
+		a.batchnum AS "batchNum",
+		a.sendtime AS "sendTime"
+	</sql>
+
+	<sql id="repayPlanJoins">
+	</sql>
+
+	<select id="get" resultType="RepayPlan">
+		SELECT
+		<include refid="repayPlanColumns" />
+		FROM repayplan a
+		<include refid="repayPlanJoins" />
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findList" resultType="RepayPlan">
+		SELECT
+		<include refid="repayPlanColumns" />
+		FROM repayplan a
+		<include refid="repayPlanJoins" />
+		<where>
+			<!-- 批次号. -->
+			<if test="batchNum != null and batchNum != ''">
+				AND a.batchnum = #{batchNum}
+			</if>
+			<if test="sendTime != null and sendTime != ''">
+				AND a.sendTime = #{sendTime}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="RepayPlan">
+		SELECT
+		<include refid="repayPlanColumns" />
+		FROM repayplan a
+		<include refid="repayPlanJoins" />
+		<where>
+
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+
+	<insert id="insert">
+		INSERT INTO repayplan(
+		version,
+		sourcecode,
+		sourceproductcode,
+		useridcardhash,
+		totalissue,
+		issue,
+		replanid,
+		curfund,
+		curinterest,
+		curservicecharge,
+		repaytime,
+		batchnum,
+		sendtime
+		) VALUES (
+		#{version},
+		#{sourceCode},
+		#{sourceProductCode},
+		#{userIdcardHash},
+		#{totalIssue},
+		#{issue},
+		#{replanId},
+		#{curFund},
+		#{curInterest},
+		#{curServiceCharge},
+		#{repayTime},
+		#{batchNum},
+		#{sendTime}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE repayplan SET
+		version = #{version},
+		sourcecode = #{sourceCode},
+		sourceproductcode = #{sourceProductCode},
+		useridcardhash = #{userIdcardHash},
+		totalissue = #{totalIssue},
+		issue = #{issue},
+		replanid = #{replanId},
+		curfund = #{curFund},
+		curinterest = #{curInterest},
+		curservicecharge = #{curServiceCharge},
+		repaytime = #{repayTime},
+		batchnum = #{batchNum},
+		sendtime = #{sendTime}
+		WHERE id = #{id}
+	</update>
+
+	<update id="delete">
+		DELETE FROM repayplan
+		WHERE id = #{id}
+	</update>
+
+</mapper>

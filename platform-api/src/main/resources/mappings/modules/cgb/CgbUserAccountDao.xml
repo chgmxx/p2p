@@ -1,0 +1,285 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.power.platform.cgb.dao.CgbUserAccountDao">
+
+	<sql id="cgbUserAccountColumns">
+		a.id AS "id",
+		a.total_amount AS "totalAmount",
+		a.available_amount AS "availableAmount",
+		a.cash_amount AS "cashAmount",
+		a.cash_count AS "cashCount",
+		a.recharge_amount AS "rechargeAmount",
+		a.recharge_count AS "rechargeCount",
+		a.freeze_amount AS "freezeAmount",
+		a.total_interest AS "totalInterest",
+		a.current_amount AS "currentAmount",
+		a.regular_due_principal AS "regularDuePrincipal",
+		a.regular_due_interest AS "regularDueInterest",
+		a.regular_total_amount AS "regularTotalAmount",
+		a.regular_total_interest AS "regularTotalInterest",
+		a.current_total_interest AS "currentTotalInterest",
+		a.current_total_amount AS "currentTotalAmount",
+		a.current_yesterday_interest AS "currentYesterdayInterest",
+		a.reguar_yesterday_interest AS "reguarYesterdayInterest",
+		a.commission AS "commission",
+		u.id AS "userInfo.id",
+		u.name AS "userInfo.name",
+		u.real_name AS "userInfo.realName",
+		u.certificate_no AS "certificateNo"
+	</sql>
+
+	<sql id="cgbUserAccountJoins">
+		cgb_user_account a INNER JOIN user_info u on a.user_id = u.id
+	</sql>
+
+	<select id="get" resultType="CgbUserAccount">
+		SELECT
+		<include refid="cgbUserAccountColumns" />
+		FROM
+		<include refid="cgbUserAccountJoins" />
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findList" resultType="CgbUserAccount">
+		SELECT
+		<include refid="cgbUserAccountColumns" />
+		FROM
+		<include refid="cgbUserAccountJoins" />
+		<where>
+			<if test="null!=userInfo">
+				<if test="null != userInfo.name and userInfo.name != ''">
+					AND u.name LIKE
+					<if test="dbName == 'oracle'">'%'||#{userInfo.name}||'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{userInfo.name},'%')</if>
+				</if>
+				<if test="null != userInfo.realName and userInfo.realName != ''">
+					AND u.real_name LIKE
+					<if test="dbName == 'oracle'">'%'||#{userInfo.realName}||'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{userInfo.realName},'%')</if>
+				</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+
+	<!-- 可用余额为0 -->
+	<select id="findAmountList0" resultType="CgbUserAccount">
+		SELECT
+		<include refid="cgbUserAccountColumns" />
+		FROM
+		<include refid="cgbUserAccountJoins" />
+		<where>
+			1=1 AND a.available_amount = 0
+			<if test="null!=userInfo">
+				<if test="null != userInfo.name and userInfo.name != ''">
+					AND u.name LIKE
+					<if test="dbName == 'oracle'">'%'||#{userInfo.name}||'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{userInfo.name},'%')</if>
+				</if>
+				<if test="null != userInfo.realName and userInfo.realName != ''">
+					AND u.real_name LIKE
+					<if test="dbName == 'oracle'">'%'||#{userInfo.realName}||'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{userInfo.realName},'%')</if>
+				</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+
+	<!-- 可用余额不为0 -->
+	<select id="findAmountList1" resultType="CgbUserAccount">
+		SELECT
+		<include refid="cgbUserAccountColumns" />
+		FROM
+		<include refid="cgbUserAccountJoins" />
+		<where>
+			1=1 AND a.available_amount != 0
+			<if test="null!=userInfo">
+				<if test="null != userInfo.name and userInfo.name != ''">
+					AND u.name LIKE
+					<if test="dbName == 'oracle'">'%'||#{userInfo.name}||'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{userInfo.name},'%')</if>
+				</if>
+				<if test="null != userInfo.realName and userInfo.realName != ''">
+					AND u.real_name LIKE
+					<if test="dbName == 'oracle'">'%'||#{userInfo.realName}||'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{userInfo.realName},'%')</if>
+				</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="CgbUserAccount">
+		SELECT
+		<include refid="cgbUserAccountColumns" />
+		FROM
+		<include refid="cgbUserAccountJoins" />
+		<where>
+
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+
+	<insert id="insert">
+		INSERT INTO cgb_user_account(
+		id,
+		user_id,
+		total_amount,
+		available_amount,
+		cash_amount,
+		cash_count,
+		recharge_amount,
+		recharge_count,
+		freeze_amount,
+		total_interest,
+		current_amount,
+		regular_due_principal,
+		regular_due_interest,
+		regular_total_amount,
+		regular_total_interest,
+		current_total_interest,
+		current_total_amount,
+		current_yesterday_interest,
+		reguar_yesterday_interest,
+		commission
+		) VALUES (
+		#{id},
+		#{userId},
+		#{totalAmount},
+		#{availableAmount},
+		#{cashAmount},
+		#{cashCount},
+		#{rechargeAmount},
+		#{rechargeCount},
+		#{freezeAmount},
+		#{totalInterest},
+		#{currentAmount},
+		#{regularDuePrincipal},
+		#{regularDueInterest},
+		#{regularTotalAmount},
+		#{regularTotalInterest},
+		#{currentTotalInterest},
+		#{currentTotalAmount},
+		#{currentYesterdayInterest},
+		#{reguarYesterdayInterest},
+		#{commission}
+		)
+	</insert>
+
+	<!-- 懒猫版本，出借人账户收取本金款（仅限出借人收取本金款） -->
+	<update id="updatePrincipalById">
+		UPDATE cgb_user_account SET
+		available_amount = (available_amount + #{principal}),
+		regular_due_principal = (regular_due_principal - #{principal}),
+		regular_total_amount = (regular_total_amount + #{principal})
+		WHERE id = #{id} AND available_amount = #{oldAvailableAmount}
+	</update>
+
+	<!-- 懒猫版本，出借人账户收取付息款（仅限出借人收取付息款） -->
+	<update id="updateIncomeById">
+		UPDATE cgb_user_account SET
+		available_amount = (available_amount + #{income}),
+		regular_due_interest = (regular_due_interest - #{income}),
+		regular_total_interest = (regular_total_interest + #{income})
+		WHERE id = #{id} AND available_amount = #{oldAvailableAmount}
+	</update>
+
+	<!-- 懒猫版本，账户出借更新（仅限出借） -->
+	<update id="updateTenderById">
+		UPDATE cgb_user_account SET
+		total_amount = (total_amount + #{investInterest} + #{voucherAmount}),
+		available_amount = (available_amount - #{realInvestAmount}),
+		regular_due_principal = (regular_due_principal + #{investAmount}),
+		regular_due_interest = (regular_due_interest + #{investInterest})
+		WHERE id = #{id}
+	</update>
+
+	<update id="updateCancelById">
+		UPDATE cgb_user_account SET
+		total_amount = (total_amount - #{investInterest}),
+		available_amount = (available_amount + #{investAmount}),
+		regular_due_principal = (regular_due_principal - #{investAmount}),
+		regular_due_interest = (regular_due_interest - #{investInterest})
+		WHERE id = #{id}
+	</update>
+
+	<!-- 账户出借更新-流标-红包 -->
+	<update id="updateMiscarryById">
+		UPDATE cgb_user_account SET
+		total_amount = (total_amount - #{investAmount}),
+		available_amount = (available_amount - #{investAmount})
+		WHERE id = #{id}
+	</update>
+
+	<update id="update">
+		UPDATE cgb_user_account SET
+		user_id = #{userInfo.id},
+		total_amount = #{totalAmount},
+		available_amount = #{availableAmount},
+		cash_amount = #{cashAmount},
+		cash_count = #{cashCount},
+		recharge_amount = #{rechargeAmount},
+		recharge_count = #{rechargeCount},
+		freeze_amount = #{freezeAmount},
+		total_interest = #{totalInterest},
+		current_amount = #{currentAmount},
+		regular_due_principal = #{regularDuePrincipal},
+		regular_due_interest = #{regularDueInterest},
+		regular_total_amount = #{regularTotalAmount},
+		regular_total_interest = #{regularTotalInterest},
+		current_total_interest = #{currentTotalInterest},
+		current_total_amount = #{currentTotalAmount},
+		current_yesterday_interest = #{currentYesterdayInterest},
+		reguar_yesterday_interest = #{reguarYesterdayInterest},
+		commission = #{commission}
+		WHERE id = #{id}
+	</update>
+
+	<!-- 收回利息. -->
+	<update id="updateTakeBackInterest">
+		UPDATE cgb_user_account SET
+		available_amount = (available_amount + #{interest}),
+		regular_due_interest = (regular_due_interest - #{interest})
+		WHERE id = #{id}
+	</update>
+
+	<update id="delete">
+		DELETE FROM cgb_user_account
+		WHERE id = #{id}
+	</update>
+
+	<!-- * 根据用户id查找用户账户信息 * @param userid * @return -->
+	<select id="getUserAccountInfo" resultType="CgbUserAccount">
+		SELECT
+		<include refid="cgbUserAccountColumns" />
+		FROM
+		<include refid="cgbUserAccountJoins" />
+		WHERE a.user_id = #{userid}
+	</select>
+
+</mapper>

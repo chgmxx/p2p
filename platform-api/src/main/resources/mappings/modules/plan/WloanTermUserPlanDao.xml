@@ -1,0 +1,601 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.power.platform.plan.dao.WloanTermUserPlanDao">
+
+	<sql id="userRepayPlanColumns">
+		a.id,
+		a.project_id AS "projectId",
+		a.user_id AS "userId",
+		a.repayment_date AS "repaymentDate",
+		a.principal AS "principal",
+		a.interest AS "interest",
+		a.interest_true AS "interestTrue",
+		a.state AS "state",
+		a.wloan_term_invest_id AS "wloanTermInvestId"
+	</sql>
+
+	<!-- 客户还款计划展示字段（用于统计） -->
+	<sql id="userPlanColumnsByUserId">
+		c.id AS "userInfo.id",
+		c.`name` AS "userInfo.name",
+		c.real_name AS "userInfo.realName",
+		a.repayment_date AS "repaymentDate",
+		ROUND(SUM(a.interest), 2) AS "interest"
+	</sql>
+
+	<!-- 客户还款计划联表查询（用于统计） -->
+	<sql id="userPlanColumnsByUserIdJoins">
+		LEFT JOIN wloan_term_project b ON b.id = a.project_id
+		LEFT JOIN user_info c ON c.id = a.user_id
+	</sql>
+
+	<sql id="wloanTermUserPlanColumns">
+		a.id,
+		a.repayment_date AS "repaymentDate",
+		a.principal AS "principal",
+		a.project_id AS "projectId",
+		a.interest AS "interest",
+		a.interest_true AS "interestTrue",
+		a.state AS "state",
+		u.id AS "userInfo.id",
+		u.name AS "userInfo.name",
+		u.certificate_no AS "userInfo.certificateNo",
+		u.real_name AS "userInfo.realName",
+		w.id AS "wloanTermProject.id",
+		w.name AS "wloanTermProject.name",
+		w.sn AS "wloanTermProject.sn",
+		i.id AS "wloanTermInvest.id",
+		i.amount AS "wloanTermInvest.amount"
+	</sql>
+
+	<!-- 还款计划展示字段. -->
+	<sql id="userRepayPlanStatisticalColumns">
+		a.id AS "id",
+		a.project_id AS "projectId",
+		a.repayment_date AS "repaymentDate",
+		a.principal AS "principal",
+		a.interest AS "interest",
+		a.interest_true AS "interestTrue",
+		a.user_id AS "userId",
+		a.state AS "state",
+		a.wloan_term_invest_id AS "wloanTermInvestId",
+		b.id AS "wloanTermProject.id",
+		b.sn AS "wloanTermProject.sn",
+		b.`name` AS "wloanTermProject.name",
+		c.id AS "wloanTermInvest.id",
+		c.amount AS "wloanTermInvest.amount",
+		c.begin_date AS "wloanTermInvest.beginDate"
+	</sql>
+
+	<sql id="userRepayPlanStatisticalJoins">
+		LEFT JOIN wloan_term_project b ON b.id = a.project_id
+		LEFT JOIN wloan_term_invest c ON c.id = a.wloan_term_invest_id
+	</sql>
+
+	<sql id="wloanTermProjectJoins">
+		left join wloan_term_project w on a.project_id = w.id
+	</sql>
+
+	<sql id="userInfoJoins">
+		left join user_info u on a.user_id = u.id
+	</sql>
+
+	<sql id="wloanTermInvestJoins">
+		left join wloan_term_invest i on a.wloan_term_invest_id = i.id
+	</sql>
+
+	<select id="get" resultType="WloanTermUserPlan">
+		SELECT
+		<include refid="wloanTermUserPlanColumns" />
+		FROM wloan_term_user_plan a
+		<include refid="wloanTermProjectJoins" />
+		<include refid="userInfoJoins" />
+		<include refid="wloanTermInvestJoins" />
+		WHERE a.id = #{id}
+	</select>
+
+	<!-- 倒序查询客户还款计划（用于统计） -->
+	<select id="findInvUserPlanByUserId" resultType="WloanTermUserPlan">
+		SELECT
+		<include refid="userPlanColumnsByUserId" />
+		FROM wloan_term_user_plan a
+		<include refid="userPlanColumnsByUserIdJoins" />
+		<where>
+			b.del_flag = #{DEL_FLAG_NORMAL}
+			AND b.state = '6'
+			AND a.state = '2'
+			<if test="userId != null and userId != ''">
+				AND a.user_id = #{userId}
+			</if>
+		</where>
+		GROUP BY a.repayment_date
+		ORDER BY a.repayment_date DESC
+	</select>
+
+	<!-- 平台查询有在贷余额的用户列表，用于统计 -->
+	<select id="findInvUserIdByUserPlans" resultType="java.lang.String">
+		SELECT
+		DISTINCT a.user_id
+		FROM
+		wloan_term_user_plan a
+		LEFT JOIN wloan_term_project b ON b.id = a.project_id
+		WHERE
+		1 = 1
+		AND b.del_flag = '0'
+		AND b.state = '6'
+		AND a.principal = '1'
+	</select>
+
+	<!-- 根据项目ID+还款日期，查找每期的还款计划. -->
+	<select id="findUserRepayPlans" resultType="WloanTermUserPlan">
+		SELECT
+		<include refid="userRepayPlanColumns" />
+		FROM wloan_term_user_plan a
+		<where>
+			1 = 1
+			<if test="projectId != null and projectId != ''">
+				AND a.project_id = #{projectId}
+			</if>
+			<if test="repaymentDate != null and repaymentDate != ''">
+				AND a.repayment_date = #{repaymentDate}
+			</if>
+		</where>
+		ORDER BY a.repayment_date ASC
+	</select>
+
+	<!-- 查找到期日期还款计划. -->
+	<select id="findDueDateList" resultType="WloanTermUserPlan">
+		select
+		<include refid="wloanTermUserPlanColumns" />
+		from wloan_term_user_plan a
+		<include refid="wloanTermProjectJoins" />
+		<include refid="userInfoJoins" />
+		<include refid="wloanTermInvestJoins" />
+		<where>
+			1 = 1
+			<if test="principal != null and principal != ''">
+				AND a.principal = #{principal}
+			</if>
+			<if test="state != null and state != ''">
+				AND a.state = #{state}
+			</if>
+			<if test="wloanTermProject != null">
+				<if test="wloanTermProject.id != null and wloanTermProject.id != ''">
+					AND a.project_id = #{wloanTermProject.id}
+				</if>
+			</if>
+			<if test="wloanTermInvest != null">
+				<if test="wloanTermInvest.id != null and wloanTermInvest.id != ''">
+					AND a.wloan_term_invest_id = #{wloanTermInvest.id}
+				</if>
+			</if>
+			<if test="userInfo !=null">
+				<if test="userInfo.id != null and userInfo.id != ''">
+					AND u.id = #{userInfo.id}
+				</if>
+				<if test="userInfo.name != null and userInfo.name != ''">
+					AND u.name LIKE
+					<if test="dbName == 'mysql'">concat('%',#{userInfo.name},'%')</if>
+				</if>
+			</if>
+			<if test="repaymentDate != null">
+				AND a.repayment_date &gt;= #{repaymentDate}
+			</if>
+			<if test="beginDate != null">
+				AND a.repayment_date &gt;= #{beginDate}
+			</if>
+			<if test="endDate != null">
+				AND a.repayment_date &lt;= #{endDate}
+			</if>
+		</where>
+		ORDER BY a.repayment_date DESC
+	</select>
+
+	<select id="findList" resultType="WloanTermUserPlan">
+		select
+		<include refid="wloanTermUserPlanColumns" />
+		from wloan_term_user_plan a
+		<include refid="wloanTermProjectJoins" />
+		<include refid="userInfoJoins" />
+		<include refid="wloanTermInvestJoins" />
+		<where>
+			1 = 1
+			<if test="state != null and state != ''">
+				and a.state = #{state}
+			</if>
+			<if test="wloanTermProject != null">
+				<if test="wloanTermProject.id != null and wloanTermProject.id != ''">
+					and a.project_id = #{wloanTermProject.id}
+				</if>
+			</if>
+			<if test="wloanTermInvest != null">
+				<if test="wloanTermInvest.id != null and wloanTermInvest.id != ''">
+					and a.wloan_term_invest_id = #{wloanTermInvest.id}
+				</if>
+			</if>
+			<if test="userInfo !=null">
+				<if test="userInfo.id != null and userInfo.id != ''">
+					and u.id = #{userInfo.id}
+				</if>
+			</if>
+			<if test="repaymentDate != null">
+				and a.repayment_date = #{repaymentDate}
+			</if>
+		</where>
+		order by a.repayment_date ASC
+	</select>
+
+	<!-- 用户本金. -->
+	<select id="findSumPrincipalByPlan" resultType="java.lang.Double">
+		SELECT
+		SUM(b.amount)
+		FROM wloan_term_user_plan a LEFT JOIN wloan_term_invest b ON b.id = a.wloan_term_invest_id
+		<where>
+			1 = 1
+			<if test="principal != null and principal != ''">
+				AND a.principal = #{principal}
+			</if>
+			<if test="state != null and state != ''">
+				AND a.state = #{state}
+			</if>
+			<if test="userId != null and userId != ''">
+				AND a.user_id = #{userId}
+			</if>
+			<if test="beginDate != null and beginDate != ''">
+				AND a.repayment_date &gt;= #{beginDate}
+			</if>
+			<if test="endDate != null and endDate != ''">
+				AND a.repayment_date &lt;= #{endDate}
+			</if>
+			<if test="repaymentDate != null">
+				AND a.repayment_date = #{repaymentDate}
+			</if>
+		</where>
+	</select>
+
+	<!-- 为用户赚取利息或本息. -->
+	<select id="findSumInterestByPlan" resultType="java.lang.Double">
+		SELECT
+		SUM(a.interest)
+		FROM wloan_term_user_plan a LEFT JOIN wloan_term_project b ON b.id = a.project_id
+		<where>
+			1 = 1
+			<if test="principal != null and principal != ''">
+				AND a.principal = #{principal}
+			</if>
+			<if test="state != null and state != ''">
+				AND a.state = #{state}
+			</if>
+			<if test="userId != null and userId != ''">
+				AND a.user_id = #{userId}
+			</if>
+			<if test="beginDate != null and beginDate != ''">
+				AND a.repayment_date &gt;= #{beginDate}
+			</if>
+			<if test="endDate != null and endDate != ''">
+				AND a.repayment_date &lt;= #{endDate}
+			</if>
+			<if test="repaymentDate != null">
+				AND a.repayment_date = #{repaymentDate}
+			</if>
+			<if test="wloanTermProject != null">
+				<if test="null != wloanTermProject.stateItem">
+					AND b.state IN
+					<foreach item="wloanTermProject.stateItem" index="index" collection="wloanTermProject.stateItem" open="(" separator="," close=")">
+						#{wloanTermProject.stateItem}
+					</foreach>
+				</if>
+				<if test="wloanTermProject.projectProductType != null and wloanTermProject.projectProductType != ''">
+					AND b.project_product_type = #{wloanTermProject.projectProductType}
+				</if>
+			</if>
+		</where>
+	</select>
+
+	<select id="findCurrentTotal" resultType="java.lang.Double">
+		select SUM(a.interest)
+		from wloan_term_user_plan a
+		<include refid="wloanTermProjectJoins" />
+		<include refid="userInfoJoins" />
+		<include refid="wloanTermInvestJoins" />
+		<where>
+			1 = 1
+			<if test="state != null and state != ''">
+				and a.state = #{state}
+			</if>
+			<if test="wloanTermProject != null">
+				<if test="wloanTermProject.id != null and wloanTermProject.id != ''">
+					and a.project_id = #{wloanTermProject.id}
+				</if>
+			</if>
+			<if test="wloanTermInvest != null">
+				<if test="wloanTermInvest.id != null and wloanTermInvest.id != ''">
+					and a.wloan_term_invest_id = #{wloanTermInvest.id}
+				</if>
+			</if>
+			<if test="userInfo !=null">
+				<if test="userInfo.id != null and userInfo.id != ''">
+					and u.id = #{userInfo.id}
+				</if>
+			</if>
+			<if test="repaymentDate != null">
+				and a.repayment_date = #{repaymentDate}
+			</if>
+		</where>
+
+	</select>
+
+
+
+	<insert id="insert">
+		INSERT INTO wloan_term_user_plan(
+		id,
+		project_id,
+		repayment_date,
+		principal,
+		interest,
+		interest_true,
+		state,
+		user_id,
+		wloan_term_invest_id
+		)values(
+		#{id},
+		#{wloanTermProject.id},
+		#{repaymentDate},
+		#{principal},
+		#{interest},
+		#{interestTrue},
+		#{state},
+		#{userInfo.id},
+		#{wloanTermInvest.id}
+		)
+	</insert>
+
+	<update id="updateWloanTermUserPlanStateByProjectId">
+		UPDATE wloan_term_user_plan
+		SET state = #{state}
+		WHERE project_id = #{wloanTermProjectId}
+	</update>
+
+	<update id="updateWloanTermUserPlanStateById">
+		UPDATE wloan_term_user_plan
+		SET state = #{state}
+		WHERE id = #{id}
+	</update>
+
+	<!-- 更新客户还款计划状态. -->
+	<update id="modifyWloanTermUserPlanState">
+		UPDATE wloan_term_user_plan SET
+		state = #{state}
+		WHERE id = #{id}
+	</update>
+
+	<!-- 删除项目客户还款计划. -->
+	<delete id="deleteByProjectId">
+		delete from wloan_term_user_plan where
+		project_id=#{projectId}
+	</delete>
+
+	<!-- 删除客户还款计划. -->
+	<delete id="deleteByWloanTermInvestId">
+		delete from wloan_term_user_plan where
+		wloan_term_invest_id=#{wloanTermInvestId}
+	</delete>
+
+	<select id="getWaitRepayMoney" resultType="java.lang.Double">
+		SELECT
+		IFNULL(sum(a.interest), 0.00)
+		FROM wloan_term_user_plan a
+		WHERE
+		a.project_id = #{wloanTermProject.id}
+		AND a.user_id = #{userInfo.id}
+		AND a.wloan_term_invest_id = #{wloanTermInvest.id}
+		AND a.repayment_date &gt; #{repaymentDate}
+	</select>
+
+	<!-- 每期的回款金额 -->
+	<select id="findinterestCount" resultType="WloanTermUserPlan">
+		SELECT
+		sum(interest) as interest,
+		repayment_date as repaymentDate
+		FROM
+		wloan_term_user_plan
+		WHERE
+		user_id = #{userInfo.id}
+		<if test="endDate != null">
+			AND a.repayment_date &lt;= #{endDate}
+		</if>
+		and state=2
+		GROUP BY
+		repayment_date
+	</select>
+
+	<!-- 每期的回款金额新版 -->
+	<select id="findNewInterestCount" resultType="WloanTermUserPlan">
+		SELECT
+		a.id,
+		a.project_id AS "projectId",
+		a.user_id AS "userId",
+		a.repayment_date AS "repaymentDate",
+		a.principal AS "principal",
+		a.interest AS "interest",
+		a.interest_true AS "interestTrue",
+		a.state AS "state",
+		a.wloan_term_invest_id AS "wloanTermInvestId"
+		FROM
+		wloan_term_user_plan a
+		WHERE
+		a.user_id = #{userInfo.id}
+		<if test="beginDate != null">
+			AND a.repayment_date &gt;= #{beginDate}
+		</if>
+		ORDER BY a.repayment_date ASC
+	</select>
+
+	<!-- 查找客户还款计划信息统计. -->
+	<select id="findUserRepayPlanStatistical" resultType="WloanTermUserPlan">
+		SELECT
+		<include refid="userRepayPlanStatisticalColumns" />
+		FROM
+		wloan_term_user_plan a
+		<include refid="userRepayPlanStatisticalJoins" />
+		<where>
+			1 = 1
+			<if test="userInfo !=null">
+				<if test="userInfo.id != null and userInfo.id != ''">
+					AND a.user_id = #{userInfo.id}
+				</if>
+			</if>
+			<if test="state != null and state != ''">
+				AND a.state = #{state}
+			</if>
+			<if test="repaymentDate != null">
+				AND a.repayment_date = #{repaymentDate}
+			</if>
+		</where>
+		ORDER BY
+		a.repayment_date,c.begin_date ASC
+	</select>
+
+	<!-- 账户对账专用 <勿动> -->
+	<select id="findUserPlan" resultType="WloanTermUserPlan">
+		select
+		<include refid="userRepayPlanColumns" />
+		from wloan_term_user_plan a
+		JOIN wloan_term_project b ON a.project_id = b.id
+		<where>
+			1 = 1
+			<if test="state != null and state != ''">
+				and a.state = #{state}
+			</if>
+			<if test="wloanTermProject != null">
+				<if test="wloanTermProject.id != null and wloanTermProject.id != ''">
+					and b.project_id = #{wloanTermProject.id}
+				</if>
+				<!-- 上线开始时间查询. -->
+				<if test="wloanTermProject.beginTimeFromOnline != null and wloanTermProject.beginTimeFromOnline != ''">
+					AND b.online_date &gt;= #{wloanTermProject.beginTimeFromOnline}
+				</if>
+				<!-- 上线结束时间查询. -->
+				<if test="wloanTermProject.endTimeToOnline != null and wloanTermProject.endTimeToOnline != ''">
+					AND b.online_date &lt;= #{wloanTermProject.endTimeToOnline}
+				</if>
+			</if>
+			<if test="userInfo !=null">
+				<if test="userInfo.id != null and userInfo.id != ''">
+					and a.user_id = #{userInfo.id}
+				</if>
+			</if>
+			and b.state in (4, 5, 6)
+		</where>
+		order by a.repayment_date ASC
+	</select>
+
+	<!-- 出借人还本付息流水. -->
+	<select id="findUserPlanList" resultType="WloanTermUserPlan">
+		select
+		<include refid="wloanTermUserPlanColumns" />
+		from wloan_term_user_plan a
+		<include refid="wloanTermProjectJoins" />
+		<include refid="userInfoJoins" />
+		<include refid="wloanTermInvestJoins" />
+		<where>
+			1 = 1
+			<if test="principal != null and principal != ''">
+				AND a.principal = #{principal}
+			</if>
+			<if test="state != null and state != ''">
+				AND a.state = #{state}
+			</if>
+			AND a.project_id IN (
+			SELECT
+			a.id
+			FROM
+			wloan_term_project a
+			WHERE
+			1 = 1
+			AND a.del_flag = '0'
+			AND a.state IN (6)
+			AND a.online_date &lt; '2019-03-01 00:00:00'
+			)
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.repayment_date ASC
+			</otherwise>
+		</choose>
+	</select>
+
+	<!-- 增量-出借人还本付息-投资明细. -->
+	<select id="findUserPlanListZ" resultType="WloanTermUserPlan">
+		select
+		<include refid="wloanTermUserPlanColumns" />
+		from wloan_term_user_plan a
+		<include refid="wloanTermProjectJoins" />
+		<include refid="userInfoJoins" />
+		<include refid="wloanTermInvestJoins" />
+		<where>
+			1 = 1
+			<if test="principal != null and principal != ''">
+				AND a.principal = #{principal}
+			</if>
+			<if test="state != null and state != ''">
+				AND a.state = #{state}
+			</if>
+			AND a.project_id IN (
+			SELECT
+			a.id
+			FROM
+			wloan_term_project a
+			WHERE
+			1 = 1
+			AND a.del_flag = '0'
+			AND a.state IN (4, 5, 6, 7)
+			AND a.online_date &gt;= '2019-06-30 00:00:00'
+			)
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.repayment_date ASC
+			</otherwise>
+		</choose>
+	</select>
+
+	<!-- 采用标的id补推还本付息流水. -->
+	<select id="fillPushUserPlanList" resultType="WloanTermUserPlan">
+		select
+		<include refid="wloanTermUserPlanColumns" />
+		from wloan_term_user_plan a
+		<include refid="wloanTermProjectJoins" />
+		<include refid="userInfoJoins" />
+		<include refid="wloanTermInvestJoins" />
+		<where>
+			1 = 1
+			<if test="principal != null and principal != ''">
+				AND a.principal = #{principal}
+			</if>
+			<if test="state != null and state != ''">
+				AND a.state = #{state}
+			</if>
+			AND a.project_id = #{projectId}
+		</where>
+	</select>
+	
+	
+	<select id="findPlan" resultType="WloanTermUserPlan">
+		SELECT 
+		<include refid="userRepayPlanColumns" />
+		FROM wloan_term_user_plan a WHERE 1 = 1 
+			AND a.state ='3'
+			AND a.user_id = #{userId}
+			AND a.repayment_date &gt;= #{startRepaymentDate}
+			AND a.repayment_date &lt;= #{endRepaymentDate}
+	</select>
+
+</mapper>

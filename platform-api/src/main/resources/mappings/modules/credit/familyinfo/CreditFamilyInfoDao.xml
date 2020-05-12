@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.power.platform.credit.dao.familyinfo.CreditFamilyInfoDao">
+
+	<sql id="creditFamilyInfoColumns">
+		a.id AS "id",
+		a.credit_user_id AS "creditUserId",
+		a.relation_type AS "relationType",
+		a.name AS "name",
+		a.phone AS "phone",
+		a.id_card AS "idCard",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remark AS "remark",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<sql id="creditFamilyInfoColumns1">
+		a.id AS "id",
+		a.credit_user_id AS "creditUserId",
+		a.relation_type AS "relationType",
+		a.name AS "name",
+		a.phone AS "phone",
+		a.id_card AS "idCard",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remark AS "remark",
+		a.del_flag AS "delFlag",
+		c.`name` AS "creditUserInfo.name",
+		GROUP_CONCAT(b.url) AS "creditAnnexFile.url"
+	</sql>
+	
+	<sql id="creditFamilyInfoJoins1">
+	JOIN credit_annex_file b ON a.id = b.other_id
+    JOIN credit_user_info c ON a.credit_user_id = c.id
+	</sql>
+
+	<sql id="creditFamilyInfoJoins">
+	</sql>
+
+	<select id="getCreditFamilyInfoList" resultType="CreditFamilyInfo">
+		SELECT
+		<include refid="creditFamilyInfoColumns" />
+		FROM credit_family_info a
+		<include refid="creditFamilyInfoJoins" />
+		WHERE a.credit_user_id = #{creditUserId}
+	</select>
+
+	<select id="get" resultType="CreditFamilyInfo">
+		SELECT
+		<include refid="creditFamilyInfoColumns" />
+		FROM credit_family_info a
+		<include refid="creditFamilyInfoJoins" />
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findList" resultType="CreditFamilyInfo">
+		SELECT
+		<include refid="creditFamilyInfoColumns" />
+		FROM credit_family_info a
+		<include refid="creditFamilyInfoJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="creditUserId != null and creditUserId != ''">
+				AND a.credit_user_id = #{creditUserId}
+			</if>
+			<if test="relationType != null and relationType != ''">
+				AND a.relation_type = #{relationType}
+			</if>
+			<if test="name != null and name != ''">
+				AND a.name LIKE
+				<if test="dbName == 'oracle'">'%'||#{name}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{name}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{name},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<!-- 用于后台查询 -->
+	<select id="findList1" resultType="CreditFamilyInfo">
+		SELECT
+		<include refid="creditFamilyInfoColumns1" />
+		FROM credit_family_info a
+		<include refid="creditFamilyInfoJoins1" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="creditUserId != null and creditUserId != ''">
+				AND a.credit_user_id = #{creditUserId}
+			</if>
+			<if test="relationType != null and relationType != ''">
+				AND a.relation_type = #{relationType}
+			</if>
+			<if test="name != null and name != ''">
+				AND a.name LIKE
+				<if test="dbName == 'oracle'">'%'||#{name}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{name}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{name},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			    GROUP BY b.other_id
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="CreditFamilyInfo">
+		SELECT
+		<include refid="creditFamilyInfoColumns" />
+		FROM credit_family_info a
+		<include refid="creditFamilyInfoJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<insert id="insert">
+		INSERT INTO credit_family_info(
+		id,
+		credit_user_id,
+		relation_type,
+		name,
+		phone,
+		id_card,
+		create_by,
+		create_date,
+		update_by,
+		update_date,
+		remark,
+		del_flag
+		) VALUES (
+		#{id},
+		#{creditUserId},
+		#{relationType},
+		#{name},
+		#{phone},
+		#{idCard},
+		#{createBy.id},
+		#{createDate},
+		#{updateBy.id},
+		#{updateDate},
+		#{remark},
+		#{delFlag}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE credit_family_info SET
+		credit_user_id = #{creditUserId},
+		relation_type = #{relationType},
+		name = #{name},
+		phone = #{phone},
+		id_card = #{idCard},
+		update_by = #{updateBy.id},
+		update_date = #{updateDate},
+		remark = #{remark}
+		WHERE id = #{id}
+	</update>
+
+	<update id="delete">
+		UPDATE credit_family_info SET
+		del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+
+	<!-- 物理删除. -->
+	<delete id="deleteFamilyInfoById">
+		DELETE FROM credit_family_info
+		WHERE id = #{id}
+	</delete>
+
+</mapper>

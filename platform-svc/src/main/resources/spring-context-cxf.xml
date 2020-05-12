@@ -1,0 +1,102 @@
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:jaxws="http://cxf.apache.org/jaxws" xmlns:jaxrs="http://cxf.apache.org/jaxrs" xsi:schemaLocation="
+	http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+	http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd
+	http://cxf.apache.org/jaxrs http://cxf.apache.org/schemas/jaxrs.xsd">
+
+	<import resource="classpath:META-INF/cxf/cxf.xml" />
+	<import resource="classpath:META-INF/cxf/cxf-extension-soap.xml" />
+	<import resource="classpath:META-INF/cxf/cxf-extension-http.xml" />
+	<import resource="classpath:META-INF/cxf/cxf-extension-jaxws.xml" />
+	<import resource="classpath:META-INF/cxf/cxf-extension-addr.xml" />
+	<import resource="classpath:META-INF/cxf/cxf-servlet.xml" />
+
+	<bean id="jsonProvider" class="com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider">
+	</bean>
+
+	<bean id="inMessageInterceptor" class="org.apache.cxf.interceptor.LoggingInInterceptor" />
+	<bean id="outMessageInterceptor" class="org.apache.cxf.interceptor.LoggingOutInterceptor" />
+
+	<jaxrs:server id="restfull">
+		<jaxrs:serviceBeans>
+			<ref bean="activityRestService" />
+			<ref bean="cmsRestService" />
+			<ref bean="smRestService" />
+			<ref bean="userRestService" />
+			<ref bean="projectService" />
+			<ref bean="userRestService" />
+			<ref bean="userGesturePwdRestService" />
+			<ref bean="transDetailsService" />
+			<ref bean="userInvestService" />
+			<ref bean="commonRestService" />
+			<ref bean="verifyRestService" />
+			<ref bean="weixinRestService" />
+			<ref bean="weixinopenService" />
+			<ref bean="payRestService" />
+			<ref bean="appVersionService" />			<!-- app版本号接口 -->
+			<ref bean="moreSuggestionService" />		<!-- 用户投资建议接口 -->
+			<ref bean="stationLetterService" />			<!-- 站内信接口 -->
+			<ref bean="weChatShareService" />			<!-- 微信分享到朋友圈/发送给朋友接口 -->
+			<ref bean="ztmgWeChatRelationService" />	<!-- 微信关系，绑定/解绑 -->
+			<ref bean="acceccTokenService" />			<!-- 微信菜单更新 -->
+			<ref bean="qixiActivityService" />			<!-- Qixi活动Service -->
+			<ref bean="userBounsService" />				<!-- 积分信息service -->
+			<ref bean="userConsigneeAddressSvcService" />	<!-- 用户收货地址service -->
+			<ref bean="userDrawLotteryService" />		<!-- 客户抽奖service -->
+			<ref bean="userSignedRestService" />	<!-- 客户签到service -->
+			<ref bean="awardInforService" /> <!-- 奖品信息service -->
+
+			<ref bean="volunteerOfferService" /> <!-- 公益捐赠 -->
+
+			<ref bean="systemUserService" />
+			<ref bean="creditUserService" />
+			<ref bean="creditInfoRestService" /> <!-- 个人信贷信息服务(rest full service). -->
+			<ref bean="creditProjectService" />
+			<ref bean="questionService" />
+			<ref bean="cGBPayRestService" />
+			<ref bean="callbackRestService" />
+
+			<ref bean="p2pTradeBidRestService" /> <!-- 网贷资金存管，交易类异步通知地址服务. -->
+			<ref bean="cGBUserInvestService" />
+			<ref bean="cGBAuthorizationService" />
+			<ref bean="cGBRedPacketService" />
+			<ref bean="cGBRechargeService" />
+			<ref bean="cGBWithdrawService" />
+			<ref bean="callbackRechargeService" />
+			<ref bean="callbackWithdrawService" />
+			<ref bean="callbackUserInvestService" />
+			<ref bean="callbackRedPacketService" />
+			<ref bean="callbackAutorizationService" />
+			<ref bean="callbackChangeBankCardService" />
+			<ref bean="p2PEyeInvestService" /><!-- 向网贷天眼提供投资数据. -->
+			<ref bean="tokenRestService" />
+			<ref bean="p2peyeBorrowingDataRestService" /> <!-- 向网贷天眼提供借款数据. -->
+			<ref bean="creditToInfoService" />
+			<ref bean="informationDisclosureRestService" /> <!-- 信息纰漏，REST FULL SERVICE. -->
+			<ref bean="createTheOldVersionLoanContractService" /> <!-- 初出借记录合同补全，REST FULL SERVICE. -->
+			<ref bean="ifcertService" /> <!-- 数据接入，REST FULL SERVICE. -->
+			<ref bean="lendCompanyService" /> <!-- 尖兵系统-贷款企业相关接口服务，REST FULL SERVICE. -->
+			<ref bean="wloanTermProjectsService" /> <!-- 尖兵系统-供应链标的信息列表接口服务，REST FULL SERVICE. -->
+			<ref bean="creditUserInfosService" /> <!-- 尖兵系统-借款用户信息列表接口服务，REST FULL SERVICE. -->
+			<ref bean="lanmaoAccountService" /> <!-- 蓝猫-账户接口 -->
+			<ref bean="asyncNotificationService" /> <!-- 懒猫通知 -->
+			<ref bean="lMRechargeService" />  <!-- 懒猫 充值 -->
+			<ref bean="lanMaoSearchService" /> <!-- 懒猫查询 -->
+			<ref bean="lMWithdrawService" />  <!-- 懒猫 提现  chenhj(ant-loiter.com) -->
+			<ref bean="lanMaoUserAuthorizationService" /> <!-- 懒猫用户授权 -->
+			<ref bean="callbackLMRechargeService" /> <!-- 充值接口通知回调接口 -->
+			<ref bean="callbackLMWithdrawService" /> <!-- 提取接口通知回调接口 -->
+			<ref bean="lanMaoUserPreTransactionService" /> <!-- 懒猫用户预处理 -->
+			<ref bean="testRechargeService" /> <!-- 懒猫test  chenhj(ant-loiter.com) -->
+		</jaxrs:serviceBeans>
+		<jaxrs:extensionMappings>
+			<entry key="json" value="application/json" />
+			<entry key="xml" value="application/xml" />
+		</jaxrs:extensionMappings>
+		<jaxrs:providers>
+			<ref bean="jsonProvider" />
+		</jaxrs:providers>
+		<jaxrs:languageMappings>
+			<entry key="en" value="en-zh" />
+		</jaxrs:languageMappings>
+	</jaxrs:server>
+</beans>

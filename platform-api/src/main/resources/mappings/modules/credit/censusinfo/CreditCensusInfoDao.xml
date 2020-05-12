@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.power.platform.credit.dao.censusinfo.CreditCensusInfoDao">
+    
+	<sql id="creditCensusInfoColumns">
+		a.id AS "id",
+		a.credit_user_id AS "creditUserId",
+		a.credit_annex_id AS "creditAnnexId",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remark AS "remark",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<sql id="creditCensusInfoColumns1">
+		a.id AS "id",
+		a.credit_user_id AS "creditUserId",
+		a.credit_annex_id AS "creditAnnexId",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remark AS "remark",
+		a.del_flag AS "delFlag",
+	    b.name AS "creditUserInfo.name",
+	    GROUP_CONCAT(c.url) AS "creditAnnexFile.url"
+	</sql>
+	
+	<sql id="creditCensusInfoJoins1">
+	LEFT JOIN credit_user_info b ON a.credit_user_id = b.id
+    LEFT JOIN credit_annex_file c ON a.id = c.other_id
+	</sql>
+	
+	<sql id="creditCensusInfoJoins">
+	</sql>
+    
+	<select id="get" resultType="CreditCensusInfo">
+		SELECT 
+			<include refid="creditCensusInfoColumns"/>
+		FROM credit_census_info a
+		<include refid="creditCensusInfoJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="CreditCensusInfo">
+		SELECT 
+			<include refid="creditCensusInfoColumns"/>
+		FROM credit_census_info a
+		<include refid="creditCensusInfoJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="creditUserId != null and creditUserId != ''">
+				AND a.credit_user_id = #{creditUserId}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<!-- 用于后台查询 -->
+	<select id="findList1" resultType="CreditCensusInfo">
+		SELECT 
+			<include refid="creditCensusInfoColumns1"/>
+		FROM credit_census_info a
+		<include refid="creditCensusInfoJoins1"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="creditUserId != null and creditUserId != ''">
+				AND a.credit_user_id = #{creditUserId}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			    GROUP BY c.other_id
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="CreditCensusInfo">
+		SELECT 
+			<include refid="creditCensusInfoColumns"/>
+		FROM credit_census_info a
+		<include refid="creditCensusInfoJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO credit_census_info(
+			id,
+			credit_user_id,
+			credit_annex_id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remark,
+			del_flag
+		) VALUES (
+			#{id},
+			#{creditUserId},
+			#{creditAnnexId},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remark},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE credit_census_info SET 	
+			credit_user_id = #{creditUserId},
+			credit_annex_id = #{creditAnnexId},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remark = #{remark}
+		WHERE id = #{id}
+	</update>
+	
+	<delete id="delete">
+	  DELETE from credit_census_info
+	  WHERE id = #{id}
+	</delete>
+	
+</mapper>

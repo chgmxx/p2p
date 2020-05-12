@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.power.platform.data.dao.LenderStatisticsDao">
+
+	<sql id="lenderStatisticsColumns">
+		a.id AS "id",
+		a.lender_id AS "lenderId",
+		a.lender_name AS "lenderName",
+		a.lender_phone AS "lenderPhone",
+		a.registration_time AS "registrationTime",
+		a.first_lending_time AS "firstLendingTime",
+		a.total_interest_received AS "totalInterestReceived",
+		a.annualized_rate AS "annualizedRate",
+		a.gyl_balance AS "gylBalance",
+		a.axt_balance AS "axtBalance",
+		a.total_balance AS "totalBalance",
+		a.create_date AS "createDate"
+	</sql>
+
+	<sql id="lenderStatisticsJoins">
+	</sql>
+
+	<select id="get" resultType="LenderStatistics">
+		SELECT
+		<include refid="lenderStatisticsColumns" />
+		FROM lender_statistics a
+		<include refid="lenderStatisticsJoins" />
+		WHERE and a.id = #{id}
+	</select>
+
+	<select id="findList" resultType="LenderStatistics">
+		SELECT
+		<include refid="lenderStatisticsColumns" />
+		FROM lender_statistics a
+		<include refid="lenderStatisticsJoins" />
+		<where>
+			
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.registration_time asc
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="LenderStatistics">
+		SELECT
+		<include refid="lenderStatisticsColumns" />
+		FROM lender_statistics a
+		<include refid="lenderStatisticsJoins" />
+		<where>
+			
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+
+	<insert id="insert">
+		INSERT INTO lender_statistics(
+		id,
+		lender_id,
+		lender_name,
+		lender_phone,
+		registration_time,
+		first_lending_time,
+		total_interest_received,
+		annualized_rate,
+		gyl_balance,
+		axt_balance,
+		total_balance,
+		create_date
+		) VALUES (
+		#{id},
+		#{lenderId},
+		#{lenderName},
+		#{lenderPhone},
+		#{registrationTime},
+		#{firstLendingTime},
+		#{totalInterestReceived},
+		#{annualizedRate},
+		#{gylBalance},
+		#{axtBalance},
+		#{totalBalance},
+		#{createDate}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE lender_statistics SET
+		lender_id = #{lenderId},
+		lender_name = #{lenderName},
+		lender_phone = #{lenderPhone},
+		registration_time = #{registrationTime},
+		first_lending_time = #{firstLendingTime},
+		total_interest_received = #{totalInterestReceived},
+		annualized_rate = #{annualizedRate},
+		gyl_balance = #{gylBalance},
+		axt_balance = #{axtBalance},
+		total_balance = #{totalBalance},
+		create_date = #{createDate}
+		WHERE id = #{id}
+	</update>
+
+	<update id="delete">
+		DELETE FROM lender_statistics
+		WHERE id = #{id}
+	</update>
+
+
+</mapper>

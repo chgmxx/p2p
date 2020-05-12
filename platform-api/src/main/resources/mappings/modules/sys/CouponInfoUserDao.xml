@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.power.platform.coupon.dao.CouponInfoUserDao">
+    
+	<sql id="couponInfoUserColumns">
+		a.id AS "id",
+		c.id AS "couponInfo.id",
+		c.amount AS "couponInfo.amount",
+		c.type AS "couponInfo.type",
+		c.limit_money AS "couponInfo.limitMoney",
+		u.id AS "userInfo.id",
+		u.name AS "userInfo.name",
+		u.real_name AS "userInfo.realName",
+		a.end_date AS "endDate",
+		a.create_date AS "createDate",
+		a.create_by AS "createBy.id",
+		a.state AS "state"
+	</sql>
+	
+	<sql id="couponInfoUserJoins">
+		left join coupon_info c on a.coupon_id=c.id left join user_info u on a.user_info_id =u.id
+	</sql>
+    
+	<select id="get" resultType="CouponInfoUser">
+		SELECT 
+			<include refid="couponInfoUserColumns"/>
+		FROM coupon_info_user a
+		<include refid="couponInfoUserJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="CouponInfoUser">
+		SELECT 
+			<include refid="couponInfoUserColumns"/>
+		FROM coupon_info_user a
+		<include refid="couponInfoUserJoins"/>
+		<where>
+			1=1
+			<if test="null != userInfo and userInfo.name != null and userInfo.name != ''">
+				AND u.name like concat('%',#{userInfo.name},'%')
+			</if>
+			<if test="null != userInfo and userInfo.realName != null and userInfo.realName != ''">
+				AND u.real_name like concat('%',#{userInfo.realName},'%')
+			</if>
+			<if test="null != couponInfo and couponInfo.type != null and couponInfo.type != ''">
+				AND c.type=#{couponInfo.type}
+			</if>
+		</where>
+		order by a.create_date desc
+	</select>
+	
+	<select id="findByEndTime" resultType="CouponInfoUser">
+		SELECT 
+			<include refid="couponInfoUserColumns"/>
+		FROM coupon_info_user a
+		<include refid="couponInfoUserJoins"/>
+		<where>
+			a.state='1' and a.end_date &lt;= now()
+		</where>
+	</select>
+	
+	<select id="findByUserInfo" resultType="CouponInfoUser">
+		SELECT 
+			<include refid="couponInfoUserColumns"/>
+		FROM coupon_info_user a
+		<include refid="couponInfoUserJoins"/>
+		where a.state =#{state} and u.id=#{userInfo.id}
+	</select>
+	
+	
+	<select id="findAllList" resultType="CouponInfoUser">
+		SELECT 
+			<include refid="couponInfoUserColumns"/>
+		FROM coupon_info_user a
+		<include refid="couponInfoUserJoins"/>
+		<where>
+			
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO coupon_info_user(
+			id,
+			coupon_id,
+			user_info_id,
+			end_date,
+			create_date,
+			create_by,
+			state
+		) VALUES (
+			#{id},
+			#{couponInfo.id},
+			#{userInfo.id},
+			#{endDate},
+			#{createDate},
+			#{createBy.id},
+			#{state}
+		)
+	</insert>
+	
+	<update id="updateState">
+		  update coupon_info_user set state=#{state} where id =#{id}
+	</update>
+	
+	
+	<update id="updateStateByEndTime">
+		  update coupon_info_user set state='3' where  state='1' and end_date &lt;=now()
+	</update>
+	
+</mapper>

@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.power.platform.proapproval.dao.ProjectApprovalDao">
+
+	<sql id="projectApprovalColumns">
+		a.id,
+		a.rcer_loan_terms		AS "rcerLoanTerms",
+		a.rcer_implement		AS "rcerImplement",
+		a.rcer_user				AS "rcerUser",
+		a.rclerk_user			AS "rclerkUser",
+		a.finance_option        AS "financeOption",
+		a.finance_user          AS "financeUser",
+		
+		a.rcerManager_option        AS "rcerManagerOption",
+		a.rcerManager_user          AS "rcerManagerUser",
+		a.rcerManager_update_date   AS "rcerManagerUpdateDate",
+		
+		a.admin_option          AS "adminOption",
+		a.admin_user            AS "adminUser",
+		a.state                 AS "state",
+		a.refuse_by             AS "refuseUser",
+		a.refuse_date           AS "refuseDate",
+		a.create_by             AS "createBy",
+		a.create_date           AS "createDate",
+		a.update_by             AS "updateBy",
+		a.rclerk_update_date    AS "rclerkUpdateDate",
+		a.finance_update_date   AS "financeUpdateDate",
+		a.update_date           AS "updateDate",
+		a.project_id			AS "wloanTermProject.id",
+		p.name                  AS "wloanTermProject.name",
+		p.sn                    AS "wloanTermProject.sn",
+		p.amount                AS "wloanTermProject.amount",
+		p.span                  AS "wloanTermProject.span",
+		p.fee_rate              AS "wloanTermProject.feeRate",
+		p.loan_date              AS "wloanTermProject.loanDate",
+		p.margin_percentage     AS "wloanTermProject.marginPercentage",
+		s.company_name			AS "wloanTermProject.wloanSubject.companyName"
+	</sql>
+	
+	<sql id="projectApprovalJoins">
+		wloan_repay_approval a
+		LEFT JOIN wloan_term_project p ON a.project_id = p.id
+		LEFT JOIN wloan_subject s ON s.id = p.subject_id
+	</sql>
+	
+	
+	<!-- 获取单个放款审批信息（根据id） -->
+	<select id="get" resultType="ProjectApproval">
+		SELECT 
+			<include refid="projectApprovalColumns"/>
+		FROM 
+			<include refid="projectApprovalJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<!-- 获取单个放款审批信息（根据项目id） -->
+	<select id="getByProjectId" resultType="ProjectApproval">
+		SELECT 
+			<include refid="projectApprovalColumns"/>
+		FROM 
+			<include refid="projectApprovalJoins"/>
+		WHERE a.project_id = #{ wloanTermProject.id }
+	</select>
+	
+	
+	<!-- 获取多个放款审批信息 -->
+	<select id="findList" resultType="ProjectApproval">
+		SELECT
+			<include refid="projectApprovalColumns" />
+		FROM
+			<include refid="projectApprovalJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="null != wloanTermProject">
+				<if test="'' != wloanTermProject.name and null != wloanTermProject.name">
+					and p.name like concat('%', #{wloanTermProject.name}, '%')
+				</if>
+				<if test="'' != wloanTermProject.span and null != wloanTermProject.span">
+					and p.span = #{wloanTermProject.span}
+				</if>
+				<if test="null != wloanTermProject.wloanSubject and null != wloanTermProject.wloanSubject.companyName and '' != wloanTermProject.wloanSubject.companyName">
+					and s.company_name like concat('%', #{wloanTermProject.wloanSubject.companyName}, '%')
+				</if>
+			</if>
+		</where>
+			ORDER BY a.update_date DESC
+	</select>
+	
+	
+	<select id="findAllList" resultType="ProjectApproval">
+		SELECT
+			<include refid="projectApprovalColumns" />
+		FROM
+			<include refid="projectApprovalJoins" />
+		<where>
+
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+
+	<!-- 插入放款审批信息 -->
+	<insert id="insert">
+		INSERT INTO wloan_repay_approval(
+			id,               
+			rcer_loan_terms,
+			rcer_implement,
+			rcer_user,
+			rclerk_user,
+			finance_option,
+			finance_user,
+			admin_option,
+			admin_user,
+			state,
+			refuse_by,
+			refuse_date,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			project_id,
+			rclerk_update_date,
+			finance_update_date,
+			rcerManager_option,
+			rcerManager_user,
+			rcerManager_update_date,
+			del_flag
+		)values(
+			#{id},
+			#{rcerLoanTerms},        
+			#{rcerImplement},        
+			#{rcerUser},             
+			#{rclerkUser},           
+			#{financeOption},        
+			#{financeUser},          
+			#{adminOption},          
+			#{adminUser},            
+			#{state},                
+			#{refuseUser},                
+			#{refuseDate},                
+			#{createBy},             
+			#{createDate},           
+			#{updateBy},             
+			#{updateDate},           
+			#{wloanTermProject.id},
+			#{rclerkUpdateDate},
+			#{financeUpdateDate},
+			#{rcerManagerOption},        
+			#{rcerManagerUser},   
+			#{rcerManagerUpdateDate},
+			#{delFlag}   
+		)
+	</insert>
+	
+	
+	<!-- 修改放款审批信息 -->
+	<update id="update">
+		UPDATE wloan_repay_approval SET
+			rcer_loan_terms 		= #{rcerLoanTerms},        
+			rcer_implement  		= #{rcerImplement},        
+			rcer_user       		= #{rcerUser},             
+			rclerk_user     		= #{rclerkUser},           
+			finance_option  		= #{financeOption},        
+			finance_user    		= #{financeUser},          
+			admin_option    		= #{adminOption},          
+			admin_user      		= #{adminUser},            
+			state           		= #{state},                
+			refuse_by       		= #{refuseUser},                
+			refuse_date     		= #{refuseDate},                
+			create_by       		= #{createBy},             
+			create_date     		= #{createDate},           
+			update_by       		= #{updateBy},             
+			update_date     		= #{updateDate},           
+			rclerk_update_date		= #{rclerkUpdateDate},
+			finance_update_date		= #{financeUpdateDate},
+			rcerManager_update_date		= #{rcerManagerUpdateDate},
+			rcerManager_option  		= #{rcerManagerOption},        
+			rcerManager_user    		= #{rcerManagerUser},  
+			project_id				= #{wloanTermProject.id}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 删除放款审批信息 -->
+	<delete id="delete">
+		DELETE FROM wloan_repay_approval WHERE id = #{id}
+	</delete>
+
+</mapper>

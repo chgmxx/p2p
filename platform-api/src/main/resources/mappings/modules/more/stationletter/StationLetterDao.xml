@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.power.platform.more.stationletter.dao.StationLetterDao">
+    
+	<sql id="stationLetterColumns">
+		a.id 			AS "id",
+		a.user_id 		AS "userId",
+		a.letter_type	AS "letterType",
+		a.title			AS "title",
+		a.body			AS "body",
+		a.state			AS "state",
+		a.send_time		AS "sendTime"
+	</sql>
+	
+	<sql id="stationLetterJoins">
+	</sql>
+    
+	<select id="get" resultType="StationLetter">
+		SELECT 
+			<include refid="stationLetterColumns"/>
+		FROM letter_messages a
+		<include refid="stationLetterJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="StationLetter">
+		SELECT 
+			<include refid="stationLetterColumns"/>
+		FROM letter_messages a
+		<include refid="stationLetterJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="userId != null and userId != ''">
+				AND a.user_id = #{userId}
+			</if>
+			<if test="state != null and state != ''">
+				AND a.state = #{state}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="StationLetter">
+		SELECT 
+			<include refid="stationLetterColumns"/>
+		FROM letter_messages a
+		<include refid="stationLetterJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+		
+	<insert id="insert">
+		INSERT INTO letter_messages(
+			id, 			
+			user_id, 		
+			letter_type,	
+			title,			
+			body,			
+			state,			
+			send_time,
+			del_flag		
+		) VALUES (
+			#{id},
+			#{userId},
+			#{letterType},
+			#{title},
+			#{body},
+			#{state},
+			#{sendTime},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE letter_messages SET 	
+			user_id 		= #{userId},   
+			letter_type		= #{letterType},
+			title			= #{title},    
+			body			= #{body},     
+			state			= #{state},    
+			send_time		= #{sendTime}  
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		DELETE FROM letter_messages
+		WHERE id = #{id}
+	</update>
+			
+</mapper>

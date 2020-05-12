@@ -1,0 +1,779 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.power.platform.cgb.dao.CgbUserTransDetailDao">
+
+	<!-- 借款人. -->
+	<sql id="cgbCreditUserTransDetailColumns">
+		a.id AS "id",
+		a.trans_id AS "transId",
+		a.account_id AS "accountId",
+		a.user_id AS "userId",
+		a.trans_date AS "transDate",
+		a.trust_type AS "trustType",
+		a.amount AS "amount",
+		a.avaliable_amount AS "avaliableAmount",
+		a.in_out_type AS "inOutType",
+		a.remarks AS "remarks",
+		a.state AS "state",
+		CASE
+		WHEN a.trust_type = 0 THEN
+		'充值'
+		WHEN a.trust_type = 1 THEN
+		'提现'
+		WHEN a.trust_type = 2 THEN
+		'活期投资'
+		WHEN a.trust_type = 3 THEN
+		'定期投资'
+		WHEN a.trust_type = 4 THEN
+		'付息'
+		WHEN a.trust_type = 5 THEN
+		'还本'
+		WHEN a.trust_type = 6 THEN
+		'活期赎回'
+		WHEN a.trust_type = 7 THEN
+		'活动返现'
+		WHEN a.trust_type = 8 THEN
+		'活期收益'
+		WHEN a.trust_type = 9 THEN
+		'佣金'
+		WHEN a.trust_type = 10 THEN
+		'抵用券'
+		WHEN a.trust_type = 11 THEN
+		'放款'
+		WHEN a.trust_type = 12 THEN
+		'受托支付提现'
+		WHEN a.trust_type =
+		13 THEN
+		'代偿还款'
+		END AS
+		"trustTypeStr",
+		CASE
+		WHEN a.state = 1 THEN
+		'处理中'
+		WHEN a.state = 2 THEN
+		'成功'
+		WHEN a.state = 3 THEN
+		'失败'
+		END AS "stateStr",
+		b.id AS "creditUserInfo.id",
+		b.`name` AS "creditUserInfo.name",
+		b.phone AS "creditUserInfo.phone",
+		b.certificate_no AS "creditUserInfo.certificateNo"
+	</sql>
+
+	<!-- 出借人. -->
+	<sql id="cgbUserTransDetailColumns">
+		a.id AS "id",
+		a.trans_id AS "transId",
+		a.account_id AS "accountId",
+		a.user_id AS "userId",
+		a.trans_date AS "transDate",
+		a.trust_type AS "trustType",
+		a.amount AS "amount",
+		a.avaliable_amount AS "avaliableAmount",
+		a.in_out_type AS "inOutType",
+		a.remarks AS "remarks",
+		a.state AS "state",
+		u.id AS "userInfo.id",
+		u.name AS "userInfo.name",
+		u.real_name AS "userInfo.realName",
+		u.certificate_no AS "userInfo.certificateNo",
+		c.regular_due_principal AS "userAccountInfo.regularDuePrincipal",
+		case
+		when a.trust_type = 0 then '充值'
+		when a.trust_type = 1 then '提现'
+		when a.trust_type = 2 then '活期投资'
+		when a.trust_type = 3 then '定期投资'
+		when a.trust_type = 4 then '付息'
+		when a.trust_type = 5 then '还本'
+		when a.trust_type = 6 then '活期赎回'
+		when
+		a.trust_type = 7 then '活动返现'
+		when a.trust_type = 8
+		then '活期收益'
+		when a.trust_type = 9 then '佣金'
+		when a.trust_type = 10 then '抵用券'
+		end AS "trustTypeStr",
+		case when a.state = 1 then '处理中'
+		when a.state = 2 then '成功'
+		when a.state = 3 then '失败'
+		end AS "stateStr"
+	</sql>
+
+	<!-- 出借人平台流水. -->
+	<sql id="invUserTransDetailColumns">
+		a.id AS "id",
+		a.trans_id AS "transId",
+		a.account_id AS "accountId",
+		a.user_id AS "userId",
+		a.trans_date AS "transDate",
+		a.trust_type AS "trustType",
+		a.amount AS "amount",
+		a.avaliable_amount AS "avaliableAmount",
+		a.in_out_type AS "inOutType",
+		a.remarks AS "remarks",
+		a.state AS "state"
+	</sql>
+
+	<!-- 借款人. -->
+	<sql id="cgbCreditUserTransDetailJoins">
+		cgb_user_trans_detail a INNER JOIN credit_user_info b ON b.id = a.user_id
+	</sql>
+
+	<!-- 出借人. -->
+	<sql id="cgbUserTransDetailJoins">
+		cgb_user_trans_detail a inner join user_info u on a.user_id = u.id inner join cgb_user_account c on a.account_id = c.id
+	</sql>
+
+	<select id="get" resultType="CgbUserTransDetail">
+		SELECT
+		<include refid="cgbUserTransDetailColumns" />
+		FROM
+		<include refid="cgbUserTransDetailJoins" />
+		WHERE a.id = #{id}
+	</select>
+
+	<!-- 借款人. -->
+	<select id="findCreditList" resultType="CgbUserTransDetail">
+		SELECT
+		<include refid="cgbCreditUserTransDetailColumns" />
+		FROM
+		<include refid="cgbCreditUserTransDetailJoins" />
+		<where>
+			<if test="beginTransDate != null and beginTransDate != ''">
+				AND a.trans_date &gt;= #{beginTransDate}
+			</if>
+			<if test="endTransDate != null and endTransDate != ''">
+				AND a.trans_date &lt;= #{endTransDate}
+			</if>
+			<if test="trustType != null and trustType != '' or trustType == 0 ">
+				AND a.trust_type = #{trustType}
+			</if>
+			<if test="null != transtypes">
+				AND a.trust_type in
+				<foreach item="transtypes" index="index" collection="transtypes" open="(" separator="," close=")">
+					#{transtypes}
+				</foreach>
+			</if>
+			<if test="amount != null and amount != ''">
+				AND a.amount LIKE
+				<if test="dbName == 'mysql'">concat('%',#{amount},'%')</if>
+			</if>
+			<if test="inOutType != null and inOutType != ''">
+				AND a.in_out_type = #{inOutType}
+			</if>
+			<if test="state != null and state != ''">
+				AND a.state = #{state}
+			</if>
+			<if test="remarks != null and remarks != ''">
+				AND a.remarks = #{remarks}
+			</if>
+			<if test="userId != null and userId != ''">
+				AND a.user_id = #{userId}
+			</if>
+			<if test="creditUserInfo != null">
+				<if test="null != creditUserInfo.name and creditUserInfo.name != ''">
+					AND b.name LIKE
+					<if test="dbName == 'mysql'">concat('%',#{creditUserInfo.name},'%')</if>
+				</if>
+				<if test="null != creditUserInfo.phone and creditUserInfo.phone != ''">
+					AND b.phone LIKE
+					<if test="dbName == 'mysql'">concat('%',#{creditUserInfo.phone},'%')</if>
+				</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+
+	<!-- 出借人平台流水. -->
+	<select id="findInvTransDetailList" resultType="CgbUserTransDetail">
+		SELECT
+		<include refid="invUserTransDetailColumns" />
+		FROM cgb_user_trans_detail a
+		<where>
+			<if test="beginTransDate != null and beginTransDate != ''">
+				AND a.trans_date &gt;= #{beginTransDate}
+			</if>
+			<if test="endTransDate != null and endTransDate != ''">
+				AND a.trans_date &lt;= #{endTransDate}
+			</if>
+			<if test="trustType != null and trustType != '' or trustType == 0 ">
+				AND a.trust_type = #{trustType}
+			</if>
+			<if test="null != transtypes">
+				AND a.trust_type in
+				<foreach item="transtypes" index="index" collection="transtypes" open="(" separator="," close=")">
+					#{transtypes}
+				</foreach>
+			</if>
+			<if test="userId != null and userId != ''">
+				AND a.user_id = #{userId}
+			</if>
+			<if test="state != null and state != ''">
+				AND a.state = #{state}
+			</if>
+			<if test="null != states">
+				AND a.state in
+				<foreach item="states" index="index" collection="states" open="(" separator="," close=")">
+					#{states}
+				</foreach>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+
+	<!-- 出借人. -->
+	<select id="findList" resultType="CgbUserTransDetail">
+		SELECT
+		<include refid="cgbUserTransDetailColumns" />
+		FROM
+		<include refid="cgbUserTransDetailJoins" />
+		<where>
+			<if test="beginTransDate != null and beginTransDate != ''">
+				AND a.trans_date &gt;= #{beginTransDate}
+			</if>
+			<if test="endTransDate != null and endTransDate != ''">
+				AND a.trans_date &lt;= #{endTransDate}
+			</if>
+			<if test="trustType != null and trustType != '' or trustType == 0 ">
+				AND a.trust_type = #{trustType}
+			</if>
+			<if test="null != transtypes">
+				AND a.trust_type in
+				<foreach item="transtypes" index="index" collection="transtypes" open="(" separator="," close=")">
+					#{transtypes}
+				</foreach>
+			</if>
+			<if test="amount != null and amount != ''">
+				AND a.amount LIKE
+				<if test="dbName == 'mysql'">concat('%',#{amount},'%')</if>
+			</if>
+			<if test="inOutType != null and inOutType != ''">
+				AND a.in_out_type = #{inOutType}
+			</if>
+			<if test="state != null and state != ''">
+				AND a.state = #{state}
+			</if>
+			<if test="null != states">
+				AND a.state in
+				<foreach item="states" index="index" collection="states" open="(" separator="," close=")">
+					#{states}
+				</foreach>
+			</if>
+			<if test="remarks != null and remarks != ''">
+				AND a.remarks = #{remarks}
+			</if>
+			<if test="userId != null and userId != ''">
+				AND a.user_id = #{userId}
+			</if>
+			<if test="userInfo != null">
+				<if test="null != userInfo.name and userInfo.name != ''">
+					AND u.name LIKE
+					<if test="dbName == 'mysql'">concat('%',#{userInfo.name},'%')</if>
+				</if>
+				<if test="null != userInfo.realName and userInfo.realName != ''">
+					AND u.real_name LIKE
+					<if test="dbName == 'mysql'">concat('%',#{userInfo.realName},'%')</if>
+				</if>
+			</if>
+			and a.user_id not in (select id from ztmg_partner_platform )
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="CgbUserTransDetail">
+		SELECT
+		<include refid="cgbUserTransDetailColumns" />
+		FROM cgb_user_trans_detail a
+		<where>
+
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+
+	<insert id="insert">
+		INSERT INTO cgb_user_trans_detail(
+		id,
+		trans_id,
+		account_id,
+		user_id,
+		trans_date,
+		trust_type,
+		amount,
+		avaliable_amount,
+		in_out_type,
+		remarks,
+		state
+		) VALUES (
+		#{id},
+		#{transId},
+		#{accountId},
+		#{userId},
+		#{transDate},
+		#{trustType},
+		#{amount},
+		#{avaliableAmount},
+		#{inOutType},
+		#{remarks},
+		#{state}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE cgb_user_trans_detail SET
+		trans_id = #{transId},
+		account_id = #{accountId},
+		user_id = #{userId},
+		trans_date = #{transDate},
+		trust_type = #{trustType},
+		amount = #{amount},
+		avaliable_amount = #{avaliableAmount},
+		in_out_type = #{inOutType},
+		remarks = #{remarks},
+		state = #{state}
+		WHERE id = #{id}
+	</update>
+
+	<update id="delete">
+		DELETE FROM cgb_user_trans_detail
+		WHERE id = #{id}
+	</update>
+
+	<!-- 根据交易ID查询交易流水记录 -->
+	<select id="getByTransId" resultType="CgbUserTransDetail">
+		SELECT
+		a.id AS "id",
+		a.trans_id AS "transId",
+		a.account_id AS "accountId",
+		a.user_id AS "userId",
+		a.trans_date AS "transDate",
+		a.trust_type AS "trustType",
+		a.amount AS "amount",
+		a.avaliable_amount AS "avaliableAmount",
+		a.in_out_type AS "inOutType",
+		a.remarks AS "remarks",
+		a.state AS "state"
+		FROM cgb_user_trans_detail a
+		WHERE a.trans_id = #{tranId}
+	</select>
+
+	<update id="updateState">
+		UPDATE cgb_user_trans_detail SET
+		state = #{state}
+		WHERE id = #{id}
+	</update>
+
+	<!-- ERP账户清空专用 -->
+	<select id="findList1" resultType="CgbUserTransDetail">
+		SELECT
+		<include refid="cgbUserTransDetailColumns" />
+		FROM
+		<include refid="cgbUserTransDetailJoins" />
+		<where>
+			<if test="beginTransDate != null and beginTransDate != ''">
+				AND a.trans_date &gt;= #{beginTransDate}
+			</if>
+			<if test="endTransDate != null and endTransDate != ''">
+				AND a.trans_date &lt;= #{endTransDate}
+			</if>
+			<if test="state==1">
+				AND a.avaliable_amount = 0
+			</if>
+			<if test="state==2">
+				AND c.recharge_amount &gt; 0 and c.regular_due_principal = 0
+			</if>
+			AND a.trust_type = 1
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+
+	<!-- ERP流入流出统计专用 -->
+	<select id="inOutCount" resultType="java.lang.String">
+		SELECT
+		sum(amount)
+		FROM
+		cgb_user_trans_detail a
+		JOIN user_info b ON a.user_id = b.id
+		<where>
+			a.state = 2
+			<if test="transDate != null and transDate != ''">
+				AND date_format(a.trans_date, '%Y-%m-%d' )= date_format(#{transDate}, '%Y-%m-%d' )
+			</if>
+			AND a.trust_type = #{trustType}
+		</where>
+	</select>
+
+	<!-- 围绕散标-增量借款用户（放款）流水. -->
+	<select id="findTransactCreUserGrantListZ" resultType="CgbUserTransDetail">
+		SELECT
+		<include refid="cgbCreditUserTransDetailColumns" />
+		FROM
+		<include refid="cgbCreditUserTransDetailJoins" />
+		<where>
+			1 = 1
+			<if test="beginTransDate != null and beginTransDate != ''">
+				AND a.trans_date &gt;= #{beginTransDate}
+			</if>
+			<if test="endTransDate != null and endTransDate != ''">
+				AND a.trans_date &lt;= #{endTransDate}
+			</if>
+			<if test="trustType != null and trustType != '' or trustType == 0">
+				AND a.trust_type = #{trustType}
+			</if>
+			AND a.state = '2'
+			AND a.trans_id IN (
+			SELECT
+			a.id
+			FROM
+			wloan_term_project a
+			WHERE
+			1 = 1
+			AND a.del_flag = '0'
+			AND a.state IN (4, 5, 6, 7)
+			AND a.online_date &gt;= '2019-06-30 00:00:00'
+			)
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+
+	<!-- 围绕散标-2019-03-01 00:00:00 before存量借款用户（放款）流水. -->
+	<select id="findTransactCreUserGrantList" resultType="CgbUserTransDetail">
+		SELECT
+		<include refid="cgbCreditUserTransDetailColumns" />
+		FROM
+		<include refid="cgbCreditUserTransDetailJoins" />
+		<where>
+			1 = 1
+			<if test="beginTransDate != null and beginTransDate != ''">
+				AND a.trans_date &gt;= #{beginTransDate}
+			</if>
+			<if test="endTransDate != null and endTransDate != ''">
+				AND a.trans_date &lt;= #{endTransDate}
+			</if>
+			<if test="trustType != null and trustType != '' or trustType == 0">
+				AND a.trust_type = #{trustType}
+			</if>
+			AND a.state = '2'
+			AND a.trans_id IN (
+			SELECT
+			a.id
+			FROM
+			wloan_term_project a
+			WHERE
+			1 = 1
+			AND a.del_flag = '0'
+			AND a.state IN (6)
+			AND a.online_date &lt; '2019-03-01 00:00:00'
+			)
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+
+	<!-- 围绕散标-增量-借款用户（充值、提现）流水. -->
+	<select id="findTransactCreditUserInfoListZ" resultType="CgbUserTransDetail">
+		SELECT
+		<include refid="cgbCreditUserTransDetailColumns" />
+		FROM
+		<include refid="cgbCreditUserTransDetailJoins" />
+		<where>
+			1 = 1
+			<if test="beginTransDate != null and beginTransDate != ''">
+				AND a.trans_date &gt;= #{beginTransDate}
+			</if>
+			<if test="endTransDate != null and endTransDate != ''">
+				AND a.trans_date &lt;= #{endTransDate}
+			</if>
+			<if test="trustType != null and trustType != '' or trustType == 0">
+				AND a.trust_type = #{trustType}
+			</if>
+			AND a.state = '2'
+			AND a.user_id IN (
+			SELECT
+			b.loan_apply_id
+			FROM
+			wloan_term_project a
+			LEFT JOIN wloan_subject b ON b.id = a.subject_id
+			WHERE
+			1 = 1
+			AND a.del_flag = '0'
+			AND a.state IN (4, 5, 6, 7)
+			AND a.online_date &gt;= '2019-06-30 00:00:00'
+			GROUP BY
+			b.loan_apply_id
+			)
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+
+	<!-- 围绕散标-2019-03-01 00:00:00 before存量借款用户（充值、提现）流水. -->
+	<select id="findTransactCreditUserInfoList" resultType="CgbUserTransDetail">
+		SELECT
+		<include refid="cgbCreditUserTransDetailColumns" />
+		FROM
+		<include refid="cgbCreditUserTransDetailJoins" />
+		<where>
+			1 = 1
+			<if test="beginTransDate != null and beginTransDate != ''">
+				AND a.trans_date &gt;= #{beginTransDate}
+			</if>
+			<if test="endTransDate != null and endTransDate != ''">
+				AND a.trans_date &lt;= #{endTransDate}
+			</if>
+			<if test="trustType != null and trustType != '' or trustType == 0">
+				AND a.trust_type = #{trustType}
+			</if>
+			AND a.state = '2'
+			AND a.user_id IN (
+			SELECT
+			b.loan_apply_id
+			FROM
+			wloan_term_project a
+			LEFT JOIN wloan_subject b ON b.id = a.subject_id
+			WHERE
+			1 = 1
+			AND a.del_flag = '0'
+			AND a.state IN (6)
+			AND a.online_date &lt; '2019-03-01 00:00:00'
+			GROUP BY
+			b.loan_apply_id
+			)
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+
+	<!-- 增量-出借人（充值、提现、出借返现）流水. -->
+	<select id="findLendParticularsInvUserTransListZ" resultType="CgbUserTransDetail">
+		SELECT
+		<include refid="cgbUserTransDetailColumns" />
+		FROM
+		<include refid="cgbUserTransDetailJoins" />
+		<where>
+			1 = 1
+			<if test="beginTransDate != null and beginTransDate != ''">
+				AND a.trans_date &gt;= #{beginTransDate}
+			</if>
+			<if test="endTransDate != null and endTransDate != ''">
+				AND a.trans_date &lt;= #{endTransDate}
+			</if>
+			<if test="trustType != null and trustType != '' or trustType == 0">
+				AND a.trust_type = #{trustType}
+			</if>
+			<if test="null != states">
+				AND a.state in
+				<foreach item="states" index="index" collection="states" open="(" separator="," close=")">
+					#{states}
+				</foreach>
+			</if>
+			AND a.user_id IN (
+			SELECT
+			a.user_id
+			FROM
+			wloan_term_invest a
+			WHERE
+			1 = 1
+			AND a.del_flag = '0'
+			AND a.state = '1'
+			AND a.project_id IN (
+			SELECT
+			a.id
+			FROM
+			wloan_term_project a
+			WHERE
+			1 = 1
+			AND a.del_flag = '0'
+			AND a.state IN (4, 5, 6, 7)
+			AND a.online_date &gt;= '2019-06-30 00:00:00'
+			)
+			GROUP BY
+			a.user_id
+			)
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+
+	<!-- 存量-出借人（充值、提现、出借返现）流水. -->
+	<select id="findLendParticularsInvUserTransListC" resultType="CgbUserTransDetail">
+		SELECT
+		<include refid="cgbUserTransDetailColumns" />
+		FROM
+		<include refid="cgbUserTransDetailJoins" />
+		<where>
+			1 = 1
+			<if test="beginTransDate != null and beginTransDate != ''">
+				AND a.trans_date &gt;= #{beginTransDate}
+			</if>
+			<if test="endTransDate != null and endTransDate != ''">
+				AND a.trans_date &lt;= #{endTransDate}
+			</if>
+			<if test="trustType != null and trustType != '' or trustType == 0">
+				AND a.trust_type = #{trustType}
+			</if>
+			<if test="null != states">
+				AND a.state in
+				<foreach item="states" index="index" collection="states" open="(" separator="," close=")">
+					#{states}
+				</foreach>
+			</if>
+			AND a.user_id IN (
+			SELECT
+			a.user_id
+			FROM
+			wloan_term_invest a
+			WHERE
+			1 = 1
+			AND a.del_flag = '0'
+			AND a.state = '1'
+			AND a.project_id IN (
+			SELECT
+			a.id
+			FROM
+			wloan_term_project a
+			WHERE
+			1 = 1
+			AND a.del_flag = '0'
+			AND a.state IN (6)
+			AND a.online_date &lt; '2019-03-01 00:00:00'
+			)
+			GROUP BY
+			a.user_id
+			)
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+
+	<!-- 围绕出借人-2019-05-30 00:00:00 before存量出借用户（充值、提现）流水.投资明细存量推送，帐号可以用余额不能为0 -->
+	<select id="findTransactUserInfoList2" resultType="CgbUserTransDetail">
+		SELECT
+		<include refid="cgbUserTransDetailColumns" />
+		FROM
+		<include refid="cgbUserTransDetailJoins" />
+		<where>
+			1 = 1 AND a.trans_date &lt; '2019-03-01 00:00:00' AND u.certificate_no !=''
+			<if test="beginTransDate != null and beginTransDate != ''">
+				AND a.trans_date &gt;= #{beginTransDate}
+			</if>
+			<if test="endTransDate != null and endTransDate != ''">
+				AND a.trans_date &lt;= #{endTransDate}
+			</if>
+			<if test="trustType != null and trustType != '' or trustType == 0">
+				AND a.trust_type = #{trustType}
+			</if>
+			AND a.state = '2'
+			AND a.account_id IN (
+			SELECT
+			a.account_id
+			FROM
+			cgb_user_account a
+			WHERE
+			1 = 1
+			AND a.available_amount !=0
+			)
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+
+	<!-- 存量-出借人（出借返现）流水-投资明细. -->
+	<select id="findLendParticularsInvCashBackC" resultType="CgbUserTransDetail">
+		SELECT
+		<include refid="cgbUserTransDetailColumns" />
+		FROM
+		<include refid="cgbUserTransDetailJoins" />
+		<where>
+			1 = 1
+			<if test="beginTransDate != null and beginTransDate != ''">
+				AND a.trans_date &gt;= #{beginTransDate}
+			</if>
+			<if test="endTransDate != null and endTransDate != ''">
+				AND a.trans_date &lt;= #{endTransDate}
+			</if>
+			<if test="trustType != null and trustType != '' or trustType == 0">
+				AND a.trust_type = #{trustType}
+			</if>
+			<if test="null != states">
+				AND a.state in
+				<foreach item="states" index="index" collection="states" open="(" separator="," close=")">
+					#{states}
+				</foreach>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+</mapper>

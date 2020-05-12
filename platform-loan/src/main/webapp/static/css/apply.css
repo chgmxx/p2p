@@ -1,0 +1,306 @@
+@charset"utf-8";
+
+.modal {
+ left:50%
+}
+.modal-backdrop{
+z-index:1
+}
+.modal-dialog{
+z-index:1
+}
+.btn:hover{
+   background: #239fe4;
+   color: #fff; 
+ }
+button[disabled], html input[disabled]{
+-webkit-box-shadow: inset 0 0px 0px rgba(0,0,0,0.075);
+}
+.lookimg_delBtn{
+   z-index:10
+}
+.div_imglook >div{
+       position: relative;
+   width: 130px;
+   height: 130px;
+   float: left;
+   margin-right: 20px;
+}
+.div_imglook >div:hover .lookimg_delBtn {
+display: block!important;
+}
+.loan_apply_wrap{
+    padding: 0 0 20px 0px;
+}
+.loan_apply{
+    padding: 0 20px 0 0;
+
+}
+
+.la_tip{
+    padding-left: 10px;
+}
+.back_icon{
+  color:#40A2FB;
+  font-size:16px;
+  margin-bottom: 20px;
+  cursor:pointer;
+  float:right;
+}
+
+.la_step {
+    padding: 25px 0 20px;
+}
+.mask_repd {
+padding:80px;
+	background: #fff;
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	-webkit-transform: translate(-50%, -50%);
+	-moz-transform: translate(-50%, -50%);
+	-ms-transform: translate(-50%, -50%);
+	-o-transform: translate(-50%, -50%);
+	-webkit-transition: -webkit-transform .3s ease-out;
+	-moz-transition: -webkit-transform .3s ease-out;
+	-o-transition: -o-transform .3s ease-out;
+	transition: transform .3s ease-out;
+	border: 1px solid rgba(0, 0, 0, .2);
+	border-radius: 6px;
+	outline: 0;
+	-webkit-box-shadow: 0 3px 9px rgba(0, 0, 0, .5);
+	box-shadow: 0 3px 9px rgba(0, 0, 0, .5);
+}
+.mask_wrap {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background: rgba(0, 0, 0, 0.4);
+	display: none;
+}
+
+.mask_repd {
+	display: none;
+}
+
+.mask_btn {
+	cursor: pointer;
+}
+.la_step button a{
+color:#fff;
+}
+#fiveNext{
+
+    color: #36a7e7;
+}
+.la_step button{
+margin-left: 28px;
+}
+
+.select2-container .select2-choice .select2-arrow {
+    display: inline-block;
+    width: 18px;
+    height: 100%;
+    position: absolute;
+    right: 0;
+    top: 0;
+    border-left: 1px solid #aaa;
+    border-radius: 0 4px 4px 0;
+    background-clip: padding-box;
+    background: #fff;
+    background-image: -webkit-gradient(linear,left bottom,left top,color-stop(0,#fff),color-stop(0.6,#fff));
+    background-image: -webkit-linear-gradient(center bottom,#ccc 0,#eee 60%);
+    background-image: -moz-linear-gradient(center bottom,#ccc 0,#eee 60%);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr = '#eeeeee',endColorstr = '#cccccc',GradientType = 0);
+    background-image: linear-gradient(top,#ccc 0,#eee 60%);
+}
+
+
+.select2-container .select2-choice {
+    background: #fff;
+}
+.mt_20{
+	margin-top:20px;
+	margin-left:30px;
+}
+.form-horizontal .control-label{
+    width: 80px;
+    padding-right: 20px;
+}
+
+.form-horizontal .controls {
+    margin-left:93px;
+}
+.loan_apply{
+	box-sizing:border-box;
+}
+.back_icon{
+	    float: right;
+    display: block;
+    line-height: 50px;
+    color: #40a2fb;
+}
+.group_btn{
+	    margin-left: 95px;
+}
+
+.la_step button{
+	margin-top:20px;
+}
+.errMsg{
+ padding-left: 34px;
+    color: #f40;
+    margin-top: 5px;
+}
+
+.la_new_con .form-horizontal .controls input {
+    box-sizing: border-box;
+    height: 36px;
+    border-radius: 4px;
+}
+
+.la_new_con .la_step button {
+    margin-top: 30px;
+    width: 240px;
+    margin-right: 0;
+    background: #40a2fb;
+    color: #fff;
+    font-size: 15px;
+    height: 40px;
+    border-radius: 20px;
+    margin-left: 88px;
+}
+
+.la_new_con .errMsg {
+    padding-left: 104px;
+}
+.la_new_con .form-horizontal .control-group{
+	margin-bottom:0;
+}
+.la_new_con .form-horizontal .controls.la_data_input input{
+	width:270px;
+	    cursor: pointer;
+}
+.la_step_four .btn_four{
+    width: 105px;
+    height: 33px;
+    background: #40a2fb;
+    color: #fff;
+}
+.group_btn_new{
+ width: 110px;
+    background: #40a2fb;
+    color: #fff;
+}
+
+.la_step_six table{
+    margin-top: 20px;
+    text-align: center;
+    width: 468px;
+}
+.la_step_six table th{
+    text-align: center;	
+    padding:8px 0;
+}
+.la_step_six table td{
+	    text-align: center;	
+    padding:8px 0;
+}
+.la_step_six .btn{
+    width: 105px;
+    height: 33px;
+    background: #40a2fb;
+    margin-top: 20px;
+
+}
+
+.la_step_six .btn a{
+  color: #fff;
+}
+
+.breadcrumb{
+	background:#fff;
+}
+.form-horizontal .control-label{
+	margin-left:0;
+}
+
+.file_box{
+    position: relative;
+    width: 100%;
+    height: 40px;
+    overflow: hidden;
+    text-align: center;
+}
+
+.file_box .file_button{
+    background-color: #FFF;
+    width: 120px;
+    line-height: 40px;
+    cursor: pointer;
+    font-size: 14px;
+    color: #40a2fb;
+}
+.file_box .file_input{     
+	position: absolute;
+    top: 0;
+    left: 0;
+    height: 40px;
+    filter: alpha(opacity:0);
+    opacity: 0;
+    width: 120px;
+    cursor: pointer;
+}
+
+.invoice_wrap table td input {
+    height: 35px;
+}
+.invoice_wrap table {
+    border: 1px solid #ccc;
+    width: 100%;
+    box-sizing: border-box;
+}
+.invoice_wrap table td input {
+    width: 190px;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

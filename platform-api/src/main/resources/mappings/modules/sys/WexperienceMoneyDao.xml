@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.power.platform.wexperience.dao.WexperienceMoneyDao">
+    
+	<sql id="wexperienceMoneyColumns">
+		a.id 				AS "id",
+		a.user_info_id 		AS "userId",
+		a.amount 			AS "amount",
+		a.inverst 			AS "inverst",
+		a.bid_time 			AS "bidTime",
+		a.end_time 			AS "endTime",
+		a.state 			AS "state",
+		a.come_form 		AS "comeForm",
+		a.create_date 		AS "createDate",
+		a.type 				AS "type",
+		a.project_id 		AS "projectId",
+		u.id				AS "userInfo.id",
+		u.name				AS "userInfo.name",
+		u.real_name			AS "userInfo.realName"
+	</sql>
+	
+	<sql id="wexperienceMoneyJoins">
+		JOIN user_info u ON u.id = a.user_info_id 
+	</sql>
+    
+	<select id="get" resultType="WexperienceMoney">
+		SELECT 
+			<include refid="wexperienceMoneyColumns"/>
+		FROM wexperience_money a
+		<include refid="wexperienceMoneyJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="WexperienceMoney">
+		SELECT 
+			<include refid="wexperienceMoneyColumns"/>
+		FROM wexperience_money a
+		<include refid="wexperienceMoneyJoins"/>
+		<where>
+			
+			<if test="userId != null and userId != ''">
+				AND a.user_info_id = #{userId}
+			</if>
+			<if test="state != null and state != ''">
+				AND a.state = #{state}
+			</if>
+			<if test="type != null and type != ''">
+				AND a.type = #{type}
+			</if>
+			<if test="beginCreatDate != null">
+				AND a.create_date &gt;= #{beginCreatDate}
+			</if>
+			<if test="endCreatDate != null">
+				AND a.create_date &lt;= #{endCreatDate}
+			</if>
+			<if test="comeForm != null">
+				AND a.come_form = #{comeForm}
+			</if>
+			<if test="userInfo != null">
+				<if test="userInfo.realName != null and userInfo.realName != ''">
+					AND u.real_name LIKE concat('%',#{userInfo.realName},'%')
+				</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="WexperienceMoney">
+		SELECT 
+			<include refid="wexperienceMoneyColumns"/>
+		FROM wexperience_money a
+		<include refid="wexperienceMoneyJoins"/>
+		<where>
+			
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO wexperience_money(
+			id,
+			user_info_id,
+			amount,
+			inverst,
+			bid_time,
+			end_time,
+			state,
+			come_form,
+			create_date,
+			type,
+			project_id
+		) VALUES (
+			#{id},
+			#{userId},
+			#{amount},
+			#{inverst},
+			#{bidTime},
+			#{endTime},
+			#{state},
+			#{comeForm},
+			#{createDate},
+			#{type},
+			#{projectId}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE wexperience_money SET 	
+			user_info_id = #{userId},
+			amount = #{amount},
+			inverst = #{inverst},
+			bid_time = #{bidTime},
+			end_time = #{endTime},
+			state = #{state},
+			come_form = #{comeForm},
+			type = #{type},
+			project_id = #{projectId}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		DELETE FROM wexperience_money
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

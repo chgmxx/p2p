@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.power.platform.current.dao.invest.WloanCurrentProjectDao">
+    
+	<sql id="wloanCurrentProjectColumns">
+		a.id 							AS "id",
+		a.sn 							AS "sn",
+		a.name 							AS "name",
+		a.subject_id 					AS "subjectId",
+		a.guarantee_id 					AS "guaranteeId",
+		a.doc_id 						AS "docId",
+		a.amount 						AS "amount",
+		a.ammual_rate 					AS "ammualRate",
+		a.online_date 					AS "onlineDate",
+		a.end_date 						AS "endDate",
+		a.span 							AS "span",
+		a.fee_rate 						AS "feeRate",
+		a.current_real_amount 			AS "currentRealAmount",
+		a.purpose 						AS "purpose",
+		a.state 						AS "state",
+		a.guarantee_sn	 				AS "guaranteeSn",
+		a.margin_percentage 			AS "marginPercentage",
+		a.guarantee_scheme 				AS "guaranteeScheme",
+		a.create_date 					AS "createDate",
+		a.create_by 					AS "createBy.id",
+		a.update_date 					AS "updateDate",
+		a.update_by 					AS "updateBy.id",
+		a.remark 						AS "remark",
+		a.isForward_margin_per 			AS "isForwardMarginPer",
+		a.already_feerate_amount 		AS "alreadyFeerateAmount",
+		a.contract_url					AS "contractUrl",
+		a.del_flag 						AS "delFlag",
+		wg.id 							AS "wgCompany.id" ,
+		wg.name 						AS "wgCompany.name",
+		wg.brief_name 					AS "wgCompany.briefName",
+		wg.industry 					AS "wgCompany.industry",
+		wg.register_date 				AS "wgCompany.registerDate",
+		wg.business_no 					AS "wgCompany.businessNo",
+		wg.organ_no 					AS "wgCompany.organNo",
+		wg.tax_code 					AS "wgCompany.taxCode",
+		wg.brief_info 					AS "wgCompany.briefInfo",
+		wg.web_site 					AS "wgCompany.webSite",
+		wg.corporation 					AS "wgCompany.corporation",
+		wg.guarantee_scheme 			AS "wgCompany.guaranteeScheme",
+		wg.guarantee_case 				AS "wgCompany.guaranteeCase",
+		wg.register_amount 				AS "wgCompany.registerAmount",
+		wg.net_asset_amount 			AS "wgCompany.netAssetAmount",
+		wg.last_year_cash 				AS "wgCompany.lastYearCash",
+		wg.run_case 					AS "wgCompany.runCase",
+		wg.wguarantee_logo 				AS "wgCompany.wguaranteeLogo",
+		wg.electronic_sign_url 			AS "wgCompany.electronicSignUrl",
+		wg.address 						AS "wgCompany.address",
+		wg.phone 						AS "wgCompany.phone",
+		wg.create_date 					AS "wgCompany.createDate",
+		wg.create_by 					AS "wgCompany.createBy",
+		wg.update_date 					AS "wgCompany.updateDate",
+		wg.update_by 					AS "wgCompany.updateBy",
+		wg.remark 						AS "wgCompany.remarks",
+		ws.id 							AS "wloanSubject.id",
+		ws.company_name 				AS "wloanSubject.companyName",
+		ws.brief_name 					AS "wloanSubject.briefName",
+		ws.type 						AS "wloanSubject.type",
+		ws.locus 						AS "wloanSubject.locus",
+		ws.industry 					AS "wloanSubject.industry",
+		ws.register_date 				AS "wloanSubject.registerDate",
+		ws.business__no 				AS "wloanSubject.businessNo",
+		ws.organ_no 					AS "wloanSubject.organNo",
+		ws.tax_code 					AS "wloanSubject.taxCode",
+		ws.brief_info 					AS "wloanSubject.briefInfo",
+		ws.web_site 					AS "wloanSubject.webSite",
+		ws.register_amount 				AS "wloanSubject.registerAmount",
+		ws.net_asset_amount 			AS "wloanSubject.netAssetAmount",
+		ws.last_year_cash 				AS "wloanSubject.lastYearCash",
+		ws.run_case 					AS "wloanSubject.runCase",
+		ws.cashier_user 				AS "wloanSubject.cashierUser",
+		ws.cashier_id_card 				AS "wloanSubject.cashierIdCard",
+		ws.cashier_bank_no 				AS "wloanSubject.cashierBankNo",
+		ws.cashier_bank_adderss 		AS "wloanSubject.cashierBankAdderss",
+		ws.cashier_bank_phone 			AS "wloanSubject.cashierBankPhone",
+		ws.loan_user 					AS "wloanSubject.loanUser",
+		ws.loan_id_card 				AS "wloanSubject.loanIdCard",
+		ws.loan_phone 					AS "wloanSubject.loanPhone",
+		ws.create_by 					AS "wloanSubject.createBy.id",
+		ws.create_date 					AS "wloanSubject.createDate",
+		ws.update_by 					AS "wloanSubject.updateBy.id",
+		ws.update_date 					AS "wloanSubject.updateDate",
+		ws.remarks 						AS "wloanSubject.remarks",
+		wtd.id 							AS "wloanTermDoc.id",
+		wtd.name 						AS "wloanTermDoc.name",
+		wtd.create_by 					AS "wloanTermDoc.createBy.id",
+		wtd.create_date					AS "wloanTermDoc.createDate",
+		wtd.update_by 					AS "wloanTermDoc.updateBy.id",
+		wtd.update_date 				AS "wloanTermDoc.updateDate",
+		wtd.remarks 					AS "wloanTermDoc.remarks"
+	</sql>
+	
+	<sql id="wloanCurrentProjectJoins">
+		LEFT JOIN wguarantee_company wg ON wg.id = a.guarantee_id
+		LEFT JOIN wloan_subject ws 		ON ws.id = a.subject_id
+		LEFT JOIN wloan_term_doc wtd 	ON wtd.id = a.doc_id
+	</sql>
+    
+	<select id="get" resultType="WloanCurrentProject">
+		SELECT 
+			<include refid="wloanCurrentProjectColumns"/>
+		FROM wloan_current_project a
+		<include refid="wloanCurrentProjectJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="WloanCurrentProject">
+		SELECT 
+			<include refid="wloanCurrentProjectColumns"/>
+		FROM wloan_current_project a
+		<include refid="wloanCurrentProjectJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="sn != null and sn != ''">
+				AND a.sn LIKE 
+					<if test="dbName == 'mysql'">concat('%',#{sn},'%')</if>
+			</if>
+			<if test="name != null and name != ''">
+				AND a.name LIKE 
+					<if test="dbName == 'mysql'">concat('%',#{name},'%')</if>
+			</if>
+			<if test="span != null and span != ''">
+				AND a.span = #{span}
+			</if>
+			<if test="state != null and state != ''">
+				AND a.state = #{state}
+			</if>
+			<if test="null != stateItem">
+				AND a.state in
+				<foreach item="stateItem" index="index" collection="stateItem" open="(" separator="," close=")">  
+					 #{stateItem}  
+				</foreach>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="WloanCurrentProject">
+		SELECT 
+			<include refid="wloanCurrentProjectColumns"/>
+		FROM wloan_current_project a
+		<include refid="wloanCurrentProjectJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO wloan_current_project(
+			id,
+			sn,
+			name,
+			subject_id,
+			guarantee_id,
+			doc_id,
+			amount,
+			ammual_rate,
+			online_date,
+			end_date,
+			span,
+			fee_rate,
+			current_real_amount,
+			purpose,
+			state,
+			guarantee_sn,
+			margin_percentage,
+			guarantee_scheme,
+			create_date,
+			create_by,
+			update_date,
+			update_by,
+			remark,
+			del_flag
+		) VALUES (
+			#{id},
+			#{sn},
+			#{name},
+			#{subjectId},
+			#{guaranteeId},
+			#{docId},
+			#{amount},
+			#{ammualRate},
+			#{onlineDate},
+			#{endDate},
+			#{span},
+			#{feeRate},
+			#{currentRealAmount},
+			#{purpose},
+			#{state},
+			#{guaranteeSn},
+			#{marginPercentage},
+			#{guaranteeScheme},
+			#{createDate},
+			#{createBy.id},
+			#{updateDate},
+			#{updateBy.id},
+			#{remark},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE wloan_current_project SET 	
+			sn = #{sn},
+			name = #{name},
+			subject_id = #{subjectId},
+			guarantee_id = #{guaranteeId},
+			doc_id = #{docId},
+			amount = #{amount},
+			ammual_rate = #{ammualRate},
+			online_date = #{onlineDate},
+			end_date = #{endDate},
+			span = #{span},
+			fee_rate = #{feeRate},
+			current_real_amount = #{currentRealAmount},
+			purpose = #{purpose},
+			state = #{state},
+			guarantee_sn = #{guaranteeSn},
+			margin_percentage = #{marginPercentage},
+			guarantee_scheme = #{guaranteeScheme},
+			update_date = #{updateDate},
+			update_by = #{updateBy.id},
+			contract_url = #{contractUrl},
+			isForward_margin_per = #{isForwardMarginPer},
+			already_feerate_amount = #{alreadyFeerateAmount},
+			remark = #{remark}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE wloan_current_project SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

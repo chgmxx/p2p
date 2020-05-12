@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.power.platform.credit.dao.carinfo.CreditCarInfoDao">
+
+	<sql id="creditCarInfoColumns">
+		a.id AS "id",
+		a.credit_user_id AS "creditUserId",
+		a.plate_number AS "plateNumber",
+		a.engine_number AS "engineNumber",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remark AS "remark",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<sql id="creditCarInfoColumns1">
+        a.id AS "id",
+		a.credit_user_id AS "creditUserId",
+		a.plate_number AS "plateNumber",
+		a.engine_number AS "engineNumber",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remark AS "remark",
+		a.del_flag AS "delFlag",
+	    b.`name` AS "creditUserInfo.name",
+	    GROUP_CONCAT(c.url) AS "creditAnnexFile.url"
+	</sql>
+	
+	<sql id="creditCarInfoJoins1">
+	LEFT JOIN credit_user_info b ON a.credit_user_id = b.id
+    LEFT JOIN credit_annex_file c ON a.id = c.other_id
+	</sql>
+
+	<sql id="creditCarInfoJoins">
+	</sql>
+
+	<!-- 根据用户id获取车产信息列表. -->
+	<select id="getCreditCarInfoList" resultType="CreditCarInfo">
+		SELECT
+		<include refid="creditCarInfoColumns" />
+		FROM credit_car_info a
+		<include refid="creditCarInfoJoins" />
+		WHERE a.credit_user_id = #{creditUserId}
+	</select>
+
+	<select id="get" resultType="CreditCarInfo">
+		SELECT
+		<include refid="creditCarInfoColumns" />
+		FROM credit_car_info a
+		<include refid="creditCarInfoJoins" />
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findList" resultType="CreditCarInfo">
+		SELECT
+		<include refid="creditCarInfoColumns" />
+		FROM credit_car_info a
+		<include refid="creditCarInfoJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="creditUserId != null and creditUserId != ''">
+				AND a.credit_user_id = #{creditUserId}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+   <!-- 用于后台查询 -->
+	<select id="findList1" resultType="CreditCarInfo">
+		SELECT
+		<include refid="creditCarInfoColumns1" />
+		FROM credit_car_info a
+		<include refid="creditCarInfoJoins1" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="creditUserId != null and creditUserId != ''">
+				AND a.credit_user_id = #{creditUserId}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			    GROUP BY c.other_id
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="CreditCarInfo">
+		SELECT
+		<include refid="creditCarInfoColumns" />
+		FROM credit_car_info a
+		<include refid="creditCarInfoJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<insert id="insert">
+		INSERT INTO credit_car_info(
+		id,
+		credit_user_id,
+		plate_number,
+		engine_number,
+		create_by,
+		create_date,
+		update_by,
+		update_date,
+		remark,
+		del_flag
+		) VALUES (
+		#{id},
+		#{creditUserId},
+		#{plateNumber},
+		#{engineNumber},
+		#{createBy.id},
+		#{createDate},
+		#{updateBy.id},
+		#{updateDate},
+		#{remark},
+		#{delFlag}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE credit_car_info SET
+		credit_user_id = #{creditUserId},
+		plate_number = #{plateNumber},
+		engine_number = #{engineNumber},
+		update_by = #{updateBy.id},
+		update_date = #{updateDate},
+		remark = #{remark}
+		WHERE id = #{id}
+	</update>
+
+	<update id="delete">
+		UPDATE credit_car_info SET
+		del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+
+	<delete id="deleteCarInfoById">
+		DELETE FROM credit_car_info
+		WHERE id = #{id}
+	</delete>
+
+</mapper>

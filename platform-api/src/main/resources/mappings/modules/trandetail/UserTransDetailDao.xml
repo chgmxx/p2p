@@ -1,0 +1,326 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.power.platform.trandetail.dao.UserTransDetailDao">
+    
+	<sql id="userTransDetailColumns">
+		a.id AS "id",
+		a.trans_id AS "transId",
+		a.account_id AS "accountId",
+		a.user_id AS "userId",
+		a.trans_date AS "transDate",
+		a.trust_type AS "trustType",
+		a.amount AS "amount",
+		a.avaliable_amount AS "avaliableAmount",
+		a.in_out_type AS "inOutType",
+		a.remarks AS "remarks",
+		a.state AS "state",
+		u.name AS "userInfo.name",
+		u.real_name AS "userInfo.realName",
+		c.regular_due_principal  AS "userAccountInfo.regularDuePrincipal",
+		case 
+			when a.trust_type = 0 then '充值' 
+			when a.trust_type = 1 then '提现' 
+			when a.trust_type = 2 then '活期投资' 
+			when a.trust_type = 3 then '投资' 
+			when a.trust_type = 4 then '还利息' 
+			when a.trust_type = 5 then '还本金' 
+			when a.trust_type = 6 then '活期赎回' 
+			when a.trust_type = 7 then '活动返现'
+			when a.trust_type = 8 then '活期收益'
+			when a.trust_type = 9 then '邀请奖励' 
+			when a.trust_type = 10 then '优惠券' 
+			when a.trust_type = 11 then '体验金' 
+		end AS "trustTypeStr",
+		case when a.state = 1 then '处理中' 
+		 	 when a.state = 2 then '成功' 
+		 	 when a.state = 3 then '失败' 
+		end AS "stateStr"
+		
+	</sql>
+	
+	<sql id="userTransDetailBaseColumns">
+		a.id AS "id",
+		a.trans_id AS "transId",
+		a.account_id AS "accountId",
+		a.user_id AS "userId",
+		a.trans_date AS "transDate",
+		a.trust_type AS "trustType",
+		a.amount AS "amount",
+		a.avaliable_amount AS "avaliableAmount",
+		a.in_out_type AS "inOutType",
+		a.remarks AS "remarks",
+		a.state AS "state",
+		case 
+			when a.trust_type = 0 then '充值' 
+			when a.trust_type = 1 then '提现' 
+			when a.trust_type = 2 then '活期投资' 
+			when a.trust_type = 3 then '投资' 
+			when a.trust_type = 4 then '还利息' 
+			when a.trust_type = 5 then '还本金' 
+			when a.trust_type = 6 then '活期赎回' 
+			when a.trust_type = 7 then '活动返现'
+			when a.trust_type = 8 then '活期收益'
+			when a.trust_type = 9 then '邀请奖励' 
+			when a.trust_type = 10 then '优惠券' 
+			when a.trust_type = 11 then '体验金' 
+		end AS "trustTypeStr",
+		case when a.state = 1 then '处理中' 
+		 	 when a.state = 2 then '成功' 
+		 	 when a.state = 3 then '失败' 
+		end AS "stateStr"
+		
+	</sql>
+	
+	<sql id="userTransDetailJoins">
+		user_trans_detail a left join user_info u on a.user_id = u.id left join user_account c on a.account_id = c.id
+	</sql>
+    
+	<select id="get" resultType="UserTransDetail">
+		SELECT 
+			<include refid="userTransDetailColumns"/>
+		FROM 
+		<include refid="userTransDetailJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="UserTransDetail">
+		SELECT 
+			<include refid="userTransDetailColumns"/>
+		FROM
+		<include refid="userTransDetailJoins"/>
+		<where>
+			<if test="beginTransDate != null and beginTransDate != ''">
+				AND a.trans_date &gt;= #{beginTransDate}
+			</if>
+			<if test="endTransDate != null and endTransDate != ''">
+				AND a.trans_date &lt;= #{endTransDate}
+			</if>
+			<if test="trustType != null and trustType != '' or trustType == 0 ">
+				AND a.trust_type = #{trustType}
+			</if>
+			<if test="null != transtypes">
+				AND a.trust_type in
+				<foreach item="transtypes" index="index" collection="transtypes" open="(" separator="," close=")">  
+					 #{transtypes}  
+				</foreach>
+			</if>
+			<if test="transId != null and transId != ''">
+				AND a.trans_id = #{transId}
+			</if>
+			<if test="userId != null and userId != ''">
+				AND a.user_id = #{userId}
+			</if>
+			<if test="accountId != null and accountId != ''">
+				AND a.account_id = #{accountId}
+			</if>
+			<if test="amount != null and amount != ''">
+				AND a.amount LIKE 
+					<if test="dbName == 'mysql'">concat('%',#{amount},'%')</if>
+			</if>
+			<if test="inOutType != null and inOutType != ''">
+				AND a.in_out_type = #{inOutType}
+			</if>
+			<if test="state != null and state != ''">
+				AND a.state = #{state}
+			</if>
+			<if test="remarks != null and remarks != ''">
+				AND a.remarks = #{remarks}
+			</if>
+			<if test="userInfo != null">
+				<if test="null != userInfo.name and userInfo.name != ''">
+					AND u.name LIKE 
+						<if test="dbName == 'mysql'">concat('%',#{userInfo.name},'%')</if>
+				</if>
+				<if test="null != userInfo.realName and userInfo.realName != ''">
+					AND u.real_name LIKE 
+						<if test="dbName == 'mysql'">concat('%',#{userInfo.realName},'%')</if>
+				</if>
+			</if>
+			and a.user_id not in (select id from ztmg_partner_platform )
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findList1" resultType="UserTransDetail">
+		SELECT 
+			<include refid="userTransDetailColumns"/>
+		FROM
+		<include refid="userTransDetailJoins"/>
+		<where>
+			<if test="beginTransDate != null and beginTransDate != ''">
+				AND a.trans_date &gt;= #{beginTransDate}
+			</if>
+			<if test="endTransDate != null and endTransDate != ''">
+				AND a.trans_date &lt;= #{endTransDate}
+			</if>
+			<if test="state==1">
+				AND a.avaliable_amount = 0
+			</if>
+			<if test="state==2">
+				AND c.recharge_amount &gt; 0 and c.regular_due_principal = 0
+			</if>
+				AND a.trust_type = 1
+				 
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findList2" resultType="UserTransDetail">
+		SELECT 
+			<include refid="userTransDetailBaseColumns"/>
+		FROM user_trans_detail a
+		<where>
+			<if test="beginTransDate != null and beginTransDate != ''">
+				AND a.trans_date &gt;= #{beginTransDate}
+			</if>
+			<if test="endTransDate != null and endTransDate != ''">
+				AND a.trans_date &lt;= #{endTransDate}
+			</if>
+			<if test="trustType != null and trustType != '' or trustType == 0 ">
+				AND a.trust_type = #{trustType}
+			</if>
+			<if test="null != transtypes">
+				AND a.trust_type in
+				<foreach item="transtypes" index="index" collection="transtypes" open="(" separator="," close=")">  
+					 #{transtypes}  
+				</foreach>
+			</if>
+			<if test="transId != null and transId != ''">
+				AND a.trans_id = #{transId}
+			</if>
+			<if test="userId != null and userId != ''">
+				AND a.user_id = #{userId}
+			</if>
+			<if test="accountId != null and accountId != ''">
+				AND a.account_id = #{accountId}
+			</if>
+			<if test="amount != null and amount != ''">
+				AND a.amount LIKE 
+					<if test="dbName == 'mysql'">concat('%',#{amount},'%')</if>
+			</if>
+			<if test="inOutType != null and inOutType != ''">
+				AND a.in_out_type = #{inOutType}
+			</if>
+			<if test="state != null and state != ''">
+				AND a.state = #{state}
+			</if>
+			<if test="remarks != null and remarks != ''">
+				AND a.remarks = #{remarks}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="UserTransDetail">
+		SELECT 
+			<include refid="userTransDetailColumns"/>
+		FROM
+		<include refid="userTransDetailJoins"/>
+		<where>
+			
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<!-- 统计数据 -->
+	<select id="findCountAmount" resultType="java.lang.Double">
+	   select IFNULL(sum(amount),0) from user_trans_detail a where a.user_id = #{userId}  AND a.trust_type = #{trustType}
+	
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO user_trans_detail(
+			id,
+			trans_id,
+			account_id,
+			user_id,
+			trans_date,
+			trust_type,
+			amount,
+			avaliable_amount,
+			in_out_type,
+			remarks,
+			state
+		) VALUES (
+			#{id},
+			#{transId},
+			#{accountId},
+			#{userId},
+			#{transDate},
+			#{trustType},
+			#{amount},
+			#{avaliableAmount},
+			#{inOutType},
+			#{remarks},
+			#{state}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE user_trans_detail SET 	
+			trans_id = #{transId},
+			account_id = #{accountId},
+			user_id = #{userId},
+			trans_date = #{transDate},
+			trust_type = #{trustType},
+			amount = #{amount},
+			avaliable_amount = #{avaliableAmount},
+			in_out_type = #{inOutType},
+			remarks = #{remarks},
+			state = #{state}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="updateState">
+		UPDATE user_trans_detail SET 	
+			state = #{state}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		DELETE FROM user_trans_detail
+		WHERE id = #{id}
+	</update>
+	<!-- 根据交易ID查询交易流水记录  -->
+	<select id="getByTransId" resultType="UserTransDetail">
+	SELECT 
+		a.id AS "id",
+		a.trans_id AS "transId",
+		a.account_id AS "accountId",
+		a.user_id AS "userId",
+		a.trans_date AS "transDate",
+		a.trust_type AS "trustType",
+		a.amount AS "amount",
+		a.avaliable_amount AS "avaliableAmount",
+		a.in_out_type AS "inOutType",
+		a.remarks AS "remarks",
+		a.state AS "state"
+	FROM  user_trans_detail a
+	WHERE a.trans_id = #{tranId}
+	</select>
+	
+</mapper>

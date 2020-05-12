@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.power.platform.credit.dao.voucher.CreditVoucherDao">
+
+	<sql id="creditVoucherColumns">
+		a.id AS "id",
+		a.annex_id AS "annexId",
+		a.credit_info_id AS "creditInfoId",
+		a.pack_no AS "packNo",
+		a.no AS "no",
+		a.money AS "money",
+		a.code AS "code",
+		a.issue_date AS "issueDate",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag"
+	</sql>
+
+	<sql id="creditVoucherJoins">
+	</sql>
+
+	<select id="get" resultType="CreditVoucher">
+		SELECT
+		<include refid="creditVoucherColumns" />
+		FROM credit_voucher a
+		<include refid="creditVoucherJoins" />
+		WHERE a.id = #{id}
+	</select>
+
+	<!-- 借款申请发票应收账款转让总金额. -->
+	<select id="invoiceTotalAmount" resultType="java.lang.Double">
+		SELECT
+		SUM(a.money) AS "accountsReceivablerTotalAmount"
+		FROM
+		credit_voucher a
+		WHERE
+		a.del_flag = '0'
+		AND 1 = 1
+		AND a.credit_info_id = #{creditInfoId}
+	</select>
+
+	<!-- 所属资料清单列表. -->
+	<select id="findByCreditInfoIdList" resultType="CreditVoucher">
+		SELECT
+		<include refid="creditVoucherColumns" />
+		FROM credit_voucher a
+		<include refid="creditVoucherJoins" />
+		<where>
+			a.del_flag = '0'
+			<if test="creditInfoId != null and creditInfoId != ''">
+				AND a.credit_info_id = #{creditInfoId}
+			</if>
+		</where>
+	</select>
+
+	<select id="findList" resultType="CreditVoucher">
+		SELECT
+		<include refid="creditVoucherColumns" />
+		FROM credit_voucher a
+		<include refid="creditVoucherJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="annexId != null and annexId != ''">
+				AND a.annex_id = #{annexId}
+			</if>
+			<if test="creditInfoId != null and creditInfoId != ''">
+				AND a.credit_info_id = #{creditInfoId}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findCreditVoucher" resultType="CreditVoucher">
+		SELECT
+		<include refid="creditVoucherColumns" />
+		FROM credit_voucher a
+		<include refid="creditVoucherJoins" />
+		left join credit_user_apply ca on ca.project_data_id = a.credit_info_id
+		left join wloan_term_project wp on wp.credit_user_apply_id = ca.id
+		<where>
+			a.del_flag = '0'
+			and wp.id = #{projectId}
+		</where>
+	</select>
+
+	<select id="findAllList" resultType="CreditVoucher">
+		SELECT
+		<include refid="creditVoucherColumns" />
+		FROM credit_voucher a
+		<include refid="creditVoucherJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<insert id="insert">
+		INSERT INTO credit_voucher(
+		id,
+		annex_id,
+		credit_info_id,
+		pack_no,
+		no,
+		money,
+		code,
+		issue_date,
+		create_by,
+		create_date,
+		update_by,
+		update_date,
+		remarks,
+		del_flag
+		) VALUES (
+		#{id},
+		#{annexId},
+		#{creditInfoId},
+		#{packNo},
+		#{no},
+		#{money},
+		#{code},
+		#{issueDate},
+		#{createBy.id},
+		#{createDate},
+		#{updateBy.id},
+		#{updateDate},
+		#{remarks},
+		#{delFlag}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE credit_voucher SET
+		annex_id = #{annexId},
+		credit_info_id = #{creditInfoId},
+		pack_no = #{packNo},
+		no = #{no},
+		money = #{money},
+		code = #{code},
+		issue_date = #{issueDate},
+		update_by = #{updateBy.id},
+		update_date = #{updateDate},
+		remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+
+	<update id="delete">
+		UPDATE credit_voucher SET
+		del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+
+
+	<select id="findListByInfoId" resultType="CreditVoucher">
+		select
+		a.`no` AS "no",
+		a.money AS "money",
+		a.code AS "code",
+		a.issue_date AS "issueDate",
+		b.url AS "annexFile.url"
+		FROM credit_voucher a
+		JOIN credit_annex_file b ON a.annex_id = b.id
+		<where>
+			a.credit_info_id = #{creditInfoId}
+		</where>
+	</select>
+</mapper>

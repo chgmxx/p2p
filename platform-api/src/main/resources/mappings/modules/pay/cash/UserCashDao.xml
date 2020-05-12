@@ -1,0 +1,310 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.power.platform.pay.cash.dao.UserCashDao">
+
+	<sql id="userCashColumns">
+		a.id AS "id",
+		a.account_id AS "accountId",
+		a.sn AS "sn",
+		a.user_id AS "userId",
+		a.bank AS "bank",
+		a.bank_account AS
+		"bankAccount",
+		a.amount AS "amount",
+		a.fee_amount AS "feeAmount",
+		a.fee_account AS "feeAccount",
+		a.begin_date AS "beginDate",
+		a.ip AS
+		"ip",
+		a.state AS "state",
+		a.end_date AS "endDate",
+		a.req_from AS "form",
+		a.city_code AS "cityCode",
+		a.brabank_name AS "brabankName",
+		b.id AS
+		"userInfo.id",
+		b.name AS "userInfo.name",
+		b.real_name AS
+		"userInfo.realName"
+	</sql>
+
+	<sql id="userCashBaseColumns">
+		a.id AS "id",
+		a.account_id AS "accountId",
+		a.sn AS "sn",
+		a.user_id AS "userId",
+		a.bank AS "bank",
+		a.bank_account AS
+		"bankAccount",
+		a.amount AS "amount",
+		a.fee_amount AS "feeAmount",
+		a.fee_account AS "feeAccount",
+		a.begin_date AS "beginDate",
+		a.ip AS
+		"ip",
+		a.state AS "state",
+		a.end_date AS "endDate",
+		a.req_from AS "form",
+		a.city_code AS "cityCode",
+		a.brabank_name AS "brabankName"
+	</sql>
+
+	<sql id="userCashJoins">
+		LEFT JOIN user_info b ON b.id = a.user_id
+	</sql>
+
+	<select id="get" resultType="UserCash">
+		SELECT
+		<include refid="userCashColumns" />
+		FROM user_cash a
+		<include refid="userCashJoins" />
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="getInfoById" resultType="UserCash">
+		SELECT
+		<include refid="userCashBaseColumns" />
+		FROM user_cash a
+		WHERE a.id = #{id}
+	</select>
+
+	<!-- 财务报表，列表展示. -->
+	<select id="findExcelReportList" resultType="UserCash">
+		SELECT
+		<include refid="userCashColumns" />
+		FROM user_cash a
+		<include refid="userCashJoins" />
+		<where>
+			<if test="beginDate != null and beginDate != ''">
+				AND a.begin_date &gt;= #{beginDate}
+			</if>
+			<if test="endDate != null and endDate != ''">
+				AND a.begin_date &lt;= #{endDate}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.begin_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findList" resultType="UserCash">
+		SELECT
+		<include refid="userCashColumns" />
+		FROM user_cash a
+		<include refid="userCashJoins" />
+		<where>
+
+			<if test="sn != null and sn != ''">
+				AND a.sn LIKE
+				<if test="dbName == 'oracle'">'%'||#{sn}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{sn}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{sn},'%')</if>
+			</if>
+			<if test="bankAccount != null and bankAccount != ''">
+				AND a.bank_account LIKE
+				<if test="dbName == 'oracle'">'%'||#{bankAccount}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{bankAccount}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{bankAccount},'%')</if>
+			</if>
+			<if
+				test="beginBeginDate != null and endBeginDate != null and beginBeginDate != '' and endBeginDate != ''">
+				AND a.begin_date BETWEEN #{beginBeginDate} AND #{endBeginDate}
+			</if>
+			<if test="state != null and state != ''">
+				AND a.state = #{state}
+			</if>
+			<if
+				test="beginEndDate != null and endEndDate != null and beginEndDate != '' and endEndDate != ''">
+				AND a.end_date BETWEEN #{beginEndDate} AND #{endEndDate}
+			</if>
+			<if test="from != null and from != ''">
+				AND a.req_from = #{from}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY a.begin_date desc
+			</when>
+			<otherwise>
+				ORDER BY a.begin_date desc
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="UserCash">
+		SELECT
+		<include refid="userCashColumns" />
+		FROM user_cash a
+		<include refid="userCashJoins" />
+		<where>
+
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+
+	<insert id="insert">
+		INSERT INTO user_cash(
+		id,
+		account_id,
+		sn,
+		user_id,
+		bank,
+		bank_account,
+		amount,
+		fee_amount,
+		fee_account,
+		begin_date,
+		ip,
+		state,
+		end_date,
+		city_code,
+		brabank_name,
+		req_from
+		) VALUES (
+		#{id},
+		#{accountId},
+		#{sn},
+		#{userId},
+		#{bank},
+		#{bankAccount},
+		#{amount},
+		#{feeAmount},
+		#{feeAccount},
+		#{beginDate},
+		#{ip},
+		#{state},
+		#{endDate},
+		#{cityCode},
+		#{brabankName},
+		#{from}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE user_cash SET
+		account_id = #{accountId},
+		sn =
+		#{sn},
+		user_id = #{userId},
+		bank = #{bank},
+		bank_account =
+		#{bankAccount},
+		amount = #{amount},
+		fee_amount = #{feeAmount},
+		fee_account = #{feeAccount},
+		begin_date = #{beginDate},
+		ip = #{ip},
+		state = #{state},
+		end_date = #{endDate},
+		brabank_name = #{brabankName},
+		city_code = #{cityCode},
+		req_from = #{from}
+		WHERE id = #{id}
+	</update>
+
+	<update id="updateState">
+		UPDATE user_cash SET
+		state = #{state}
+		WHERE id = #{id}
+	</update>
+
+	<update id="delete">
+		DELETE FROM user_cash
+		WHERE id = #{id}
+	</update>
+	<select id="getCashCount" resultType="UserCash">
+		SELECT
+		<include refid="userCashColumns" />
+		FROM user_cash a
+		<include refid="userCashJoins" />
+		<where>
+			<if
+				test="beginBeginDate != null and endBeginDate != null and beginBeginDate != '' and endBeginDate != ''">
+				AND a.begin_date BETWEEN #{beginBeginDate} AND #{endBeginDate}
+			</if>
+
+			<if
+				test="beginEndDate != null and endEndDate != null and beginEndDate != '' and endEndDate != ''">
+				AND a.end_date BETWEEN #{beginEndDate} AND #{endEndDate}
+			</if>
+			AND a.state in (1,2) and a.user_id=#{userId}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY a.begin_date desc
+			</when>
+			<otherwise>
+				ORDER BY a.begin_date desc
+			</otherwise>
+		</choose>
+	</select>
+
+	<!-- 查找用户提现次数. -->
+	<select id="findNumberOfWithdrawal" resultType="UserCash">
+		SELECT
+		<include refid="userCashColumns" />
+		FROM user_cash a
+		<include refid="userCashJoins" />
+		<where>
+			1 = 1
+			<if test="beginBeginDate != null and beginBeginDate != ''">
+				AND a.begin_date &gt;= #{beginBeginDate}
+			</if>
+			<if test="endBeginDate != null and endBeginDate != ''">
+				AND a.begin_date &lt;= #{endBeginDate}
+			</if>
+			<if test="state != null and state != '' or state == 0 ">
+				AND a.state = #{state}
+			</if>
+			<if test="userId != null and userId != ''">
+				AND a.user_id = #{userId}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY a.begin_date DESC
+			</when>
+			<otherwise>
+				ORDER BY a.begin_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+
+	<select id="getCreditUserCashCount" resultType="UserCash">
+		SELECT
+		<include refid="userCashBaseColumns" />
+		FROM user_cash a
+		<where>
+			<if
+				test="beginBeginDate != null and endBeginDate != null and beginBeginDate != '' and endBeginDate != ''">
+				AND a.begin_date BETWEEN #{beginBeginDate} AND #{endBeginDate}
+			</if>
+
+			<if
+				test="beginEndDate != null and endEndDate != null and beginEndDate != '' and endEndDate != ''">
+				AND a.end_date BETWEEN #{beginEndDate} AND #{endEndDate}
+			</if>
+			AND a.state in (1,2) and a.user_id=#{userId}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY a.begin_date desc
+			</when>
+			<otherwise>
+				ORDER BY a.begin_date desc
+			</otherwise>
+		</choose>
+	</select>
+</mapper>

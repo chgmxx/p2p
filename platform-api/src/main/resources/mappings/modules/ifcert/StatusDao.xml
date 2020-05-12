@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.power.platform.ifcert.dao.StatusDao">
+
+	<sql id="statusColumns">
+		a.version AS "version",
+		a.sourcecode AS "sourceCode",
+		a.sourceproductcode AS "sourceProductCode",
+		a.productstatus AS "productStatus",
+		a.productdate AS "productDate",
+		a.batchnum AS "batchNum",
+		a.sendtime AS "sendTime"
+	</sql>
+
+	<sql id="statusJoins">
+	</sql>
+
+	<select id="get" resultType="Status">
+		SELECT
+		<include refid="statusColumns" />
+		FROM status a
+		<include refid="statusJoins" />
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findList" resultType="Status">
+		SELECT
+		<include refid="statusColumns" />
+		FROM status a
+		<include refid="statusJoins" />
+		<where>
+			<!-- 批次号. -->
+			<if test="batchNum != null and batchNum != ''">
+				AND a.batchnum = #{batchNum}
+			</if>
+			<if test="sendTime != null and sendTime != ''">
+				AND a.sendTime = #{sendTime}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="Status">
+		SELECT
+		<include refid="statusColumns" />
+		FROM status a
+		<include refid="statusJoins" />
+		<where>
+
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+
+	<insert id="insert">
+		INSERT INTO status(
+		version,
+		sourcecode,
+		sourceproductcode,
+		productstatus,
+		productdate,
+		batchnum,
+		sendtime
+		) VALUES (
+		#{version},
+		#{sourceCode},
+		#{sourceProductCode},
+		#{productStatus},
+		#{productDate},
+		#{batchNum},
+		#{sendTime}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE status SET
+		version = #{version},
+		sourcecode = #{sourceCode},
+		sourceproductcode = #{sourceProductCode},
+		productstatus = #{productStatus},
+		productdate = #{productDate},
+		batchnum = #{batchNum},
+		sendtime = #{sendTime}
+		WHERE id = #{id}
+	</update>
+
+	<update id="delete">
+		DELETE FROM status
+		WHERE id = #{id}
+	</update>
+
+</mapper>

@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.power.platform.userinfo.dao.RegistUserDao">
+    
+	<sql id="userInfoColumns">
+		a.id AS "id",
+		a.name AS "name",
+		a.user_type AS "userType",
+		a.real_name AS "realName",
+		a.spell AS "spell",
+		a.pwd AS "pwd",
+		a.certificate_type AS "certificateType",
+		a.certificate_no AS "certificateNo",
+		a.certificate_checked AS "certificateChecked",
+		a.sex AS "sex",
+		a.state AS "state",
+		a.integral AS "integral",
+		a.register_date AS "registerDate",
+		a.register_from AS "registerFrom",
+		a.salt AS "salt",
+		a.last_login_date AS "lastLoginDate",
+		a.last_login_ip AS "lastLoginIp",
+		a.recommend_user_id AS "recommendUserId",
+		a.email AS "email",
+		a.email_checked AS "emailChecked",
+		a.head_img AS "headImg",
+		a.industry AS "industry",
+		a.job AS "job",
+		a.degree AS "degree",
+		a.create_date AS "createDate",
+		a.update_date AS "updateDate",
+		a.privacy AS "privacy",
+		a.user_award_type AS "userAwardType",
+		a.recom_type AS "recomType",
+		a.person_sign AS "personSign",
+		a.bind_bank_card_state AS "bindBankCardState",
+		a.cgb_bind_card_state AS "cgbBindBankCardState",
+		a.business_pwd AS "businessPwd",
+		a.account_id AS "accountId"
+	</sql>
+	
+	<sql id="userInfoJoins">
+	</sql>
+    
+	<select id="get" resultType="UserInfo">
+		SELECT 
+			<include refid="userInfoColumns"/>
+		FROM user_info a
+		<include refid="userInfoJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="UserInfo">
+		SELECT 
+			<include refid="userInfoColumns"/>
+		FROM user_info a
+		<include refid="userInfoJoins"/>
+		<where>
+			
+			<if test="name != null and name != ''">
+				AND a.name = #{name}
+			</if>
+			<if test="realName != null and realName != ''">
+				AND a.real_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{realName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{realName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{realName},'%')</if>
+			</if>
+			<if test="certificateNo != null and certificateNo != ''">
+				AND a.certificate_no LIKE 
+					<if test="dbName == 'oracle'">'%'||#{certificateNo}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{certificateNo}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{certificateNo},'%')</if>
+			</if>
+			<if test="sex != null and sex != ''">
+				AND a.sex = #{sex}
+			</if>
+			<if test="beginRegisterDate != null and endRegisterDate != null and beginRegisterDate != '' and endRegisterDate != ''">
+				AND a.register_date BETWEEN #{beginRegisterDate} AND #{endRegisterDate}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="UserInfo">
+		SELECT 
+			<include refid="userInfoColumns"/>
+		FROM user_info a
+		<include refid="userInfoJoins"/>
+		<where>
+			
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO user_info(
+			id,
+			name,
+			user_type,
+			real_name,
+			spell,
+			pwd,
+			certificate_type,
+			certificate_no,
+			certificate_checked,
+			sex,
+			state,
+			integral,
+			register_date,
+			register_from,
+			salt,
+			last_login_date,
+			last_login_ip,
+			recommend_user_id,
+			email,
+			email_checked,
+			head_img,
+			industry,
+			job,
+			degree,
+			create_date,
+			update_date,
+			privacy,
+			user_award_type,
+			recom_type,
+			person_sign,
+			bind_bank_card_state,
+			cgb_bind_card_state,
+			business_pwd,
+			account_id,
+			recommend_user_phone
+		) VALUES (
+			#{id},
+			#{name},
+			#{userType},
+			#{realName},
+			#{spell},
+			#{pwd},
+			#{certificateType},
+			#{certificateNo},
+			#{certificateChecked},
+			#{sex},
+			#{state},
+			#{integral},
+			#{registerDate},
+			#{registerFrom},
+			#{salt},
+			#{lastLoginDate},
+			#{lastLoginIp},
+			#{recommendUserId},
+			#{email},
+			#{emailChecked},
+			#{headImg},
+			#{industry},
+			#{job},
+			#{degree},
+			#{createDate},
+			#{updateDate},
+			#{privacy},
+			#{userAwardType},
+			#{recomType},
+			#{personSign},
+			#{bindBankCardState},
+			#{cgbBindBankCardState},
+			#{businessPwd},
+			#{accountId},
+			#{recommendUserPhone}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE user_info SET 	
+			name = #{name},
+			user_type = #{userType},
+			real_name = #{realName},
+			spell = #{spell},
+			pwd = #{pwd},
+			certificate_type = #{certificateType},
+			certificate_no = #{certificateNo},
+			certificate_checked = #{certificateChecked},
+			sex = #{sex},
+			state = #{state},
+			integral = #{integral},
+			register_date = #{registerDate},
+			register_from = #{registerFrom},
+			salt = #{salt},
+			last_login_date = #{lastLoginDate},
+			last_login_ip = #{lastLoginIp},
+			recommend_user_id = #{recommendUserId},
+			email = #{email},
+			email_checked = #{emailChecked},
+			head_img = #{headImg},
+			industry = #{industry},
+			job = #{job},
+			degree = #{degree},
+			update_date = #{updateDate},
+			privacy = #{privacy},
+			user_award_type = #{userAwardType},
+			recom_type = #{recomType},
+			person_sign = #{personSign},
+			bind_bank_card_state = #{bindBankCardState},
+			cgb_bind_card_state = #{cgbBindBankCardState},
+			business_pwd = #{businessPwd},
+			account_id = #{accountId}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		DELETE FROM user_info
+		WHERE id = #{id}
+	</update>
+	
+	
+	<update id="deletePhysics">
+		DELETE FROM user_info
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

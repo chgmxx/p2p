@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.power.platform.questionnaire.dao.QuestionUserDao">
+    
+	<sql id="questionUserColumns">
+		a.id AS "id",
+		a.user_id AS "userInfo.id",
+		a.topic_id AS "topicId",
+		a.answer_id AS "answerId",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remark AS "remark",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<sql id="questionUserJoins">
+	</sql>
+    
+	<select id="get" resultType="QuestionUser">
+		SELECT 
+			<include refid="questionUserColumns"/>
+		FROM q_question_user a
+		<include refid="questionUserJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="QuestionUser">
+		SELECT 
+			<include refid="questionUserColumns"/>
+		FROM q_question_user a
+		<include refid="questionUserJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="userInfo != null and userInfo.id != null and userInfo.id != ''">
+				AND a.user_id LIKE 
+					<if test="dbName == 'oracle'">'%'||#{userInfo.id}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{userInfo.id}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{userInfo.id},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="QuestionUser">
+		SELECT 
+			<include refid="questionUserColumns"/>
+		FROM q_question_user a
+		<include refid="questionUserJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO q_question_user(
+			id,
+			user_id,
+			topic_id,
+			answer_id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remark,
+			del_flag
+		) VALUES (
+			#{id},
+			#{userInfo.id},
+			#{topicId},
+			#{answerId},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remark},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE q_question_user SET 	
+			user_id = #{userInfo.id},
+			topic_id = #{topicId},
+			answer_id = #{answerId},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remark = #{remark}
+		WHERE id = #{id}
+	</update>
+	
+	<delete id="delete">
+	   DELETE from q_question_user
+	   WHERE user_id = #{userInfo.id}
+	</delete>
+	
+</mapper>

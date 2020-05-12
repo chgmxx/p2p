@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.power.platform.ifcert.dao.IfCertUserInfoDao">
+
+	<sql id="userinfoColumns">
+		a.version AS "version",
+		a.sourceCode AS "sourceCode",
+		a.userType AS "userType",
+		a.userAttr AS "userAttr",
+		a.userCreateTime AS "userCreateTime",
+		a.userName AS "userName",
+		a.countries AS "countries",
+		a.cardType AS "cardType",
+		a.userIdcard AS "userIdcard",
+		a.userIdcardHash AS "userIdcardHash",
+		a.userPhone AS "userPhone",
+		a.userPhoneHash AS "userPhoneHash",
+		a.userUuid AS "userUuid",
+		a.userLawperson AS "userLawperson",
+		a.userFund AS "userFund",
+		a.userProvince AS "userProvince",
+		a.userAddress AS "userAddress",
+		a.registerDate AS "registerDate",
+		a.userSex AS "userSex",
+		a.userBankAccount AS "userBankAccount",
+		a.batchNum AS "batchNum",
+		a.sendTime AS "sendTime"
+	</sql>
+
+	<sql id="userinfoJoins">
+	</sql>
+
+	<select id="get" resultType="IfCertUserInfo">
+		SELECT
+		<include refid="userinfoColumns" />
+		FROM userinfo a
+		<include refid="userinfoJoins" />
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findList" resultType="IfCertUserInfo">
+		SELECT
+		<include refid="userinfoColumns" />
+		FROM userinfo a
+		<include refid="userinfoJoins" />
+		<where>
+			<if test="userIdcardHash != null and userIdcardHash != ''">
+				AND a.userIdcardHash = #{userIdcardHash}
+			</if>
+			<!-- 批次号. -->
+			<if test="batchNum != null and batchNum != ''">
+				AND a.batchnum = #{batchNum}
+			</if>
+			<if test="sendTime != null and sendTime != ''">
+				AND a.sendTime = #{sendTime}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="IfCertUserInfo">
+		SELECT
+		<include refid="userinfoColumns" />
+		FROM userinfo a
+		<include refid="userinfoJoins" />
+		<where>
+
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+
+	<insert id="insert">
+		INSERT INTO userinfo(
+		version,
+		sourceCode,
+		userType,
+		userAttr,
+		userCreateTime,
+		userName,
+		countries,
+		cardType,
+		userIdcard,
+		userIdcardHash,
+		userPhone,
+		userPhoneHash,
+		userUuid,
+		userLawperson,
+		userFund,
+		userProvince,
+		userAddress,
+		registerDate,
+		userSex,
+		userBankAccount,
+		batchNum,
+		sendTime
+		) VALUES (
+		#{version},
+		#{sourceCode},
+		#{userType},
+		#{userAttr},
+		#{userCreateTime},
+		#{userName},
+		#{countries},
+		#{cardType},
+		#{userIdcard},
+		#{userIdcardHash},
+		#{userPhone},
+		#{userPhoneHash},
+		#{userUuid},
+		#{userLawperson},
+		#{userFund},
+		#{userProvince},
+		#{userAddress},
+		#{registerDate},
+		#{userSex},
+		#{userBankAccount},
+		#{batchNum},
+		#{sendTime}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE userinfo SET
+		version = #{version},
+		sourceCode = #{sourceCode},
+		userType = #{userType},
+		userAttr = #{userAttr},
+		userCreateTime = #{userCreateTime},
+		userName = #{userName},
+		countries = #{countries},
+		cardType = #{cardType},
+		userIdcard = #{userIdcard},
+		userIdcardHash = #{userIdcardHash},
+		userPhone = #{userPhone},
+		userPhoneHash = #{userPhoneHash},
+		userUuid = #{userUuid},
+		userLawperson = #{userLawperson},
+		userFund = #{userFund},
+		userProvince = #{userProvince},
+		userAddress = #{userAddress},
+		registerDate = #{registerDate},
+		userSex = #{userSex},
+		userBankAccount = #{userBankAccount},
+		batchNum = #{batchNum},
+		sendTime = #{sendTime}
+		WHERE id = #{id}
+	</update>
+
+	<update id="delete">
+		DELETE FROM userinfo
+		WHERE id = #{id}
+	</update>
+
+</mapper>

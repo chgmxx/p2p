@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.power.platform.activity.dao.AVouchersDicDao">
+
+	<sql id="aVouchersDicColumns">
+		a.id AS "id",
+		a.state AS "state",
+		a.overdue_days AS "overdueDays",
+		a.amount AS "amount",
+		a.limit_amount AS "limitAmount",
+		a.remarks AS "remarks",
+		a.create_date AS "createDate",
+		a.create_by AS "createBy.id",
+		a.update_date AS "updateDate",
+		a.update_by AS "updateBy.id",
+		a.del_flag AS "delFlag",
+		a.spans AS "spans"
+	</sql>
+
+	<sql id="aVouchersDicJoins">
+	</sql>
+
+	<select id="get" resultType="AVouchersDic">
+		SELECT
+		<include refid="aVouchersDicColumns" />
+		FROM a_vouchers_dic a
+		<include refid="aVouchersDicJoins" />
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findList" resultType="AVouchersDic">
+		SELECT
+		<include refid="aVouchersDicColumns" />
+		FROM a_vouchers_dic a
+		<include refid="aVouchersDicJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="state != null and state != ''">
+				AND a.state = #{state}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="AVouchersDic">
+		SELECT
+		<include refid="aVouchersDicColumns" />
+		FROM a_vouchers_dic a
+		<include refid="aVouchersDicJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<insert id="insert">
+		INSERT INTO a_vouchers_dic(
+		id,
+		state,
+		overdue_days,
+		amount,
+		limit_amount,
+		remarks,
+		create_date,
+		create_by,
+		update_date,
+		update_by,
+		del_flag,
+		spans
+		) VALUES (
+		#{id},
+		#{state},
+		#{overdueDays},
+		#{amount},
+		#{limitAmount},
+		#{remarks},
+		#{createDate},
+		#{createBy.id},
+		#{updateDate},
+		#{updateBy.id},
+		#{delFlag},
+		#{spans}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE a_vouchers_dic SET
+		state = #{state},
+		overdue_days = #{overdueDays},
+		amount = #{amount},
+		limit_amount = #{limitAmount},
+		remarks = #{remarks},
+		spans = #{spans},
+		update_date = #{updateDate},
+		update_by = #{updateBy.id}
+		WHERE id = #{id}
+	</update>
+
+	<update id="delete">
+		UPDATE a_vouchers_dic SET
+		del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+
+	<!-- 获取所有字典数据. -->
+	<select id="findAllAVouchersDics" resultType="AVouchersDic">
+		SELECT
+		<include refid="aVouchersDicColumns" />
+		FROM a_vouchers_dic a
+		<where>
+			a.del_flag = 0
+		</where>
+	</select>
+	
+	<!-- 根据金额查询抵用劵信息 -->
+	<select id="findByVoucher" resultType="AVouchersDic">
+		SELECT
+		<include refid="aVouchersDicColumns" />
+		FROM a_vouchers_dic a
+		<where>
+			a.del_flag = 0
+			<if test="amount != null and amount != '' ">
+			and a.amount = #{amount}
+			</if>
+		</where>
+	</select>
+
+</mapper>

@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.power.platform.ifcert.dao.ScatterInvestDao">
+
+	<sql id="scatterInvestColumns">
+		a.version AS "version",
+		a.sourcecode AS "sourceCode",
+		a.productstarttime AS "productStartTime",
+		a.productname AS "productName",
+		a.sourceproductcode AS "sourceProductCode",
+		a.useridcardhash AS "userIdcardHash",
+		a.loanuse AS "loanUse",
+		a.loandescribe AS "loanDescribe",
+		a.loanrate AS "loanRate",
+		a.amount AS "amount",
+		a.surplusamount AS "surplusAmount",
+		a.term AS "term",
+		a.paytype AS "payType",
+		a.servicecost AS "serviceCost",
+		a.loantype AS "loanType",
+		a.securitytype AS "securityType",
+		a.securitycompanyamount AS "securityCompanyAmount",
+		a.securitycompanyname AS "securityCompanyName",
+		a.securitycompanyidcard AS "securityCompanyIdcard",
+		a.isfinancingassure AS "isFinancingAssure",
+		a.securityamount AS "securityamount",
+		a.projectsource AS "projectSource",
+		a.batchnum AS "batchNum",
+		a.sendtime AS "sentTime"
+	</sql>
+
+	<sql id="scatterInvestJoins">
+	</sql>
+
+	<select id="get" resultType="ScatterInvest">
+		SELECT
+		<include refid="scatterInvestColumns" />
+		FROM scatterinvest a
+		<include refid="scatterInvestJoins" />
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findList" resultType="ScatterInvest">
+		SELECT
+		<include refid="scatterInvestColumns" />
+		FROM scatterinvest a
+		<include refid="scatterInvestJoins" />
+		<where>
+			<!-- 批次号. -->
+			<if test="batchNum != null and batchNum != ''">
+				AND a.batchnum = #{batchNum}
+			</if>
+			<if test="sentTime != null and sentTime != ''">
+				AND a.sendTime = #{sentTime}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="ScatterInvest">
+		SELECT
+		<include refid="scatterInvestColumns" />
+		FROM scatterinvest a
+		<include refid="scatterInvestJoins" />
+		<where>
+
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+
+	<insert id="insert">
+		INSERT INTO scatterinvest(
+		version,
+		sourcecode,
+		productstarttime,
+		productname,
+		sourceproductcode,
+		useridcardhash,
+		loanuse,
+		loandescribe,
+		loanrate,
+		amount,
+		surplusamount,
+		term,
+		paytype,
+		servicecost,
+		loantype,
+		securitytype,
+		securitycompanyamount,
+		securitycompanyname,
+		securitycompanyidcard,
+		isfinancingassure,
+		securityamount,
+		projectsource,
+		batchnum,
+		sendtime
+		) VALUES (
+		#{version},
+		#{sourceCode},
+		#{productStartTime},
+		#{productName},
+		#{sourceProductCode},
+		#{userIdcardHash},
+		#{loanUse},
+		#{loanDescribe},
+		#{loanRate},
+		#{amount},
+		#{surplusAmount},
+		#{term},
+		#{payType},
+		#{serviceCost},
+		#{loanType},
+		#{securityType},
+		#{securityCompanyAmount},
+		#{securityCompanyName},
+		#{securityCompanyIdcard},
+		#{isFinancingAssure},
+		#{securityamount},
+		#{projectSource},
+		#{batchNum},
+		#{sentTime}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE scatterinvest SET
+		version = #{version},
+		sourcecode = #{sourceCode},
+		productstarttime = #{productStartTime},
+		productname = #{productName},
+		sourceproductcode = #{sourceProductCode},
+		useridcardhash = #{userIdcardHash},
+		loanuse = #{loanUse},
+		loandescribe = #{loanDescribe},
+		loanrate = #{loanRate},
+		amount = #{amount},
+		surplusamount = #{surplusAmount},
+		term = #{term},
+		paytype = #{payType},
+		servicecost = #{serviceCost},
+		loantype = #{loanType},
+		securitytype = #{securityType},
+		securitycompanyamount = #{securityCompanyAmount},
+		securitycompanyname = #{securityCompanyName},
+		securitycompanyidcard = #{securityCompanyIdcard},
+		isfinancingassure = #{isFinancingAssure},
+		securityamount = #{securityamount},
+		projectsource = #{projectSource},
+		batchnum = #{batchNum},
+		sendtime = #{sentTime}
+		WHERE id = #{id}
+	</update>
+
+	<update id="delete">
+		DELETE FROM scatterinvest
+		WHERE id = #{id}
+	</update>
+
+</mapper>

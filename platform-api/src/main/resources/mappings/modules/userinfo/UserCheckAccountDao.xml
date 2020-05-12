@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.power.platform.userinfo.dao.UserCheckAccountDao">
+    
+	<sql id="userCheckAccountColumns">
+		a.id AS "id",
+		a.phone AS "phone",
+		a.real_name AS "realName",
+		a.account_amount AS "accountAmount",
+		a.check_amount AS "checkAmount",
+		a.create_date AS "createDate",
+		a.create_by AS "createBy.id",
+		a.update_date AS "updateDate",
+		a.update_by AS "updateBy.id",
+		a.del_flag AS "delFlag",
+		a.remark AS "remark"
+	</sql>
+	
+	<sql id="userCheckAccountJoins">
+	</sql>
+    
+	<select id="get" resultType="UserCheckAccount">
+		SELECT 
+			<include refid="userCheckAccountColumns"/>
+		FROM user_check_account a
+		<include refid="userCheckAccountJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="UserCheckAccount">
+		SELECT 
+			<include refid="userCheckAccountColumns"/>
+		FROM user_check_account a
+		<include refid="userCheckAccountJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="phone != null and phone != ''">
+				AND a.phone = #{phone}
+			</if>
+			<if test="realName != null and realName != ''">
+				AND a.real_name = #{realName}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="UserCheckAccount">
+		SELECT 
+			<include refid="userCheckAccountColumns"/>
+		FROM user_check_account a
+		<include refid="userCheckAccountJoins"/>
+		<where>
+			a.del_flag = 0
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO user_check_account(
+			id,
+			phone,
+			real_name,
+			account_amount,
+			check_amount,
+			create_date,
+			create_by,
+			update_date,
+			update_by,
+			del_flag,
+			remark
+		) VALUES (
+			#{id},
+			#{phone},
+			#{realName},
+			#{accountAmount},
+			#{checkAmount},
+			#{createDate},
+			#{createBy.id},
+			#{updateDate},
+			#{updateBy.id},
+			#{delFlag},
+			#{remark}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE user_check_account SET 	
+			phone = #{phone},
+			real_name = #{realName},
+			account_amount = #{accountAmount},
+			check_amount = #{checkAmount},
+			update_date = #{updateDate},
+			update_by = #{updateBy.id}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE user_check_account SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	<delete id="deleteAll">
+	  DELETE FROM user_check_account
+	</delete>
+	
+</mapper>

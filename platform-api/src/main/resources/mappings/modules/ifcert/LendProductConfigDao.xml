@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.power.platform.ifcert.dao.LendProductConfigDao">
+
+	<sql id="lendProductConfigColumns">
+		a.version AS "version",
+		a.sourcecode AS "sourceCode",
+		a.configid AS "configId",
+		a.finclaimid AS "finClaimId",
+		a.sourcefinancingcode AS "sourceFinancingCode",
+		a.useridcardhash AS "userIdcardHash",
+		a.sourceProductCode AS "sourceProductCode",
+		a.batchnum AS "batchNum",
+		a.sendtime AS "sendTime"
+	</sql>
+
+	<sql id="lendProductConfigJoins">
+	</sql>
+
+	<select id="get" resultType="LendProductConfig">
+		SELECT
+		<include refid="lendProductConfigColumns" />
+		FROM lendproductconfig a
+		<include refid="lendProductConfigJoins" />
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findList" resultType="LendProductConfig">
+		SELECT
+		<include refid="lendProductConfigColumns" />
+		FROM lendproductconfig a
+		<include refid="lendProductConfigJoins" />
+		<where>
+			<!-- 批次号. -->
+			<if test="batchNum != null and batchNum != ''">
+				AND a.batchnum = #{batchNum}
+			</if>
+			<if test="sendTime != null and sendTime != ''">
+				AND a.sendTime = #{sendTime}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="LendProductConfig">
+		SELECT
+		<include refid="lendProductConfigColumns" />
+		FROM lendproductconfig a
+		<include refid="lendProductConfigJoins" />
+		<where>
+
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+
+	<insert id="insert">
+		INSERT INTO lendproductconfig(
+		version,
+		sourcecode,
+		configid,
+		finclaimid,
+		sourcefinancingcode,
+		useridcardhash,
+		sourceProductCode,
+		batchnum,
+		sendtime
+		) VALUES (
+		#{version},
+		#{sourceCode},
+		#{configId},
+		#{finClaimId},
+		#{sourceFinancingCode},
+		#{userIdcardHash},
+		#{sourceProductCode},
+		#{batchNum},
+		#{sendTime}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE lendproductconfig SET
+		version = #{version},
+		sourcecode = #{sourceCode},
+		configid = #{configId},
+		finclaimid = #{finClaimId},
+		sourcefinancingcode = #{sourceFinancingCode},
+		useridcardhash = #{userIdcardHash},
+		sourceProductCode = #{sourceProductCode},
+		batchnum = #{batchNum},
+		sendtime = #{sendTime}
+		WHERE id = #{id}
+	</update>
+
+	<update id="delete">
+		DELETE FROM lendproductconfig
+		WHERE id = #{id}
+	</update>
+
+</mapper>

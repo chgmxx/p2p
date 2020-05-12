@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.power.platform.credit.dao.supplierToMiddlemen.CreditSupplierToMiddlemenDao">
+
+	<sql id="creditSupplierToMiddlemenColumns">
+		a.id AS "id",
+		a.supplier_id AS "supplierId",
+		a.middlemen_id AS "middlemenId",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		s.id AS "supplierUser.id",
+		s.open_account_state AS "supplierUser.openAccountState",
+		s.enterpriseFullName AS "supplierUser.enterpriseFullName",
+		s.phone AS "supplierUser.phone",
+		s.name AS "supplierUser.name",
+		s.is_create_basic_info AS "supplierUser.isCreateBasicInfo",
+		m.id AS "middlemenUser.id",
+		m.enterpriseFullName AS "middlemenUser.enterpriseFullName"
+
+	</sql>
+
+	<!-- 中间表联表查询字段. -->
+	<sql id="creditSupplierToMiddlemenLeftJoinColumns">
+		a.id AS "id",
+		a.supplier_id AS "supplierId",
+		a.middlemen_id AS "middlemenId",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		s.id AS "supplierUser.id",
+		s.open_account_state AS "supplierUser.openAccountState",
+		s.enterpriseFullName AS "supplierUser.enterpriseFullName",
+		s.is_create_basic_info AS "supplierUser.isCreateBasicInfo",
+		m.id AS "middlemenUser.id",
+		m.enterpriseFullName AS "middlemenUser.enterpriseFullName"
+	</sql>
+	
+	<sql id="creditSupplierToMiddlemenColumnsList">
+	a.id AS "id",
+	a.supplier_id AS "supplierId",
+	a.middlemen_id AS "middlemenId",
+	a.create_by AS "createBy.id",
+	a.create_date AS "createDate",
+	a.update_by AS "updateBy.id",
+	a.update_date AS "updateDate",
+	a.remarks AS "remarks",
+	a.del_flag AS "delFlag",
+	s.id AS "supplierUser.id",
+	s.open_account_state AS "supplierUser.openAccountState",
+	s.enterpriseFullName AS "supplierUser.enterpriseFullName",
+	s.is_create_basic_info AS "supplierUser.isCreateBasicInfo"
+	
+	</sql>
+
+	<sql id="creditSupplierToMiddlemenJoins">
+		LEFT JOIN credit_user_info s ON s.id = a.supplier_id
+		LEFT JOIN credit_user_info m ON m.id = a.middlemen_id
+	</sql>
+
+	<!-- 中间表联表列表. -->
+	<sql id="creditSupplierToMiddlemenLeftJoins">
+		LEFT JOIN credit_user_info s ON s.id = a.supplier_id
+		LEFT JOIN credit_user_info m ON m.id = a.middlemen_id
+	</sql>
+	
+	<sql id="creditSupplierToMiddlemenJoinsList">
+		LEFT JOIN credit_user_info s ON s.id = a.supplier_id
+		LEFT JOIN cgb_user_bank_card ss ON ss.user_id = s.id
+	</sql>
+
+	<select id="get" resultType="CreditSupplierToMiddlemen">
+		SELECT
+		<include refid="creditSupplierToMiddlemenColumns" />
+		FROM credit_supplier_to_middlemen a
+		<include refid="creditSupplierToMiddlemenJoins" />
+		WHERE a.id = #{id}
+	</select>
+
+	<!-- 查询借代关系表. -->
+	<select id="findCreditSupplierToMiddlemens" resultType="CreditSupplierToMiddlemen">
+		SELECT
+		<include refid="creditSupplierToMiddlemenLeftJoinColumns" />
+		FROM credit_supplier_to_middlemen a
+		<include refid="creditSupplierToMiddlemenLeftJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="supplierId != null and supplierId != ''">
+				AND a.supplier_id = #{supplierId}
+			</if>
+			<if test="middlemenId != null and middlemenId != ''">
+				AND a.middlemen_id = #{middlemenId}
+			</if>
+		</where>
+		ORDER BY a.update_date DESC
+	</select>
+	
+	<!-- 查询借代关系表ERP. -->
+	<select id="findCreditSupplierToMiddlemensList" resultType="CreditSupplierToMiddlemen">
+		SELECT
+		<include refid="creditSupplierToMiddlemenColumnsList" />
+		FROM credit_supplier_to_middlemen a
+		<include refid="creditSupplierToMiddlemenJoinsList" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<!-- AND ss.state = 1 -->
+			<if test="middlemenId != null and middlemenId != ''">
+				AND a.middlemen_id = #{middlemenId}
+			</if>
+		</where>
+		ORDER BY a.update_date DESC
+	</select>
+
+	<select id="findList" resultType="CreditSupplierToMiddlemen">
+		SELECT
+		<include refid="creditSupplierToMiddlemenColumns" />
+		FROM credit_supplier_to_middlemen a
+		<include refid="creditSupplierToMiddlemenJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="supplierUser != null">
+				<if test="supplierUser.enterpriseFullName != null and supplierUser.enterpriseFullName != ''">
+					AND s.enterpriseFullName LIKE
+					<if test="dbName == 'oracle'">'%'||#{supplierUser.enterpriseFullName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{supplierUser.enterpriseFullName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{supplierUser.enterpriseFullName},'%')</if>
+				</if>
+			</if>
+			<if test="middlemenUser != null">
+				<if test="middlemenUser.enterpriseFullName != null and middlemenUser.enterpriseFullName != ''">
+					AND m.enterpriseFullName LIKE
+					<if test="dbName == 'oracle'">'%'||#{middlemenUser.enterpriseFullName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{middlemenUser.enterpriseFullName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{middlemenUser.enterpriseFullName},'%')</if>
+				</if>
+			</if>
+			<if test="middlemenId !=null and middlemenId !=''">
+			       AND a.middlemen_id = #{middlemenId}
+			</if>
+			<if test="supplierId !=null and supplierId !=''">
+			       AND a.supplier_id = #{supplierId}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="CreditSupplierToMiddlemen">
+		SELECT
+		<include refid="creditSupplierToMiddlemenColumns" />
+		FROM credit_supplier_to_middlemen a
+		<include refid="creditSupplierToMiddlemenJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<insert id="insert">
+		INSERT INTO credit_supplier_to_middlemen(
+		id,
+		supplier_id,
+		middlemen_id,
+		create_by,
+		create_date,
+		update_by,
+		update_date,
+		remarks,
+		del_flag
+		) VALUES (
+		#{id},
+		#{supplierId},
+		#{middlemenId},
+		#{createBy.id},
+		#{createDate},
+		#{updateBy.id},
+		#{updateDate},
+		#{remarks},
+		#{delFlag}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE credit_supplier_to_middlemen SET
+		supplier_id = #{supplierId},
+		middlemen_id = #{middlemenId},
+		update_by = #{updateBy.id},
+		update_date = #{updateDate},
+		remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+
+	<update id="delete">
+		UPDATE credit_supplier_to_middlemen SET
+		del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+
+</mapper>

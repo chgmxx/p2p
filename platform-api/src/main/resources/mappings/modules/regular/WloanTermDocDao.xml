@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.power.platform.regular.dao.WloanTermDocDao">
+
+	<sql id="wloanTermDocColumns">
+		a.id AS "id",
+		a.name AS "name",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		b.login_name AS "createBy.loginName",
+		b.login_name AS "updateBy.loginName"
+	</sql>
+
+	<sql id="wloanTermDocJoins">
+		JOIN sys_user b ON a.create_by = b.id
+	</sql>
+
+	<!-- 定期-融资档案和融资项目. -->
+	<sql id="WloanTermDocAndWloanTermProjectColumns">
+		wtd.id AS "id",
+		wtd.name AS "name",
+		wtp.name AS "wloanTermProject.name"
+	</sql>
+	<!-- 定期-融资档案和融资项目. -->
+	<sql id="WloanTermDocAndWloanTermProjectJoins">
+		JOIN wloan_term_project wtp ON wtp.doc_id = wtd.id
+	</sql>
+
+	<select id="get" resultType="WloanTermDoc">
+		SELECT
+		<include refid="wloanTermDocColumns" />
+		FROM wloan_term_doc a
+		<include refid="wloanTermDocJoins" />
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findList" resultType="WloanTermDoc">
+		SELECT
+		<include refid="wloanTermDocColumns" />
+		FROM wloan_term_doc a
+		<include refid="wloanTermDocJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="name != null and name != ''">
+				AND a.name LIKE
+				<if test="dbName == 'oracle'">'%'||#{name}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{name}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{name},'%')</if>
+			</if>
+			<if test="createBy != null and createBy.id != null and createBy.id != ''">
+				AND a.create_by LIKE
+				<if test="dbName == 'oracle'">'%'||#{createBy.id}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{createBy.id}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{createBy.id},'%')</if>
+			</if>
+			<if test="beginCreateDate != null and beginCreateDate != ''">
+				AND a.create_date &gt;= #{beginCreateDate}
+			</if>
+			<if test="endCreateDate != null and endCreateDate != ''">
+				AND a.create_date &lt;= #{endCreateDate}
+			</if>
+			<if test="updateBy != null and updateBy.id != null and updateBy.id != ''">
+				AND a.update_by LIKE
+				<if test="dbName == 'oracle'">'%'||#{updateBy.id}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{updateBy.id}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{updateBy.id},'%')</if>
+			</if>
+			<if test="beginUpdateDate != null and beginUpdateDate != ''">
+				AND a.update_date &gt;= #{beginUpdateDate}
+			</if>
+			<if test="endUpdateDate != null and endUpdateDate != ''">
+				AND a.update_date &lt;= #{endUpdateDate}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="WloanTermDoc">
+		SELECT
+		<include refid="wloanTermDocColumns" />
+		FROM wloan_term_doc a
+		<include refid="wloanTermDocJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="isExistWloanTermDocAndWloanTermProject" resultType="WloanTermDoc">
+		SELECT
+		<include refid="WloanTermDocAndWloanTermProjectColumns" />
+		FROM
+		wloan_term_doc wtd
+		<include refid="WloanTermDocAndWloanTermProjectJoins" />
+		<where>
+			wtd.del_flag = #{DEL_FLAG_NORMAL}
+			AND wtp.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="id != null and id != ''">
+				AND wtd.id = #{id}
+			</if>
+		</where>
+	</select>
+
+	<insert id="insert">
+		INSERT INTO wloan_term_doc(
+		id,
+		name,
+		create_by,
+		create_date,
+		update_by,
+		update_date,
+		remarks,
+		del_flag
+		) VALUES (
+		#{id},
+		#{name},
+		#{createBy.id},
+		#{createDate},
+		#{updateBy.id},
+		#{updateDate},
+		#{remarks},
+		#{delFlag}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE wloan_term_doc SET
+		name = #{name},
+		update_by = #{updateBy.id},
+		update_date = #{updateDate},
+		remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+
+	<update id="delete">
+		UPDATE wloan_term_doc SET
+		del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+
+</mapper>

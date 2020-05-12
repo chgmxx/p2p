@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.power.platform.credit.dao.creditOrder.CreditOrderDao">
+
+	<sql id="creditOrderColumns">
+		a.id AS "id",
+		a.annex_id AS "annexId",
+		a.credit_info_id AS
+		"creditInfoId",
+		a.pack_no AS "packNo",
+		a.no AS "no",
+		a.money AS "money",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks
+		AS "remarks",
+		a.del_flag AS "delFlag"
+	</sql>
+
+	<sql id="creditOrderJoins">
+	</sql>
+
+	<select id="get" resultType="CreditOrder">
+		SELECT
+		<include refid="creditOrderColumns" />
+		FROM credit_order a
+		<include refid="creditOrderJoins" />
+		WHERE a.id = #{id}
+	</select>
+
+	<!-- 订单清单列表. -->
+	<select id="findByCreditInfoIdList" resultType="CreditOrder">
+		SELECT
+		<include refid="creditOrderColumns" />
+		FROM credit_order a
+		<include refid="creditOrderJoins" />
+		<where>
+			a.del_flag = '0'
+			<if test="creditInfoId != null and creditInfoId != ''">
+				AND a.credit_info_id = #{creditInfoId}
+			</if>
+		</where>
+	</select>
+
+	<select id="findList" resultType="CreditOrder">
+		SELECT
+		<include refid="creditOrderColumns" />
+		FROM credit_order a
+		<include refid="creditOrderJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="creditInfoId != null and creditInfoId != ''">
+				AND a.credit_info_id = #{creditInfoId} 
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="CreditOrder">
+		SELECT
+		<include refid="creditOrderColumns" />
+		FROM credit_order a
+		<include refid="creditOrderJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<insert id="insert">
+		INSERT INTO credit_order(
+		id,
+		annex_id,
+		credit_info_id,
+		pack_no,
+		no,
+		money,
+		create_by,
+		create_date,
+		update_by,
+		update_date,
+		remarks,
+		del_flag
+		) VALUES (
+		#{id},
+		#{annexId},
+		#{creditInfoId},
+		#{packNo},
+		#{no},
+		#{money},
+		#{createBy.id},
+		#{createDate},
+		#{updateBy.id},
+		#{updateDate},
+		#{remarks},
+		#{delFlag}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE credit_order SET
+		annex_id = #{annexId},
+		credit_info_id = #{creditInfoId},
+		pack_no = #{packNo},
+		no = #{no},
+		money
+		= #{money},
+		update_by = #{updateBy.id},
+		update_date = #{updateDate},
+		remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+
+	<update id="delete">
+		UPDATE credit_order SET
+		del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+
+</mapper>

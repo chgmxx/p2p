@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.power.platform.credit.dao.coinsuranceinfo.CreditCoinsuranceInfoDao">
+
+	<sql id="creditCoinsuranceInfoColumns">
+		a.id AS "id",
+		a.credit_user_id AS "creditUserId",
+		a.coinsurance_type AS "coinsuranceType",
+		a.company_name AS "companyName",
+		a.name AS "name",
+		a.phone AS "phone",
+		a.id_card AS "idCard",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remark AS "remark",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<sql id="creditCoinsuranceInfoColumns1">
+      	a.id AS "id",
+		a.credit_user_id AS "creditUserId",
+		a.coinsurance_type AS "coinsuranceType",
+		a.company_name AS "companyName",
+		a.name AS "name",
+		a.phone AS "phone",
+		a.id_card AS "idCard",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remark AS "remark",
+		a.del_flag AS "delFlag",
+	    b.name AS "creditUserInfo.name",
+	    GROUP_CONCAT(c.url) AS "creditAnnexFile.url"
+	</sql>
+	
+	<sql id="creditCoinsuranceInfoJoins1">
+	LEFT JOIN credit_user_info b ON a.credit_user_id = b.id
+    LEFT JOIN credit_annex_file c ON a.id = c.other_id
+	</sql>
+
+	<sql id="creditCoinsuranceInfoJoins">
+	</sql>
+
+	<!-- 根据用户id获取联保信息列表. -->
+	<select id="getCreditCoinsuranceInfoList" resultType="CreditCoinsuranceInfo">
+		SELECT
+		<include refid="creditCoinsuranceInfoColumns" />
+		FROM credit_coinsurance_info a
+		<include refid="creditCoinsuranceInfoJoins" />
+		WHERE a.credit_user_id = #{creditUserId}
+	</select>
+
+	<select id="get" resultType="CreditCoinsuranceInfo">
+		SELECT
+		<include refid="creditCoinsuranceInfoColumns" />
+		FROM credit_coinsurance_info a
+		<include refid="creditCoinsuranceInfoJoins" />
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findList" resultType="CreditCoinsuranceInfo">
+		SELECT
+		<include refid="creditCoinsuranceInfoColumns" />
+		FROM credit_coinsurance_info a
+		<include refid="creditCoinsuranceInfoJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="creditUserId != null and creditUserId != ''">
+				AND a.credit_user_id = #{creditUserId}
+			</if>
+			<if test="coinsuranceType != null and coinsuranceType != ''">
+				AND a.coinsurance_type = #{coinsuranceType}
+			</if>
+			<if test="name != null and name != ''">
+				AND a.name LIKE
+				<if test="dbName == 'oracle'">'%'||#{name}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{name}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{name},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	
+	<!-- 用于后台查询 -->
+	<select id="findList1" resultType="CreditCoinsuranceInfo">
+		SELECT
+		<include refid="creditCoinsuranceInfoColumns1" />
+		FROM credit_coinsurance_info a
+		<include refid="creditCoinsuranceInfoJoins1" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="creditUserId != null and creditUserId != ''">
+				AND a.credit_user_id = #{creditUserId}
+			</if>
+			<if test="coinsuranceType != null and coinsuranceType != ''">
+				AND a.coinsurance_type = #{coinsuranceType}
+			</if>
+			<if test="name != null and name != ''">
+				AND a.name LIKE
+				<if test="dbName == 'oracle'">'%'||#{name}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{name}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{name},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			    GROUP BY c.other_id
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="CreditCoinsuranceInfo">
+		SELECT
+		<include refid="creditCoinsuranceInfoColumns" />
+		FROM credit_coinsurance_info a
+		<include refid="creditCoinsuranceInfoJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<insert id="insert">
+		INSERT INTO credit_coinsurance_info(
+		id,
+		credit_user_id,
+		coinsurance_type,
+		company_name,
+		name,
+		phone,
+		id_card,
+		create_by,
+		create_date,
+		update_by,
+		update_date,
+		remark,
+		del_flag
+		) VALUES (
+		#{id},
+		#{creditUserId},
+		#{coinsuranceType},
+		#{companyName},
+		#{name},
+		#{phone},
+		#{idCard},
+		#{createBy.id},
+		#{createDate},
+		#{updateBy.id},
+		#{updateDate},
+		#{remark},
+		#{delFlag}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE credit_coinsurance_info SET
+		credit_user_id = #{creditUserId},
+		coinsurance_type = #{coinsuranceType},
+		company_name = #{companyName},
+		name = #{name},
+		phone = #{phone},
+		id_card = #{idCard},
+		update_by = #{updateBy.id},
+		update_date = #{updateDate},
+		remark = #{remark}
+		WHERE id = #{id}
+	</update>
+
+	<update id="delete">
+		UPDATE credit_coinsurance_info SET
+		del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+
+	<delete id="deleteCoinsuranceInfoById">
+		DELETE FROM credit_coinsurance_info
+		WHERE id = #{id}
+	</delete>
+
+</mapper>

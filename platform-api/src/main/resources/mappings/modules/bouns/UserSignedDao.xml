@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.power.platform.bouns.dao.UserSignedDao">
+
+	<sql id="userSignedColumns">
+		a.id AS "id",
+		a.user_id AS "userId",
+		a.continuous_time AS "continuousTime",
+		a.create_date AS "createDate",
+		a.create_by AS "createBy.id",
+		a.update_date AS "updateDate",
+		a.update_by AS "updateBy.id",
+		a.del_flag AS "delFlag"
+	</sql>
+
+	<sql id="userSignedJoinsColumns">
+		a.id AS "id",
+		a.user_id AS "userId",
+		a.continuous_time AS "continuousTime",
+		a.create_date AS "createDate",
+		a.create_by AS "createBy.id",
+		a.update_date AS "updateDate",
+		a.update_by AS "updateBy.id",
+		a.del_flag AS "delFlag",
+		b.id AS "userInfo.id",
+		b.name AS "userInfo.name",
+		b.real_name AS "userInfo.realName"
+	</sql>
+
+	<sql id="userSignedJoins">
+		LEFT JOIN user_info b ON b.id = a.user_id
+	</sql>
+
+	<select id="get" resultType="UserSigned">
+		SELECT
+		<include refid="userSignedColumns" />
+		FROM user_signed a
+		<include refid="userSignedJoins" />
+		WHERE a.id = #{id}
+	</select>
+
+	<!-- 查询客户在指定的时间范围内是否存在签到记录. -->
+	<select id="findExists" resultType="UserSigned">
+		SELECT
+		<include refid="userSignedColumns" />
+		FROM user_signed a
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="beginDate != null and endDate != null and beginDate != '' and endDate != ''">
+				AND a.create_date BETWEEN #{beginDate} AND #{endDate}
+			</if>
+			AND a.user_id = #{userId}
+		</where>
+	</select>
+
+	<select id="findList" resultType="UserSigned">
+		SELECT
+		<include refid="userSignedJoinsColumns" />
+		FROM user_signed a
+		<include refid="userSignedJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="beginCreateDate != null and endCreateDate != null and beginCreateDate != '' and endCreateDate != ''">
+				AND a.create_date BETWEEN #{beginCreateDate} AND #{endCreateDate}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="UserSigned">
+		SELECT
+		<include refid="userSignedJoinsColumns" />
+		FROM user_signed a
+		<include refid="userSignedJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<insert id="insert">
+		INSERT INTO user_signed(
+		id,
+		user_id,
+		continuous_time,
+		create_date,
+		create_by,
+		update_date,
+		update_by,
+		del_flag
+		) VALUES (
+		#{id},
+		#{userId},
+		#{continuousTime},
+		#{createDate},
+		#{createBy.id},
+		#{updateDate},
+		#{updateBy.id},
+		#{delFlag}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE user_signed SET
+		user_id = #{userId},
+		continuous_time = #{continuousTime},
+		update_date = #{updateDate},
+		update_by = #{updateBy.id}
+		WHERE id = #{id}
+	</update>
+
+	<update id="delete">
+		UPDATE user_signed SET
+		del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+
+</mapper>

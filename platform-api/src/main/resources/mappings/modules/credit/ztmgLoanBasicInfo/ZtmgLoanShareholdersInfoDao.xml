@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.power.platform.credit.dao.ztmgLoanBasicInfo.ZtmgLoanShareholdersInfoDao">
+
+	<sql id="ztmgLoanShareholdersInfoColumns">
+		a.id AS "id",
+		a.loan_basic_id AS "loanBasicId",
+		a.shareholders_type AS "shareholdersType",
+		a.shareholders_cert_type AS "shareholdersCertType",
+		a.shareholders_name AS "shareholdersName",
+		a.create_date AS "createDate",
+		a.update_date AS "updateDate",
+		a.remark AS "remark",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<sql id="ztmgLoanShareholdersInfoJoins">
+	</sql>
+    
+	<select id="get" resultType="ZtmgLoanShareholdersInfo">
+		SELECT 
+			<include refid="ztmgLoanShareholdersInfoColumns"/>
+		FROM ztmg_loan_shareholders_info a
+		<include refid="ztmgLoanShareholdersInfoJoins"/>
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findListByLoanBasicInfoId" resultType="ZtmgLoanShareholdersInfo">
+		SELECT
+		<include refid="ztmgLoanShareholdersInfoColumns" />
+		FROM ztmg_loan_shareholders_info a
+		<include refid="ztmgLoanShareholdersInfoJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="loanBasicId != null and loanBasicId != ''">
+				AND a.loan_basic_id = #{loanBasicId}
+			</if>
+		</where>
+		ORDER BY a.create_date ASC
+	</select>
+
+	<select id="findList" resultType="ZtmgLoanShareholdersInfo">
+		SELECT 
+			<include refid="ztmgLoanShareholdersInfoColumns"/>
+		FROM ztmg_loan_shareholders_info a
+		<include refid="ztmgLoanShareholdersInfoJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="ZtmgLoanShareholdersInfo">
+		SELECT 
+			<include refid="ztmgLoanShareholdersInfoColumns"/>
+		FROM ztmg_loan_shareholders_info a
+		<include refid="ztmgLoanShareholdersInfoJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO ztmg_loan_shareholders_info(
+			id,
+			loan_basic_id,
+			shareholders_type,
+			shareholders_cert_type,
+			shareholders_name,
+			create_date,
+			update_date,
+			remark,
+			del_flag
+		) VALUES (
+			#{id},
+			#{loanBasicId},
+			#{shareholdersType},
+			#{shareholdersCertType},
+			#{shareholdersName},
+			#{createDate},
+			#{updateDate},
+			#{remark},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE ztmg_loan_shareholders_info SET 	
+			loan_basic_id = #{loanBasicId},
+			shareholders_type = #{shareholdersType},
+			shareholders_cert_type = #{shareholdersCertType},
+			shareholders_name = #{shareholdersName},
+			update_date = #{updateDate},
+			remark = #{remark}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE ztmg_loan_shareholders_info SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

@@ -1,0 +1,359 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.power.platform.cgb.dao.CgbUserBankCardDao">
+
+	<sql id="cgbUserBankCardColumns">
+		a.id AS "id",
+		a.bank_account_no AS "bankAccountNo",
+		a.user_id AS "userId",
+		a.account_id AS "accountId",
+		a.bank_no AS "bankNo",
+		a.bind_date AS "bindDate",
+		a.state AS "state",
+		a.is_default AS "isDefault",
+		a.create_date AS "createDate",
+		a.update_date AS "updateDate",
+		a.del_flag AS "delFlag",
+		a.bank_card_phone AS "bankCardPhone",
+		a.bank_card_sign AS "bankCardSign",
+		a.bank_name AS "bankName",
+		u.id AS "userInfo.id",
+		u.name AS "userInfo.name",
+		u.real_name AS "userInfo.realName"
+	</sql>
+
+	<sql id="cgbUserBankCardBaseColumns">
+		a.id AS "id",
+		a.bank_account_no AS "bankAccountNo",
+		a.user_id AS "userId",
+		a.account_id AS "accountId",
+		a.bank_no AS "bankNo",
+		a.bind_date AS "bindDate",
+		a.state AS "state",
+		a.is_default AS "isDefault",
+		a.create_date AS "createDate",
+		a.update_date AS "updateDate",
+		a.del_flag AS "delFlag",
+		a.bank_card_phone AS "bankCardPhone",
+		a.bank_card_sign AS "bankCardSign",
+		a.bank_name AS "bankName"
+	</sql>
+
+	<!-- 借款人帐号联表查询. -->
+	<sql id="cgbUserBankCardAndCreditUserInfoColumns">
+		a.id AS "id",
+		a.bank_account_no AS "bankAccountNo",
+		a.user_id AS "userId",
+		a.account_id AS "accountId",
+		a.bank_no AS "bankNo",
+		a.bind_date AS "bindDate",
+		a.state AS "state",
+		a.is_default AS "isDefault",
+		a.create_date AS "createDate",
+		a.update_date AS "updateDate",
+		a.del_flag AS "delFlag",
+		a.bank_card_phone AS "bankCardPhone",
+		a.bank_card_sign AS "bankCardSign",
+		a.bank_name AS "bankName",
+		credit.id AS "creditUserInfo.id",
+		credit.phone AS "creditUserInfo.phone",
+		credit.name AS "creditUserInfo.name"
+	</sql>
+
+	<!-- 出借人帐号联表查询. -->
+	<sql id="cgbUserBankCardJoins">
+		INNER JOIN user_info u on a.user_id = u.id
+	</sql>
+
+	<!-- 借款人帐号联表查询. -->
+	<sql id="cgbUserBankCardAndCreditUserInfoJoins">
+		INNER JOIN credit_user_info credit on credit.id = a.user_id
+	</sql>
+
+	<select id="get" resultType="CgbUserBankCard">
+		SELECT
+		<include refid="cgbUserBankCardColumns" />
+		FROM cgb_user_bank_card a
+		<include refid="cgbUserBankCardJoins" />
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findList" resultType="CgbUserBankCard">
+		SELECT
+		<include refid="cgbUserBankCardColumns" />
+		FROM cgb_user_bank_card a
+		<include refid="cgbUserBankCardJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="bankAccountNo != null and bankAccountNo != ''">
+				AND a.bank_account_no LIKE
+				<if test="dbName == 'oracle'">'%'||#{bankAccountNo}||'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{bankAccountNo},'%')</if>
+			</if>
+			<if test="null!=userInfo">
+				<if test="null != userInfo.name and userInfo.name != ''">
+					AND u.name LIKE
+					<if test="dbName == 'oracle'">'%'||#{userInfo.name}||'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{userInfo.name},'%')</if>
+				</if>
+				<if test="null != userInfo.realName and userInfo.realName != ''">
+					AND u.real_name LIKE
+					<if test="dbName == 'oracle'">'%'||#{userInfo.realName}||'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{userInfo.realName},'%')</if>
+				</if>
+			</if>
+			<if test="beginBindDate != null and beginBindDate != ''">
+				AND a.bind_date &gt;= #{beginBindDate}
+			</if>
+			<if test="endBindDate != null and endBindDate != ''">
+				AND a.bind_date &lt;= #{endBindDate}
+			</if>
+			<if test="state != null and state != ''">
+				AND a.state = #{state}
+			</if>
+			<if test="userId !=null and userId !=''">
+				AND a.user_id = #{userId}
+			</if>
+			<if test="bankCardPhone != null and bankCardPhone != ''">
+				AND a.bank_card_phone LIKE
+				<if test="dbName == 'oracle'">'%'||#{bankCardPhone}||'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{bankCardPhone},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<!-- 借款人. -->
+	<select id="findCreditList" resultType="CgbUserBankCard">
+		SELECT
+		<include refid="cgbUserBankCardAndCreditUserInfoColumns" />
+		FROM cgb_user_bank_card a
+		<include refid="cgbUserBankCardAndCreditUserInfoJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="bankAccountNo != null and bankAccountNo != ''">
+				AND a.bank_account_no LIKE
+				<if test="dbName == 'oracle'">'%'||#{bankAccountNo}||'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{bankAccountNo},'%')</if>
+			</if>
+			<if test="null!=creditUserInfo">
+				<if test="null != creditUserInfo.phone and creditUserInfo.phone != ''">
+					AND credit.phone LIKE
+					<if test="dbName == 'oracle'">'%'||#{creditUserInfo.phone}||'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{creditUserInfo.phone},'%')</if>
+				</if>
+				<if test="null != creditUserInfo.name and creditUserInfo.name != ''">
+					AND credit.name LIKE
+					<if test="dbName == 'oracle'">'%'||#{creditUserInfo.name}||'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{creditUserInfo.name},'%')</if>
+				</if>
+			</if>
+			<if test="beginBindDate != null and beginBindDate != ''">
+				AND a.bind_date &gt;= #{beginBindDate}
+			</if>
+			<if test="endBindDate != null and endBindDate != ''">
+				AND a.bind_date &lt;= #{endBindDate}
+			</if>
+			<if test="state != null and state != ''">
+				AND a.state = #{state}
+			</if>
+			<if test="userId !=null and userId !=''">
+				AND a.user_id = #{userId}
+			</if>
+			<if test="bankCardPhone != null and bankCardPhone != ''">
+				AND a.bank_card_phone LIKE
+				<if test="dbName == 'oracle'">'%'||#{bankCardPhone}||'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{bankCardPhone},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="CgbUserBankCard">
+		SELECT
+		<include refid="cgbUserBankCardColumns" />
+		FROM cgb_user_bank_card a
+		<include refid="cgbUserBankCardJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<insert id="insert">
+		INSERT INTO cgb_user_bank_card(
+		id,
+		bank_account_no,
+		user_id,
+		account_id,
+		bank_no,
+		bind_date,
+		state,
+		is_default,
+		create_date,
+		update_date,
+		del_flag,
+		bank_card_phone,
+		bank_card_sign,
+		bank_name
+		) VALUES (
+		#{id},
+		#{bankAccountNo},
+		#{userId},
+		#{accountId},
+		#{bankNo},
+		#{bindDate},
+		#{state},
+		#{isDefault},
+		#{createDate},
+		#{updateDate},
+		#{delFlag},
+		#{bankCardPhone},
+		#{bankCardSign},
+		#{bankName}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE cgb_user_bank_card SET
+		bank_account_no = #{bankAccountNo},
+		user_id = #{userId},
+		account_id = #{accountId},
+		bank_no = #{bankNo},
+		bind_date = #{bindDate},
+		state = #{state},
+		is_default = #{isDefault},
+		update_date = #{updateDate},
+		bank_card_phone = #{bankCardPhone},
+		bank_card_sign = #{bankCardSign},
+		bank_name = #{bankName},
+		del_flag = #{delFlag}
+		WHERE id = #{id}
+	</update>
+
+	<update id="delete">
+		UPDATE cgb_user_bank_card SET
+		del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+
+	<!-- 物理删除客户银行卡信息. -->
+	<delete id="physicallyDeleted">
+		DELETE
+		FROM cgb_user_bank_card
+		WHERE
+		id = #{id}
+	</delete>
+
+
+	<select id="getInfoById" resultType="CgbUserBankCard">
+		SELECT
+		<include refid="cgbUserBankCardBaseColumns" />
+		FROM cgb_user_bank_card a
+		WHERE a.id = #{id}
+	</select>
+
+	<!-- 获取客户银行卡信息，根据客户ID. -->
+	<select id="getUserBankCardByUserId" resultType="CgbUserBankCard">
+		SELECT
+		<include refid="cgbUserBankCardBaseColumns" />
+		FROM
+		cgb_user_bank_card a
+		WHERE
+		1 = 1
+		AND a.user_id = #{userId}
+		AND a.del_flag = 0
+		AND a.state = 1
+		and a.is_default = 2
+	</select>
+	
+	<select id="getUserBankCardByUserId1" resultType="CgbUserBankCard">
+		SELECT
+		<include refid="cgbUserBankCardBaseColumns" />
+		FROM
+		cgb_user_bank_card a
+		WHERE
+		1 = 1
+		AND a.user_id = #{userId}
+		AND a.del_flag = 0
+		AND a.state = 0
+		and a.is_default = 2
+	</select>
+	
+		<!-- 获取客户银行卡信息，根据客户ID. -->
+	<select id="getUserBankCardByUserId2" resultType="CgbUserBankCard">
+		SELECT
+		<include refid="cgbUserBankCardBaseColumns" />
+		FROM
+		cgb_user_bank_card a
+		WHERE
+		1 = 1
+		AND a.user_id = #{userId}
+		AND a.del_flag = 0
+		and a.is_default = 2
+	</select>
+
+	<!-- 获取借款人开户银行卡信息. -->
+	<select id="getUserBankCardByCreditUserIdAndState" resultType="CgbUserBankCard">
+		SELECT
+		<include refid="cgbUserBankCardAndCreditUserInfoColumns" />
+		FROM cgb_user_bank_card a
+		<include refid="cgbUserBankCardAndCreditUserInfoJoins" />
+		<where>
+			1 = 1
+			<if test="userId != null and userId != ''">
+				AND a.user_id = #{userId}
+			</if>
+			<if test="state != null and state != ''">
+				AND a.state = #{state}
+			</if>
+		</where>
+	</select>
+	<!-- 获取银行未审核用户 即状态为0 -->
+	<select id="findState0" resultType="CgbUserBankCard">
+		SELECT
+		<include refid="cgbUserBankCardBaseColumns" />
+		FROM cgb_user_bank_card a
+		<where>
+			1 = 1
+			<if test="createDate != null and createDate != ''">
+				AND a.create_date &lt; #{createDate}
+			</if>
+			AND a.state = 0
+		</where>
+	</select>
+	
+	<update id="updateState2">
+		UPDATE cgb_user_bank_card SET
+		state = 3
+		WHERE id = #{id}
+	</update>
+	
+	<!-- 供应商销户 -->
+	<update id="deleteBankByUserId">
+	    UPDATE cgb_user_bank_card SET user_id= #{delUserId} 
+	    WHERE user_id=#{userId}
+	</update>
+
+</mapper>

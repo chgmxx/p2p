@@ -1,0 +1,296 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.power.platform.userinfo.dao.UserBankCardDao">
+
+	<sql id="userBankCardColumns">
+		a.id AS "id",
+		a.bank_account_no AS "bankAccountNo",
+		a.user_id AS "userId",
+		a.account_id AS "accountId",
+		a.bank_no AS "bankNo",
+		a.bind_date AS "bindDate",
+		a.state AS "state",
+		a.is_default AS "isDefault",
+		a.create_date,
+		a.update_date,
+		a.del_flag AS "delFlag",
+		b.name AS "userInfo.name",
+		b.real_name AS "userInfo.realName",
+		a.bank_card_phone AS "bankCardPhone",
+		a.bank_name AS "bankName"
+	</sql>
+
+	<sql id="creditUserBankCardColumns">
+		a.id AS "id",
+		a.bank_account_no AS "bankAccountNo",
+		a.user_id AS "userId",
+		a.account_id AS "accountId",
+		a.bank_no AS "bankNo",
+		a.bind_date AS "bindDate",
+		a.state AS "state",
+		a.is_default AS "isDefault",
+		a.create_date,
+		a.update_date,
+		a.del_flag AS "delFlag",
+		b.name AS "creditUserInfo.name",
+		b.phone AS "creditUserInfo.phone",
+		a.bank_card_phone AS "bankCardPhone",
+		a.bank_name AS "bankName"
+	</sql>
+
+	<sql id="userBankCardBaseColumns">
+		a.id AS "id",
+		a.bank_account_no AS "bankAccountNo",
+		a.user_id AS "userId",
+		a.account_id AS "accountId",
+		a.bank_no AS "bankNo",
+		a.bind_date AS "bindDate",
+		a.state AS "state",
+		a.is_default AS "isDefault",
+		a.create_date,
+		a.update_date,
+		a.del_flag AS "delFlag",
+		a.bank_card_phone AS "bankCardPhone",
+		a.bank_name AS "bankName"
+	</sql>
+
+	<sql id="userBankCardJoins">
+		JOIN user_info b ON a.user_id = b.id
+	</sql>
+
+	<sql id="creditUserBankCardJoins">
+		JOIN credit_user_info b ON a.user_id = b.id
+	</sql>
+
+	<!-- 查询where条件封装. -->
+	<sql id="userBankCardQueryConditions">
+		<if test="bankAccountNo != null and bankAccountNo != ''">
+			AND a.bank_account_no LIKE
+			<if test="dbName == 'oracle'">'%'||#{bankAccountNo}||'%'</if>
+			<if test="dbName == 'mssql'">'%'+#{bankAccountNo}+'%'</if>
+			<if test="dbName == 'mysql'">concat('%',#{bankAccountNo},'%')</if>
+		</if>
+		<if test="userId != null and userId != ''">
+			AND a.user_id LIKE
+			<if test="dbName == 'oracle'">'%'||#{userId}||'%'</if>
+			<if test="dbName == 'mssql'">'%'+#{userId}+'%'</if>
+			<if test="dbName == 'mysql'">concat('%',#{userId},'%')</if>
+		</if>
+		<if test="bankNo != null and bankNo != ''">
+			AND a.bank_no LIKE
+			<if test="dbName == 'oracle'">'%'||#{bankNo}||'%'</if>
+			<if test="dbName == 'mssql'">'%'+#{bankNo}+'%'</if>
+			<if test="dbName == 'mysql'">concat('%',#{bankNo},'%')</if>
+		</if>
+		<if test="beginBindDate != null and beginBindDate != ''">
+			AND a.bind_date &gt;= #{beginBindDate}
+		</if>
+		<if test="endBindDate != null and endBindDate != ''">
+			AND a.bind_date &lt;= #{endBindDate}
+		</if>
+		<if test="state != null and state != ''">
+			AND a.state = #{state}
+		</if>
+		<if test="isDefault != null and isDefault != ''">
+			AND a.is_default = #{isDefault}
+		</if>
+		<if test="userInfo != null">
+			<if test="userInfo.realName != null and userInfo.realName != ''">
+				AND b.real_name LIKE
+				<if test="dbName == 'mysql'">concat('%',#{userInfo.realName},'%')</if>
+			</if>
+			<if test="userInfo.name != null and userInfo.name != ''">
+				AND b.name LIKE
+				<if test="dbName == 'mysql'">concat('%',#{userInfo.name},'%')</if>
+			</if>
+		</if>
+	</sql>
+
+	<select id="get" resultType="UserBankCard">
+		SELECT
+		<include refid="userBankCardColumns" />
+		FROM user_bank_card a
+		<include refid="userBankCardJoins" />
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="getInfoById" resultType="UserBankCard">
+		SELECT
+		<include refid="userBankCardBaseColumns" />
+		FROM user_bank_card a
+		WHERE a.id = #{id}
+	</select>
+
+	<!-- 获取借款人开户银行卡信息. -->
+	<select id="getUserBankCardByCreditUserIdAndState" resultType="UserBankCard">
+		SELECT
+		<include refid="creditUserBankCardColumns" />
+		FROM user_bank_card a
+		<include refid="creditUserBankCardJoins" />
+		<where>
+			1 = 1
+			<if test="userId != null and userId != ''">
+				AND a.user_id = #{userId}
+			</if>
+			<if test="state != null and state != ''">
+				AND a.state = #{state}
+			</if>
+		</where>
+	</select>
+
+	<select id="findList" resultType="UserBankCard">
+		SELECT
+		<include refid="userBankCardColumns" />
+		FROM user_bank_card a
+		<include refid="userBankCardJoins" />
+		<where>
+
+			<if test="bankAccountNo != null and bankAccountNo != ''">
+				AND a.bank_account_no LIKE
+				<if test="dbName == 'oracle'">'%'||#{bankAccountNo}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{bankAccountNo}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{bankAccountNo},'%')</if>
+			</if>
+			<if test="userId != null and userId != ''">
+				AND a.user_id LIKE
+				<if test="dbName == 'oracle'">'%'||#{userId}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{userId}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{userId},'%')</if>
+			</if>
+			<if test="bankNo != null and bankNo != ''">
+				AND a.bank_no LIKE
+				<if test="dbName == 'oracle'">'%'||#{bankNo}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{bankNo}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{bankNo},'%')</if>
+			</if>
+			<if test="beginBindDate != null and endBindDate != null and beginBindDate != '' and endBindDate != ''">
+				AND a.bind_date BETWEEN #{beginBindDate} AND #{endBindDate}
+			</if>
+			<if test="state != null and state != ''">
+				AND a.state = #{state}
+			</if>
+			<if test="isDefault != null and isDefault != ''">
+				AND a.is_default = #{isDefault}
+			</if>
+			<if test="id != null and id != ''">
+				AND a.id = #{id}
+			</if>
+		</where>
+		order by a.create_date desc
+	</select>
+
+	<select id="findAllList" resultType="UserBankCard">
+		SELECT
+		<include refid="userBankCardColumns" />
+		FROM user_bank_card a
+		<include refid="userBankCardJoins" />
+		<where>
+
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+
+	<insert id="insert">
+		INSERT INTO user_bank_card(
+		id,
+		bank_account_no,
+		user_id,
+		account_id,
+		bank_no,
+		bind_date,
+		state,
+		create_date,
+		update_date,
+		is_default,
+		bank_card_phone,
+		bank_name
+		)
+		VALUES (
+		#{id},
+		#{bankAccountNo},
+		#{userId},
+		#{accountId},
+		#{bankNo},
+		#{bindDate},
+		#{state},
+		#{createDate},
+		#{updateDate},
+		#{isDefault},
+		#{bankCardPhone},
+		#{bankName}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE user_bank_card SET
+		bank_account_no = #{bankAccountNo},
+		user_id = #{userId},
+		account_id = #{accountId},
+		bank_no = #{bankNo},
+		state = #{state},
+		bank_card_phone = #{bankCardPhone},
+		update_date = #{updateDate},
+		bank_name = #{bankName}
+		WHERE id = #{id}
+	</update>
+
+	<update id="delete">
+		UPDATE
+		user_bank_card
+		SET
+		del_flag = 1
+		WHERE id = #{id}
+	</update>
+
+	<!-- 物理删除客户银行卡信息. -->
+	<delete id="physicallyDeleted">
+		DELETE
+		FROM user_bank_card
+		WHERE
+		id = #{id}
+	</delete>
+
+	<!-- 联表查询封装. -->
+
+
+	<!-- 查询封装(where). -->
+	<select id="queryUserBankCardByWhere" parameterType="com.power.platform.userinfo.entity.UserBankCard" resultType="UserBankCard">
+		SELECT
+		<include refid="userBankCardColumns" />
+		FROM user_bank_card a
+		<include refid="userBankCardJoins" />
+		WHERE
+		1 = 1
+		AND a.del_flag = 0
+		<include refid="userBankCardQueryConditions" />
+		ORDER BY a.bind_date
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				LIMIT #{page.pageNo}, #{page.pageSize}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+
+	<!-- 获取客户银行卡信息，根据客户ID. -->
+	<select id="getUserBankCardByUserId" resultType="UserBankCard">
+		SELECT
+		<include refid="userBankCardBaseColumns" />
+		FROM
+		user_bank_card a
+		WHERE
+		1 = 1
+		AND a.user_id = #{userId}
+		AND a.del_flag = 0
+		and a.state = 1
+		and a.is_default = 2
+	</select>
+
+</mapper>

@@ -1,0 +1,270 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.power.platform.activity.dao.ZtmgPartnerPlatformDao">
+
+	<sql id="ztmgPartnerPlatformColumns">
+		a.id AS "id",
+		a.platform_name AS "platformName",
+		a.platform_code AS "platformCode",
+		a.platform_type AS "platformType",
+		a.phone AS "phone",
+		a.name AS "name",
+		a.email AS "email",
+		a.rate AS "rate",
+		a.money AS "money",
+		a.locus AS "locus",
+		a.remarks AS "remarks",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.del_flag AS "delFlag",
+		b.login_name AS "createBy.loginName",
+		b.login_name AS "updateBy.loginName",
+		c.id AS "area.id",
+		c.name AS "area.name",
+		count(DISTINCT(wld.user_id)) as "registUser",
+		count(DISTINCT(utd.user_id)) as "investUser",
+		sum(utd.amount) as "sumMoney"
+	</sql>
+	
+	<!-- 渠道管理 -->
+	<sql id="ztmgPartnerPlatformColumns1">
+		a.id AS "id",
+		a.platform_name AS "platformName",
+		a.platform_code AS "platformCode",
+		a.platform_type AS "platformType",
+		a.phone AS "phone",
+		a.name AS "name",
+		a.email AS "email",
+		a.rate AS "rate",
+		a.money AS "money",
+		a.locus AS "locus",
+		a.remarks AS "remarks",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.del_flag AS "delFlag",
+		b.login_name AS "createBy.loginName",
+		b.login_name AS "updateBy.loginName",
+		c.id AS "area.id",
+		c.name AS "area.name"
+	</sql>
+
+	<sql id="ztmgPartnerPlatformJoins">
+		JOIN sys_user b ON a.create_by = b.id
+		JOIN sys_area c ON c.id = a.locus
+		LEFT JOIN w_level_distribution wld ON wld.parent_id = a.id 
+		LEFT JOIN user_trans_detail utd on a.id = utd.user_id 
+	</sql>
+	
+	<sql id="ztmgPartnerPlatformJoins1">
+		JOIN sys_user b ON a.create_by = b.id
+		JOIN sys_area c ON c.id = a.locus
+	</sql>
+
+	<select id="getEntityByPlatformCode" resultType="ZtmgPartnerPlatform">
+		SELECT		
+		<include refid="ztmgPartnerPlatformColumns" />
+		FROM ztmg_partner_platform a
+		<include refid="ztmgPartnerPlatformJoins" />
+		WHERE a.platform_code = #{refer}
+	</select>
+	
+	<select id="getZtmgPartnerPlatformByPlatformCode" resultType="ZtmgPartnerPlatform">
+		SELECT		
+		a.id
+		FROM ztmg_partner_platform a
+		WHERE a.platform_code = #{refer}
+	</select>
+
+	<select id="get" resultType="ZtmgPartnerPlatform">
+		SELECT
+		<include refid="ztmgPartnerPlatformColumns" />
+		FROM ztmg_partner_platform a
+		<include refid="ztmgPartnerPlatformJoins" />
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findList" resultType="ZtmgPartnerPlatform">
+		SELECT
+		<include refid="ztmgPartnerPlatformColumns" />
+		FROM ztmg_partner_platform a
+		<include refid="ztmgPartnerPlatformJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="platformName != null and platformName != ''">
+				AND a.platform_name LIKE
+				<if test="dbName == 'oracle'">'%'||#{platformName}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{platformName}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{platformName},'%')</if>
+			</if>
+			<if test="platformType != null and platformType != ''">
+				AND a.platform_type = #{platformType}
+			</if>
+			<if test="phone != null and phone != ''">
+				AND a.phone LIKE
+				<if test="dbName == 'oracle'">'%'||#{phone}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{phone}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{phone},'%')</if>
+			</if>
+			<if test="name != null and name != ''">
+				AND a.name LIKE
+				<if test="dbName == 'oracle'">'%'||#{name}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{name}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{name},'%')</if>
+			</if>
+		    AND utd.trust_type = 9
+		</where>
+		group by id
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<!-- 渠道管理 -->
+		<select id="findList1" resultType="ZtmgPartnerPlatform">
+		SELECT
+		<include refid="ztmgPartnerPlatformColumns1" />
+		FROM ztmg_partner_platform a
+		<include refid="ztmgPartnerPlatformJoins1" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="platformName != null and platformName != ''">
+				AND a.platform_name LIKE
+				<if test="dbName == 'oracle'">'%'||#{platformName}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{platformName}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{platformName},'%')</if>
+			</if>
+			<if test="platformType != null and platformType != ''">
+				AND a.platform_type = #{platformType}
+			</if>
+			<if test="phone != null and phone != ''">
+				AND a.phone LIKE
+				<if test="dbName == 'oracle'">'%'||#{phone}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{phone}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{phone},'%')</if>
+			</if>
+			<if test="name != null and name != ''">
+				AND a.name LIKE
+				<if test="dbName == 'oracle'">'%'||#{name}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{name}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{name},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findListForBrokerage" resultType="ZtmgPartnerPlatform">
+		SELECT zpp.phone,zpp.id,utd.amount as "userTransDetail.amount",utd.trans_date as "transDate",utd.trans_id as "userTransDetail.transId"
+		FROM ztmg_partner_platform zpp  JOIN user_trans_detail utd on zpp.id = utd.user_id 
+		WHERE zpp.id = #{id}
+		order by utd.trans_date desc
+	</select>
+	
+	<select id = "findListForBrokerage2" resultType="java.util.Map">
+	    select utd.user_id,ui.name as "userInfoName",utd.amount as "moneyToOne" 
+		FROM user_trans_detail utd JOIN user_info ui on ui.id = utd.user_id 
+		WHERE utd.trans_id =#{transId} 
+		AND utd.trust_type = '3'
+	</select>
+	
+	<select id="findIdForPartner" resultType="java.lang.String">
+	    select id from ztmg_partner_platform where phone=#{phone}
+	    
+	</select>
+	
+	
+	<select id="findAllList" resultType="ZtmgPartnerPlatform">
+		SELECT
+		<include refid="ztmgPartnerPlatformColumns" />
+		FROM ztmg_partner_platform a
+		<include refid="ztmgPartnerPlatformJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<insert id="insert">
+		INSERT INTO ztmg_partner_platform(
+		id,
+		platform_name,
+		platform_code,
+		platform_type,
+		phone,
+		name,
+		email,
+		rate,
+		money,
+		locus,
+		remarks,
+		create_by,
+		create_date,
+		update_by,
+		update_date,
+		del_flag
+		) VALUES (
+		#{id},
+		#{platformName},
+		#{platformCode},
+		#{platformType},
+		#{phone},
+		#{name},
+		#{email},
+		#{rate},
+		#{money},
+		#{area.id},
+		#{remarks},
+		#{createBy.id},
+		#{createDate},
+		#{updateBy.id},
+		#{updateDate},
+		#{delFlag}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE ztmg_partner_platform SET
+		platform_name = #{platformName},
+		platform_code = #{platformCode},
+		platform_type = #{platformType},
+		phone = #{phone},
+		name = #{name},
+		email = #{email},
+		rate = #{rate},
+		money = #{money},
+		locus = #{area.id},
+		remarks = #{remarks},
+		update_by = #{updateBy.id},
+		update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+
+	<update id="delete">
+		UPDATE ztmg_partner_platform SET
+		del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+
+</mapper>

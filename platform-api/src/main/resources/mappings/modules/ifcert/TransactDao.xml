@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.power.platform.ifcert.dao.TransactDao">
+
+	<sql id="transactColumns">
+		a.version AS "version",
+		a.sourcecode AS "sourceCode",
+		a.transid AS "transId",
+		a.sourceproductcode AS "sourceProductCode",
+		a.sourceproductname AS "sourceProductName",
+		a.finclaimid AS "finClaimId",
+		a.transferid AS "transferId",
+		a.replanid AS "replanId",
+		a.transtype AS "transType",
+		a.transmoney AS "transMoney",
+		a.useridcardhash AS "userIdcardHash",
+		a.transtime AS "transTime",
+		a.batchnum AS "batchNum",
+		a.sendtime AS "sendTime"
+	</sql>
+
+	<sql id="transactJoins">
+	</sql>
+
+	<select id="get" resultType="Transact">
+		SELECT
+		<include refid="transactColumns" />
+		FROM transact a
+		<include refid="transactJoins" />
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findList" resultType="Transact">
+		SELECT
+		<include refid="transactColumns" />
+		FROM transact a
+		<include refid="transactJoins" />
+		<where>
+			<!-- 批次号. -->
+			<if test="batchNum != null and batchNum != ''">
+				AND a.batchnum = #{batchNum}
+			</if>
+			<if test="transType != null and transType != ''">
+				AND a.transType = #{transType}
+			</if>
+			<if test="sendTime != null and sendTime != ''">
+				AND a.sendTime = #{sendTime}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="Transact">
+		SELECT
+		<include refid="transactColumns" />
+		FROM transact a
+		<include refid="transactJoins" />
+		<where>
+
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+
+	<insert id="insert">
+		INSERT INTO transact(
+		version,
+		sourcecode,
+		transid,
+		sourceproductcode,
+		sourceproductname,
+		finclaimid,
+		transferid,
+		replanid,
+		transtype,
+		transmoney,
+		useridcardhash,
+		transtime,
+		batchnum,
+		sendtime
+		) VALUES (
+		#{version},
+		#{sourceCode},
+		#{transId},
+		#{sourceProductCode},
+		#{sourceProductName},
+		#{finClaimId},
+		#{transferId},
+		#{replanId},
+		#{transType},
+		#{transMoney},
+		#{userIdcardHash},
+		#{transTime},
+		#{batchNum},
+		#{sendTime}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE transact SET
+		version = #{version},
+		sourcecode = #{sourceCode},
+		transid = #{transId},
+		sourceproductcode = #{sourceProductCode},
+		sourceproductname = #{sourceProductName},
+		finclaimid = #{finClaimId},
+		transferid = #{transferId},
+		replanid = #{replanId},
+		transtype = #{transType},
+		transmoney = #{transMoney},
+		useridcardhash = #{userIdcardHash},
+		transtime = #{transTime},
+		batchnum = #{batchNum},
+		sendtime = #{sendTime}
+		WHERE transid = #{transId} 
+		and useridcardhash = #{userIdcardHash}
+	</update>
+
+	<update id="delete">
+		DELETE FROM transact
+		WHERE id = #{id}
+	</update>
+
+</mapper>

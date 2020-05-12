@@ -1,0 +1,633 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.power.platform.userinfo.dao.UserInfoDao">
+
+	<sql id="userInfoColumns">
+		a.id AS "id",
+		a.name AS "name",
+		a.old_mobilephone AS "oldMobilephone",
+		a.user_type AS "userType",
+		a.real_name AS "realName",
+		a.spell AS "spell",
+		a.pwd AS "pwd",
+		a.certificate_type AS "certificateType",
+		a.certificate_no AS "certificateNo",
+		a.certificate_checked AS "certificateChecked",
+		a.sex AS "sex",
+		a.state AS "state",
+		a.integral AS "integral",
+		a.register_date AS "registerDate",
+		a.register_from AS "registerFrom",
+		a.salt AS "salt",
+		a.last_login_date AS "lastLoginDate",
+		a.last_login_ip AS "lastLoginIp",
+		a.recommend_user_id AS "recommendUserId",
+		a.email AS "email",
+		a.email_checked AS "emailChecked",
+		a.sendemaildate AS "sendemaildate",
+		a.head_img AS "headImg",
+		a.industry AS "industry",
+		a.job AS "job",
+		a.degree AS "degree",
+		a.create_date AS "createDate",
+		a.update_date AS "updateDate",
+		a.privacy AS "privacy",
+		a.user_award_type AS "userAwardType",
+		a.recom_type AS "recomType",
+		a.person_sign AS "personSign",
+		a.bind_bank_card_state AS "bindBankCardState",
+		a.business_pwd AS "businessPwd",
+		a.account_id AS "accountId",
+		a.gesture_pwd AS "gesturePwd",
+		a.emergency_user AS "emergencyUser",
+		a.emergency_tel AS "emergencyTel",
+		a.llagreeNo AS "llagreeNo",
+		a.address AS "address",
+		a.cgb_bind_card_state AS "cgbBindBankCardState",
+		a.auto_state AS "autoState",
+		a.recommend_user_phone AS "recommendUserPhone",
+		a.bank_first AS "bankFirst",
+		a.risk_first AS "riskFirst",
+		p.platform_name AS "partnerForm.platformName",
+		a.risk_type AS "riskType",
+		a.birthday AS "birthday",
+		a.is_activate AS "isActivate",
+		a.uv_counter AS "uvCounter"
+	</sql>
+
+	<sql id="userInfoBaseColumns">
+		a.id AS "id",
+		a.name AS "name",
+		a.old_mobilephone AS "oldMobilephone",
+		a.user_type AS "userType",
+		a.real_name AS "realName",
+		a.spell AS "spell",
+		a.pwd AS "pwd",
+		a.certificate_type AS "certificateType",
+		a.certificate_no AS "certificateNo",
+		a.certificate_checked AS "certificateChecked",
+		a.sex AS "sex",
+		a.state AS "state",
+		a.integral AS "integral",
+		a.register_date AS "registerDate",
+		a.register_from AS "registerFrom",
+		a.salt AS "salt",
+		a.last_login_date AS "lastLoginDate",
+		a.last_login_ip AS "lastLoginIp",
+		a.recommend_user_id AS "recommendUserId",
+		a.email AS "email",
+		a.email_checked AS "emailChecked",
+		a.sendemaildate AS "sendemaildate",
+		a.head_img AS "headImg",
+		a.industry AS "industry",
+		a.job AS "job",
+		a.degree AS "degree",
+		a.create_date AS "createDate",
+		a.update_date AS "updateDate",
+		a.privacy AS "privacy",
+		a.user_award_type AS "userAwardType",
+		a.recom_type AS "recomType",
+		a.person_sign AS "personSign",
+		a.bind_bank_card_state AS "bindBankCardState",
+		a.business_pwd AS "businessPwd",
+		a.account_id AS "accountId",
+		a.gesture_pwd AS "gesturePwd",
+		a.emergency_user AS "emergencyUser",
+		a.emergency_tel AS "emergencyTel",
+		a.llagreeNo AS "llagreeNo",
+		a.address AS "address",
+		a.cgb_bind_card_state AS "cgbBindBankCardState",
+		a.auto_state AS "autoState",
+		a.recommend_user_phone AS "recommendUserPhone",
+		a.bank_first AS "bankFirst",
+		a.risk_first AS "riskFirst",
+		a.risk_type AS "riskType",
+		a.birthday AS "birthday",
+		a.is_activate AS "isActivate",
+		a.uv_counter AS "uvCounter"
+	</sql>
+
+	<sql id="userInfoJoins">
+		JOIN user_account u ON a.id = u.user_id
+		LEFT JOIN ztmg_partner_platform p ON a.recommend_user_id = p.id
+	</sql>
+
+	<sql id="userInfoJoinsq">
+		JOIN cgb_user_account u ON a.id = u.user_id
+		LEFT JOIN ztmg_partner_platform p ON a.recommend_user_id = p.id
+	</sql>
+
+	<!-- 2019年，发送新年祝福短消息，用户集合. -->
+	<select id="findUserListByRegisterDate" resultType="UserInfo">
+		SELECT
+		a.`name`
+		FROM user_info a
+		<where>
+			<if test="beginBeginDate != null and beginBeginDate != ''">
+				AND a.register_date &gt;= #{beginBeginDate}
+			</if>
+			<if test="endBeginDate != null and endBeginDate != ''">
+				AND a.register_date &lt;= #{endBeginDate}
+			</if>
+			AND LENGTH(a.`name`) = 11
+		</where>
+	</select>
+
+	<select id="getUserInfoById" resultType="UserInfo">
+		SELECT
+		<include refid="userInfoColumns" />
+		FROM user_info a
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="get" resultType="UserInfo">
+		SELECT
+		<include refid="userInfoColumns" />
+		FROM user_info a
+		<include refid="userInfoJoins" />
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="getCgb" resultType="UserInfo">
+		SELECT
+		<include refid="userInfoColumns" />
+		FROM user_info a
+		<include refid="userInfoJoinsq" />
+		WHERE a.id = #{id}
+	</select>
+
+	<!-- 渠道用户注册人数 -->
+	<select id="findListForRegist" resultType="UserInfo">
+		SELECT
+		<include refid="userInfoColumns" />
+		FROM user_info a
+		<where>
+			<if test="recommendUserId != ''">
+				AND a.recommend_user_id=#{recommendUserId}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.register_date DESC,a.last_login_date desc, a.update_date desc
+			</otherwise>
+		</choose>
+
+	</select>
+
+	<!-- 平台统计注册用户. -->
+	<select id="findStatisticalAllList" resultType="UserInfo">
+		SELECT
+		<include refid="userInfoColumns" />
+		FROM user_info a
+		<include refid="userInfoJoins" />
+		<where>
+			<if test="beginBeginDate != null and beginBeginDate != ''">
+				AND a.register_date &gt;= #{beginBeginDate}
+			</if>
+			<if test="endBeginDate != null and endBeginDate != ''">
+				AND a.register_date &lt;= #{endBeginDate}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.register_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<!-- 客户手机号码是否注册. -->
+	<select id="getUserInfoByPhone" resultType="UserInfo">
+		SELECT
+		<include refid="userInfoBaseColumns" />
+		FROM user_info a
+		WHERE a.name = #{phone}
+	</select>
+
+	<!-- 客户使用手势密码是否登陆成功. -->
+	<select id="loginByGesturePwd" resultType="UserInfo">
+		SELECT
+		<include refid="userInfoBaseColumns" />
+		FROM user_info a
+		<where>
+			<if test="name != null and name != ''">
+				AND a.name = #{name}
+			</if>
+			<if test="gesturePwd != null and gesturePwd != ''">
+				AND a.gesture_pwd = #{gesturePwd}
+			</if>
+		</where>
+	</select>
+
+	<select id="findList" resultType="UserInfo">
+		SELECT
+		<include refid="userInfoColumns" />
+		,u.regular_total_amount AS "regularTotalAmount"
+		FROM user_info a
+		<include refid="userInfoJoins" />
+		<where>
+			<if test="name != null and name != ''">
+				AND a.name LIKE concat('%',#{name},'%')
+			</if>
+			<if test="realName != null and realName != ''">
+				AND a.real_name LIKE
+				<if test="dbName == 'oracle'">'%'||#{realName}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{realName}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{realName},'%')</if>
+			</if>
+			<if test="certificateNo != null and certificateNo != ''">
+				AND a.certificate_no LIKE
+				<if test="dbName == 'oracle'">'%'||#{certificateNo}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{certificateNo}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{certificateNo},'%')</if>
+			</if>
+			<if test="sex != null and sex != ''">
+				AND a.sex = #{sex}
+			</if>
+			<if test="beginRegisterDate != null and beginRegisterDate != ''">
+				AND a.register_date &gt;= #{beginRegisterDate}
+			</if>
+			<if test="endRegisterDate != null and endRegisterDate != ''">
+				AND a.register_date &lt;= #{endRegisterDate}
+			</if>
+			<if test="bindBankCardState !=null and bindBankCardState != ''">
+				AND a.bind_bank_card_state = #{bindBankCardState}
+			</if>
+			<if test="partnerForm != null and partnerForm != ''">
+				<if test="partnerForm.platformName != null and partnerForm.platformName != ''">
+					AND p.platform_name LIKE
+					<if test="dbName == 'oracle'">'%'||#{partnerForm.platformName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{partnerForm.platformName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{partnerForm.platformName},'%')</if>
+				</if>
+
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.register_date DESC,a.last_login_date desc, a.update_date desc
+			</otherwise>
+		</choose>
+
+
+	</select>
+
+	<!-- 存管宝出借人信息 -->
+	<select id="findList1" resultType="UserInfo">
+		SELECT
+		<include refid="userInfoColumns" />
+		,u.regular_total_amount AS "regularTotalAmount"
+		FROM user_info a
+		<include refid="userInfoJoinsq" />
+		<where>
+			<if test="birthday != null and birthday != ''">
+				AND a.birthday = #{birthday}
+			</if>
+			<if test="name != null and name != ''">
+				AND a.name LIKE concat('%',#{name},'%')
+			</if>
+			<if test="realName != null and realName != ''">
+				AND a.real_name LIKE
+				<if test="dbName == 'oracle'">'%'||#{realName}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{realName}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{realName},'%')</if>
+			</if>
+			<if test="certificateNo != null and certificateNo != ''">
+				AND a.certificate_no LIKE
+				<if test="dbName == 'oracle'">'%'||#{certificateNo}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{certificateNo}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{certificateNo},'%')</if>
+			</if>
+			<if test="sex != null and sex != ''">
+				AND a.sex = #{sex}
+			</if>
+			<if test="beginRegisterDate != null and beginRegisterDate != ''">
+				AND a.register_date &gt;= #{beginRegisterDate}
+			</if>
+			<if test="endRegisterDate != null and endRegisterDate != ''">
+				AND a.register_date &lt;= #{endRegisterDate}
+			</if>
+			<if test="bindBankCardState !=null and bindBankCardState != ''">
+				AND a.bind_bank_card_state = #{bindBankCardState}
+			</if>
+			<if test="cgbBindBankCardState !=null and cgbBindBankCardState != ''">
+				AND a.cgb_bind_card_state = #{cgbBindBankCardState}
+			</if>
+			<if test="partnerForm != null and partnerForm != ''">
+				<if test="partnerForm.platformName != null and partnerForm.platformName != ''">
+					AND p.platform_name LIKE
+					<if test="dbName == 'oracle'">'%'||#{partnerForm.platformName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{partnerForm.platformName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{partnerForm.platformName},'%')</if>
+				</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.register_date DESC,a.last_login_date desc, a.update_date desc
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="UserInfo">
+		SELECT
+		<include refid="userInfoColumns" />
+		FROM user_info a
+		<include refid="userInfoJoins" />
+		<where>
+
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findRecommendUser" resultType="UserInfo">
+		SELECT
+		<include refid="userInfoColumns" />
+		FROM user_info a
+		<include refid="userInfoJoinsq" />
+		<where>
+			1=1
+			AND a.recommend_user_id IS NOT NULL
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<insert id="insert">
+		INSERT INTO user_info(
+		id,
+		name,
+		user_type,
+		real_name,
+		spell,
+		pwd,
+		certificate_type,
+		certificate_no,
+		certificate_checked,
+		sex,
+		state,
+		integral,
+		register_date,
+		register_from,
+		salt,
+		last_login_date,
+		last_login_ip,
+		recommend_user_id,
+		email,
+		email_checked,
+		sendemaildate,
+		head_img,
+		industry,
+		job,
+		degree,
+		create_date,
+		update_date,
+		privacy,
+		user_award_type,
+		recom_type,
+		person_sign,
+		bind_bank_card_state,
+		business_pwd,
+		llagreeNo,
+		account_id,
+		cgb_bind_card_state,
+		auto_state,
+		recommend_user_phone,
+		bank_first,
+		risk_first,
+		risk_type,
+		birthday,
+		is_activate,
+		uv_counter
+		) VALUES (
+		#{id},
+		#{name},
+		#{userType},
+		#{realName},
+		#{spell},
+		#{pwd},
+		#{certificateType},
+		#{certificateNo},
+		#{certificateChecked},
+		#{sex},
+		#{state},
+		#{integral},
+		#{registerDate},
+		#{registerFrom},
+		#{salt},
+		#{lastLoginDate},
+		#{lastLoginIp},
+		#{recommendUserId},
+		#{email},
+		#{emailChecked},
+		#{sendemaildate},
+		#{headImg},
+		#{industry},
+		#{job},
+		#{degree},
+		#{createDate},
+		#{updateDate},
+		#{privacy},
+		#{userAwardType},
+		#{recomType},
+		#{personSign},
+		#{bindBankCardState},
+		#{businessPwd},
+		#{llagreeNo},
+		#{accountId},
+		#{cgbBindBankCardState},
+		#{autoState},
+		#{recommendUserPhone},
+		#{bankFirst},
+		#{riskFirst},
+		#{riskType},
+		#{birthday},
+		#{isActivate},
+		#{uvCounter}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE user_info SET
+		name = #{name},
+		old_mobilephone = #{oldMobilephone},
+		user_type = #{userType},
+		real_name = #{realName},
+		spell = #{spell},
+		pwd = #{pwd},
+		certificate_type = #{certificateType},
+		certificate_no = #{certificateNo},
+		certificate_checked = #{certificateChecked},
+		sex = #{sex},
+		state = #{state},
+		integral = #{integral},
+		register_date = #{registerDate},
+		register_from = #{registerFrom},
+		salt = #{salt},
+		last_login_date = #{lastLoginDate},
+		last_login_ip = #{lastLoginIp},
+		recommend_user_id = #{recommendUserId},
+		email = #{email},
+		email_checked = #{emailChecked},
+		sendemaildate = #{sendemaildate},
+		head_img = #{headImg},
+		industry = #{industry},
+		job = #{job},
+		degree = #{degree},
+		update_date = #{updateDate},
+		privacy =
+		#{privacy},
+		user_award_type =
+		#{userAwardType},
+		recom_type = #{recomType},
+		person_sign = #{personSign},
+		bind_bank_card_state = #{bindBankCardState},
+		business_pwd = #{businessPwd},
+		account_id = #{accountId},
+		llagreeNo = #{llagreeNo},
+		gesture_pwd = #{gesturePwd},
+		cgb_bind_card_state = #{cgbBindBankCardState},
+		auto_state = #{autoState},
+		recommend_user_phone = #{recommendUserPhone},
+		bank_first = #{bankFirst},
+		risk_first = #{riskFirst},
+		risk_type = #{riskType},
+		birthday = #{birthday},
+		is_activate = #{isActivate},
+		uv_counter = #{uvCounter}
+		WHERE id = #{id}
+	</update>
+
+	<!-- 修改密码和更新时间 -->
+	<update id="updateUser">
+		UPDATE user_info SET
+		pwd = #{pwd},
+		update_date = #{updateDate}
+		WHERE name = #{name}
+	</update>
+
+	<!-- 邮箱校验码set值 -->
+	<update id="updateByName">
+		UPDATE user_info SET
+		name = #{name},
+		user_type = #{userType},
+		real_name = #{realName},
+		spell = #{spell},
+		pwd = #{pwd},
+		certificate_type = #{certificateType},
+		certificate_no = #{certificateNo},
+		certificate_checked = #{certificateChecked},
+		sex = #{sex},
+		state = #{state},
+		integral = #{integral},
+		register_date = #{registerDate},
+		register_from = #{registerFrom},
+		salt = #{salt},
+		last_login_date = #{lastLoginDate},
+		last_login_ip = #{lastLoginIp},
+		recommend_user_id = #{recommendUserId},
+		email = #{email},
+		email_checked = #{emailChecked},
+		sendemaildate = #{sendemaildate},
+		head_img = #{headImg},
+		industry = #{industry},
+		job = #{job},
+		degree = #{degree},
+		update_date = #{updateDate},
+		privacy = #{privacy},
+		user_award_type =
+		#{userAwardType},
+		recom_type = #{recomType},
+		person_sign = #{personSign},
+		bind_bank_card_state = #{bindBankCardState},
+		business_pwd = #{businessPwd},
+		llagreeNo = #{llagreeNo},
+		account_id = #{accountId},
+		auto_state = #{autoState},
+		recommend_user_phone = #{recommendUserPhone},
+		bank_first = #{bankFirst},
+		risk_first = #{riskFirst},
+		birthday = #{birthday},
+		is_activate = #{isActivate},
+		risk_type = #{riskType}
+		WHERE name = #{name}
+	</update>
+
+	<update id="delete">
+		DELETE FROM user_info WHERE id = #{id}
+	</update>
+
+	<update id="updateUserPhone">
+		update user_info set name = #{name} WHERE id = #{id}
+	</update>
+
+	<update id="updateUserPwd">
+		update user_info set pwd = #{pwd} WHERE id = #{id}
+	</update>
+
+	<update id="updateEmergency">
+		update user_info set
+		emergency_user =#{emergencyUser},
+		emergency_tel = #{emergencyTel}
+		WHERE id = #{id}
+	</update>
+
+	<update id="updateAddress">
+		update user_info set address =#{address} WHERE id = #{id}
+	</update>
+
+	<update id="updateEmailInfo">
+		update user_info set email = #{email},sendemaildate = #{sendemaildate},salt =#{salt},email_checked = #{emailChecked} WHERE id = #{id}
+	</update>
+
+	<!-- 查询所有连连账户信息 -->
+	<select id="findLLUserList" resultType="UserInfo">
+		SELECT
+		<include refid="userInfoBaseColumns" />
+		FROM user_info a
+		JOIN user_account u ON a.id = u.user_id
+		<where>
+			1=1
+			AND a.cgb_bind_card_state IS NULL
+			AND a.bind_bank_card_state = 2
+			AND u.total_amount > 0
+			AND u.available_amount > 0
+			AND LENGTH(a.`name`) &lt;= 11
+			AND a.real_name IS NOT NULL
+			AND a.certificate_no IS NOT NULL
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+</mapper>

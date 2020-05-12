@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.power.platform.activity.dao.BrokerageDao">
+
+	<sql id="brokerageColumns">
+		a.id AS "id",
+		a.user_id AS "userId",
+		a.from_user_id AS "fromUserId",
+		a.amount AS "amount",
+		a.create_date AS "createDate",
+		u.name AS "userInfo.name",
+		u.real_name AS "userInfo.realName",
+		f.name AS "fromUserInfo.name",
+		f.real_name AS "fromUserInfo.realName"
+	</sql>
+
+	<!-- 佣金列表接口. -->
+	<sql id="brokerageNewColumns">
+		a.id AS "id",
+		a.user_id AS "userId",
+		a.from_user_id AS "fromUserId",
+		a.amount AS "amount",
+		a.create_date AS "createDate",
+		a.create_by AS "createBy.id",
+		a.update_date AS "updateDate",
+		a.update_by AS "updateBy.id",
+		a.del_flag AS "delFlag",
+		u.id AS "userInfo.id",
+		u.name AS "userInfo.name",
+		u.real_name AS "userInfo.realName",
+		f.id AS "fromUserInfo.id",
+		f.name AS "fromUserInfo.name",
+		f.real_name AS "fromUserInfo.realName"
+	</sql>
+
+	<sql id="brokerageJoins">
+		w_brokerage a
+		left join user_info u on a.user_id = u.id
+		left join user_info f on a.from_user_id = f.id
+	</sql>
+
+	<!-- 邀请好友投资佣金总额. -->
+	<select id="brokerageTotalAmount" resultType="java.lang.Double">
+		SELECT IFNULL(sum(amount),0) FROM w_brokerage a WHERE a.user_id = #{userId}
+	</select>
+	<!-- 插入邀请好友投资佣金 -->
+	
+	<insert id="insertBrokerage">
+	    insert into w_brokerage(id,user_id,from_user_id,amount,create_date,update_date,del_flag) values(#{id},#{userId},#{fromUserId},#{amount},#{createDate},#{updateDate},0); 
+	</insert>
+	<!-- 邀请好友投资佣金总额(端午活动). -->
+	<select id="brokerageTotalAmountBote" resultType="java.lang.Double">
+		SELECT IFNULL(sum(amount),0) FROM w_brokerage a WHERE a.user_id = #{userId}
+ 	and create_date BETWEEN '2017-05-23' and '2017-06-22'
+	</select>
+	<!-- 佣金列表接口. -->
+	<select id="findBrokerageList" resultType="Brokerage">
+		SELECT
+		<include refid="brokerageNewColumns" />
+		FROM
+		<include refid="brokerageJoins" />
+		<where>
+			AND a.user_id = #{userId}
+		</where>
+		ORDER BY a.create_date DESC
+	</select>
+
+	<select id="findList" resultType="Brokerage">
+		SELECT
+		<include refid="brokerageColumns" />
+		FROM
+		<include refid="brokerageJoins" />
+		<where>
+			<if test="userInfo != null and userInfo.name != null and userInfo.name != '' ">
+				AND u.name like concat('%',#{userInfo.name},'%')
+			</if>
+			<if test="fromUserInfo != null and fromUserInfo.name != null and fromUserInfo.name != ''">
+				AND f.name like concat('%',#{fromUserInfo.name},'%')
+			</if>
+		</where>
+		ORDER BY a.create_date DESC
+	</select>
+
+
+	<select id="findAllList" resultType="Brokerage">
+		SELECT
+		<include refid="brokerageColumns" />
+		FROM
+		<include refid="brokerageJoins" />
+		<where>
+
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<insert id="insert">
+		INSERT INTO w_brokerage(
+		id,
+		user_id,
+		from_user_id,
+		amount,
+		remarks,
+		create_date,
+		create_by,
+		update_date,
+		update_by,
+		del_flag
+		) VALUES (
+		#{id},
+		#{userId},
+		#{fromUserId},
+		#{amount},
+		#{remarks},
+		#{createDate},
+		#{createBy},
+		#{createDate},
+		#{updateBy},
+		#{delFlag}
+		)
+	</insert>
+</mapper>

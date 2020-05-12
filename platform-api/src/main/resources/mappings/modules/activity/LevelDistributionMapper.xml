@@ -1,0 +1,309 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.power.platform.activity.dao.LevelDistributionDao">
+
+	<!-- 新的列表展示字段. -->
+	<sql id="levelDistributionNewColumns">
+		a.id AS "id",
+		a.user_id AS "userId",
+		a.parent_id AS "parentId",
+		a.grandpa_id AS "grandpaId",
+		a.invite_code AS "inviteCode",
+		a.create_date AS "createDate",
+		u.id AS "userInfo.id",
+		u. NAME AS "userInfo.name",
+		u.real_name AS "userInfo.realName",
+		u.register_date AS "userInfo.registerDate",
+		p.id AS "parentUserInfo.id",
+		p. NAME AS "parentUserInfo.name",
+		p.real_name AS "parentUserInfo.realName",
+		p.register_date AS "parentUserInfo.registerDate",
+		g.id AS "grandpaUserInfo.id",
+		g. NAME AS "grandpaUserInfo.name",
+		g.real_name AS "grandpaUserInfo.realName",
+		g.register_date AS "grandpaUserInfo.registerDate"
+	</sql>
+
+	<sql id="levelDistributionColumns">
+		a.id AS "id",
+		a.user_id AS "userId",
+		a.parent_id AS "parentId",
+		a.grandpa_id AS "grandpaId",
+		a.invite_code AS "inviteCode",
+		a.create_date AS "createDate"
+	</sql>
+
+	<sql id="levelDistributionLeftJoinColumns">
+		a.id AS "id",
+		a.user_id AS "userId",
+		a.parent_id AS "parentId",
+		a.grandpa_id AS "grandpaId",
+		a.invite_code AS "inviteCode",
+		a.create_date AS "createDate",
+		u.id AS "userInfo.id",
+		u.name AS "userInfo.name",
+		u.real_name AS "userInfo.realName",
+		p.id AS "parentUserInfo.id",
+		p.name AS "parentUserInfo.name",
+		p.real_name AS "parentUserInfo.realName",
+		g.id AS "grandpaUserInfo.id",
+		g.name AS "grandpaUserInfo.name",
+		g.real_name AS "grandpaUserInfo.realName"
+	</sql>
+
+	<sql id="levelDistributionJoins">
+		w_level_distribution a
+		left join user_info u on a.user_id = u.id
+		left join user_info p on a.parent_id = p.id
+		left join user_info g on a.grandpa_id = g.id
+	</sql>
+
+	<resultMap id="getItemsResult" type="java.util.HashMap">
+		<result property="type" column="type" />
+		<result property="name" column="name" />
+		<result property="amount" column="amount" />
+		<result property="createDate" column="createDate" />
+		<result property="span" column="span" />
+	</resultMap>
+
+	<!-- 你已邀请好友多少人(三级分销). -->
+	<select id="getInviteFriends" resultType="java.lang.Integer">
+		SELECT COUNT(*) FROM w_level_distribution a WHERE a.parent_id = #{userId}
+	</select>
+
+
+	<select id="get" resultType="LevelDistribution">
+		SELECT
+		<include refid="levelDistributionColumns" />
+		FROM w_level_distribution a
+		WHERE a.id = #{id}
+	</select>
+	<select id="selectByUserId" resultType="LevelDistribution">
+		select
+		<include refid="levelDistributionColumns" />
+		from w_level_distribution a
+		where a.user_id = #{userId}
+	</select>
+<!-- 	<select id="queryUserWbidSumAmount" resultType="java.lang.Double"> -->
+<!-- 		SELECT IFNULL(sum(b.amount),0) AS amount -->
+<!-- 		FROM wloan_term_invest b -->
+<!-- 		LEFT JOIN user_info u ON u.id = b.user_id -->
+<!-- 		LEFT JOIN w_level_distribution d ON d.user_id = b.user_id -->
+<!-- 		WHERE b.state IN (3,8,9,10) -->
+<!-- 		AND (d.parent_id = #{userId} OR d.grandpa_id = #{userId}) -->
+<!-- 	</select> -->
+
+	<select id="queryUserWbidSumAmount" resultType="java.lang.Double">
+		SELECT IFNULL(sum(b.amount),0) AS amount
+		FROM wloan_term_invest b
+		LEFT JOIN user_info u ON u.id = b.user_id
+		LEFT JOIN w_level_distribution d ON d.user_id = b.user_id
+		WHERE b.state = 1
+		AND (d.parent_id = #{userId} OR d.grandpa_id = #{userId})
+	</select>
+	<select id="queryUserWbidSumAmountBote" resultType="java.lang.Double">
+		SELECT IFNULL(sum(b.amount),0) AS amount from wloan_term_invest b
+        LEFT JOIN w_level_distribution d ON b.user_id = d.user_id
+        WHERE d.parent_id = #{userId} and d.create_date BETWEEN '2017-05-23 00:00:00' AND '2017-05-29 23:59:59';
+	</select>
+	
+	
+	<select id="queryUserWbidAmount" resultMap="getItemsResult">
+		SELECT CASE
+		WHEN d.grandpa_id = #{userId} THEN 'B'
+		WHEN d.parent_id = #{userId} THEN 'A'
+		END AS type,
+		u.name AS name,
+		b.amount AS amount,
+		p.span AS span,
+		b.begin_date AS createDate
+		from w_level_distribution d
+		LEFT JOIN wloan_term_invest b on d.user_id = b.user_id
+		LEFT JOIN user_info u ON u.id = d.user_id
+		LEFT JOIN wloan_current_project p ON b.project_id = p.id
+		WHERE b.state IN (3,8,9,10)
+		AND (d.parent_id = #{userId} OR d.grandpa_id = #{userId})
+		ORDER BY createDate DESC
+		LIMIT #{offset}, #{pageSize}
+	</select>
+	<select id="countByExample" resultType="java.lang.Integer">
+		SELECT count(*)
+		from w_level_distribution d
+		LEFT JOIN wloan_term_invest b on d.user_id = b.user_id
+		LEFT JOIN user_info u ON u.id = d.user_id
+		LEFT JOIN wloan_current_project p ON b.project_id = p.id
+		WHERE b.state IN (3,8,9,10)
+		AND (d.parent_id = #{userId} OR d.grandpa_id = #{userId})
+	</select>
+	<select id="notQueryUserWbidAmount" resultMap="getItemsResult">
+		SELECT
+		CASE
+		WHEN d.grandpa_id = #{userId} THEN 'B'
+		WHEN d.parent_id = #{userId} THEN 'A'
+		END AS type,
+		u.name AS name
+		from w_level_distribution d
+		LEFT JOIN user_info u ON u.id = d.user_id
+		WHERE d.user_id NOT in (SELECT user_id from wloan_term_invest) AND
+		(d.parent_id = #{userId} OR d.grandpa_id = #{userId})
+		LIMIT #{offset}, #{pageSize}
+	</select>
+	<select id="notCountByExample" resultType="java.lang.Integer">
+		SELECT count(*)
+		from w_level_distribution d
+		LEFT JOIN user_info u ON u.id = d.user_id
+		WHERE d.user_id NOT in (SELECT user_id from wloan_term_invest) AND
+		(d.parent_id = #{userId} OR d.grandpa_id = #{userId})
+	</select>
+
+	<resultMap id="getResult" type="java.util.HashMap">
+		<result property="userId" column="userId" />
+		<result property="name" column="name" />
+		<result property="registtime" column="registtime" />
+		<result property="idCard" column="idCard" />
+		<result property="bindBankCard" column="bindBankCard" />
+	</resultMap>
+	<!-- 根据用户ID查询被邀请人列表 -->
+	<select id="findListByUserId" resultMap="getResult">
+		SELECT
+		u.id AS userId,
+		u.name AS name,
+		u.register_date AS registtime,
+		u.certificate_no AS idCard,
+		u.bind_bank_card_state AS bindBankCard
+		FROM w_level_distribution d
+		LEFT JOIN user_info u ON u.id = d.user_id
+		WHERE (d.parent_id = #{userId} OR d.grandpa_id = #{userId})
+		LIMIT #{offset}, #{pageSize}
+	</select>
+	<!-- 根据用户ID查询被邀请人总数 -->
+	<select id="countByUserId" resultType="java.lang.Integer">
+		SELECT count(*)
+		FROM w_level_distribution d
+		LEFT JOIN user_info u ON u.id = d.user_id
+		WHERE (d.parent_id = #{userId} OR d.grandpa_id = #{userId})
+	</select>
+
+	<!-- 接口三级分销列表展示. -->
+	<select id="findLevelDistributionList" resultType="LevelDistribution">
+		SELECT
+		<include refid="levelDistributionNewColumns" />
+		FROM
+		<include refid="levelDistributionJoins" />
+		<where>
+			AND a.parent_id = #{userId}
+		</where>
+		ORDER BY a.create_date DESC
+	</select>
+
+	<!-- 后台管理系统中的三级分销列表. -->
+	<select id="findList" resultType="LevelDistribution">
+		SELECT
+		<include refid="levelDistributionLeftJoinColumns" />
+		FROM
+		<include refid="levelDistributionJoins" />
+		
+		<where>
+		    and a.parent_id not in (select id from ztmg_partner_platform )
+		    
+			<if test="userInfo != null and userInfo.name != null and userInfo.name != ''">
+				AND u.name like concat('%',#{userInfo.name},'%')
+			</if>
+			<if test="parentUserInfo != null and parentUserInfo.name != null and parentUserInfo.name != ''">
+				AND p.name like concat('%',#{parentUserInfo.name},'%')
+			</if>
+		</where>
+		ORDER BY a.create_date DESC
+	</select>
+	
+	<!-- 渠道统计. -->
+	<select id="findListByParentId" resultType="LevelDistribution">
+		SELECT
+		<include refid="levelDistributionLeftJoinColumns" />
+		FROM
+		<include refid="levelDistributionJoins" />
+		<where>
+		    AND a.parent_id = #{userId}
+		</where>
+		ORDER BY a.create_date DESC
+	</select>
+
+	<select id="findAllList" resultType="LevelDistribution">
+		SELECT
+		<include refid="levelDistributionLeftJoinColumns" />
+		FROM
+		<include refid="levelDistributionJoins" />
+		<where>
+
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<insert id="insert">
+		INSERT INTO w_level_distribution(
+		id,
+		user_id,
+		parent_id,
+		grandpa_id,
+		invite_code,
+		create_date
+		)
+		VALUES (
+		#{id},
+		#{userId},
+		#{parentId},
+		#{grandpaId},
+		#{inviteCode},
+		#{createDate}
+		)
+	</insert>
+
+	<!-- 2016年9月份活动(我的加息团人数). -->
+	<select id="myRateIncreasesTeamMembers" resultType="LevelDistribution">
+		SELECT
+		<include refid="levelDistributionLeftJoinColumns" />
+		FROM
+		<include refid="levelDistributionJoins" />
+		<where>
+			a.parent_id = #{userId}
+			<if test="beginDate != null and beginDate != ''">
+				AND a.create_date &gt;= #{beginDate}
+			</if>
+			<if test="endDate != null and endDate != ''">
+				AND a.create_date &lt;= #{endDate}
+			</if>
+		</where>
+		ORDER BY a.create_date DESC
+	</select>
+<!-- 根据用户ID查询被邀请人列表 （只包含parent）-->
+	<select id="findListByUserIdParent" resultMap="getResult">
+		SELECT
+			u.id AS userId,
+			u. NAME AS NAME,
+			u.register_date AS registtime,
+			u.create_date
+		FROM
+			w_level_distribution d
+		LEFT JOIN user_info u ON u.id = d.user_id
+		WHERE
+			d.parent_id = #{userId}
+		AND u.create_date BETWEEN '2017-05-23' and '2017-06-22'
+		ORDER BY
+			u.create_date DESC
+		
+	</select>
+	
+	<select id="countByUserIdParent" resultType="java.lang.Integer">
+		SELECT count(*)
+		FROM w_level_distribution d
+		LEFT JOIN user_info u ON u.id = d.user_id
+		WHERE d.parent_id = #{userId} 
+	</select>
+</mapper>

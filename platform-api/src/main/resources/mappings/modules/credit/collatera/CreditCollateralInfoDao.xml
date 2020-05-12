@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.power.platform.credit.dao.collateral.CreditCollateralInfoDao">
+
+	<sql id="creditCollateralInfoColumns">
+		a.id AS "id",
+		a.credit_user_id AS "creditUserId",
+		a.plate_number AS "plateNumber",
+		a.model_number AS "modelNumber",
+		a.buy_price AS "buyPrice",
+		a.buy_date AS "buyDate",
+		a.state AS "state",
+		a.mileage AS "mileage",
+		a.collateral_price AS "collateralPrice",
+		a.engine_number AS "engineNumber",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remark AS "remark",
+		a.del_flag AS "delFlag",
+		b.name AS "userInfo.name",
+		b.phone AS "userInfo.phone"
+	</sql>
+
+	<sql id="creditCollateralInfoJoins">
+		LEFT JOIN credit_user_info b ON a.credit_user_id = b.id
+	</sql>
+
+	<select id="get" resultType="CreditCollateralInfo">
+		SELECT
+		<include refid="creditCollateralInfoColumns" />
+		FROM credit_collateral_info a
+		<include refid="creditCollateralInfoJoins" />
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findList" resultType="CreditCollateralInfo">
+		SELECT
+		<include refid="creditCollateralInfoColumns" />
+		FROM credit_collateral_info a
+		<include refid="creditCollateralInfoJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="creditUserId != null and creditUserId != ''">
+				AND a.credit_user_id = #{creditUserId}
+			</if>
+			<if test="plateNumber !=null and plateNumber != ''">
+			   AND a.plate_number = #{plateNumber}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="CreditCollateralInfo">
+		SELECT
+		<include refid="creditCollateralInfoColumns" />
+		FROM credit_collateral_info a
+		<include refid="creditCollateralInfoJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<insert id="insert">
+		INSERT INTO credit_collateral_info(
+		id,
+		credit_user_id,
+		plate_number,
+		model_number,
+		buy_price,
+		buy_date,
+		state,
+		mileage,
+		collateral_price,
+		engine_number,
+		create_by,
+		create_date,
+		update_by,
+		update_date,
+		remark,
+		del_flag
+		) VALUES (
+		#{id},
+		#{creditUserId},
+		#{plateNumber},
+		#{modelNumber},
+		#{buyPrice},
+		#{buyDate},
+		#{state},
+		#{mileage},
+		#{collateralPrice},
+		#{engineNumber},
+		#{createBy.id},
+		#{createDate},
+		#{updateBy.id},
+		#{updateDate},
+		#{remark},
+		#{delFlag}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE credit_collateral_info SET
+		credit_user_id = #{creditUserId},
+		plate_number = #{plateNumber},
+		model_number = #{modelNumber},
+		buy_price = #{buyPrice},
+		buy_date = #{buyDate},
+		state = #{state},
+		mileage = #{mileage},
+		collateral_price = #{collateralPrice},
+		engine_number = #{engineNumber},
+		update_by = #{updateBy.id},
+		update_date = #{updateDate},
+		remark = #{remark}
+		WHERE id = #{id}
+	</update>
+
+	<delete id="delete">
+		DELETE FROM credit_collateral_info
+		WHERE id = #{id}
+	</delete>
+
+</mapper>

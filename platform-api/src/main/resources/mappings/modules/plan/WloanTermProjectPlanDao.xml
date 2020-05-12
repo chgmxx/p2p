@@ -1,0 +1,338 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.power.platform.plan.dao.WloanTermProjectPlanDao">
+
+	<!-- 项目还款计划表字段. -->
+	<sql id="wloanTermProjectPlanBaseColumns">
+		a.id,
+		a.project_id AS "projectId",
+		a.principal AS "principal",
+		a.interest AS "interest",
+		a.repayment_date AS "repaymentDate",
+		a.interest_true AS "interestTrue",
+		a.del_flag AS "delFlag",
+		a.state AS "state",
+		a.order_status AS "orderStatus",
+		a.sub_order_id AS "subOrderId"
+	</sql>
+
+	<!-- 项目还款计划和项目信息字段. -->
+	<sql id="wloanTermProjectPlanColumns">
+		a.id,
+		a.sub_order_id AS "subOrderId",
+		a.project_id AS "projectId",
+		a.repayment_date AS "repaymentDate",
+		a.principal AS "principal",
+		a.interest AS "interest",
+		a.interest_true AS "interestTrue",
+		a.state AS "state",
+		a.order_status AS "orderStatus",
+		w.id AS "wloanTermProject.id",
+		w.subject_id AS "wloanTermProject.subjectId",
+		w.`name` AS "wloanTermProject.name",
+		w.sn AS "wloanTermProject.sn",
+		w.loan_date AS "wloanTermProject.loanDate",
+		w.online_date AS "wloanTermProject.onlineDate",
+		w.real_loan_date AS "wloanTermProject.realLoanDate",
+		w.current_amount AS "wloanTermProject.currentAmount",
+		ws.company_name AS "wloanSubject.companyName",
+		ws.business__no AS "wloanSubject.businessNo"
+	</sql>
+
+	<sql id="wloanTermProjectPlanJoins">
+		wloan_term_project_plan a
+		LEFT JOIN wloan_term_project w on a.project_id=w.id
+		LEFT JOIN wloan_subject ws ON ws.id = w.subject_id
+	</sql>
+
+	<select id="get" resultType="WloanTermProjectPlan">
+		SELECT
+		<include refid="wloanTermProjectPlanColumns" />
+		FROM
+		<include refid="wloanTermProjectPlanJoins" />
+		WHERE a.id = #{id}
+	</select>
+
+	<!-- subOrderId查询项目还款信息. -->
+	<select id="getBySubOrderId" resultType="WloanTermProjectPlan">
+		SELECT
+		<include refid="wloanTermProjectPlanColumns" />
+		FROM
+		<include refid="wloanTermProjectPlanJoins" />
+		WHERE a.sub_order_id = #{subOrderId}
+	</select>
+
+	<!-- 查询项目还款计划，查询条件为项目编号及还款日期. -->
+	<select id="findProPlanByProSnAndRepaymentDate" resultType="WloanTermProjectPlan">
+		SELECT
+		<include refid="wloanTermProjectPlanColumns" />
+		FROM
+		<include refid="wloanTermProjectPlanJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="null != wloanTermProject">
+				<if test="null != wloanTermProject.sn and '' != wloanTermProject.sn">
+					AND w.sn = #{wloanTermProject.sn}
+				</if>
+			</if>
+			<if test="repaymentDate != null">
+				AND a.repayment_date = #{repaymentDate}
+			</if>
+		</where>
+		ORDER BY a.repayment_date ASC
+	</select>
+
+	<select id="findList" resultType="WloanTermProjectPlan">
+		select
+		<include refid="wloanTermProjectPlanColumns" />
+		from
+		<include refid="wloanTermProjectPlanJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="null != wloanTermProject">
+				<if test="null != wloanTermProject.id and '' != wloanTermProject.id">
+					AND a.project_id = #{wloanTermProject.id}
+				</if>
+				<if test="null != wloanTermProject.state and '' != wloanTermProject.state">
+					AND w.state = #{wloanTermProject.state}
+				</if>
+				<if test="null != wloanTermProject.stateItem">
+					AND w.state IN
+					<foreach item="wloanTermProject.stateItem" index="index" collection="wloanTermProject.stateItem" open="(" separator="," close=")">
+						#{wloanTermProject.stateItem}
+					</foreach>
+				</if>
+				<if test="null != wloanTermProject.projectProductType and '' != wloanTermProject.projectProductType">
+					AND w.project_product_type = #{wloanTermProject.projectProductType}
+				</if>
+				<if test="null != wloanTermProject.realLoanDate">
+					AND w.real_loan_date &gt;= #{wloanTermProject.realLoanDate}
+				</if>
+				<if test="null != wloanTermProject.onlineDate">
+					AND w.online_date &lt;= #{wloanTermProject.onlineDate}
+				</if>
+				<if test="null != wloanTermProject.replaceRepayId">
+					AND w.replace_repay_id = #{wloanTermProject.replaceRepayId}
+				</if>
+			</if>
+			<if test="state != null">
+				AND a.state = #{state}
+			</if>
+			<if test="repaymentDate != null">
+				AND a.repayment_date &gt;= #{repaymentDate}
+			</if>
+			<if test="beginDate != null">
+				AND a.repayment_date &gt;= #{beginDate}
+			</if>
+			<if test="endDate != null">
+				AND a.repayment_date &lt;= #{endDate}
+			</if>
+			<if test="beginRepaymentDate != null">
+				AND a.repayment_date &gt;= #{beginRepaymentDate}
+			</if>
+			<if test="endRepaymentDate != null">
+				AND a.repayment_date &lt;= #{endRepaymentDate}
+			</if>
+			<if test="wloanSubject != null and wloanSubject != ''">
+				<if test="wloanSubject.companyName != null and wloanSubject.companyName != ''">
+					AND ws.company_name LIKE
+					<if test="dbName == 'oracle'">'%'||#{wloanSubject.companyName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{wloanSubject.companyName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{wloanSubject.companyName},'%')</if>
+				</if>
+				<if test="null != wloanSubject.loanApplyId">
+					AND ws.loan_apply_id = #{wloanSubject.loanApplyId}
+				</if>
+			</if>
+			<if test="principal != null and principal != ''">
+				AND a.principal = #{principal}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				order by a.repayment_date ${page.orderBy}
+			</when>
+			<otherwise>
+				order by a.repayment_date
+			</otherwise>
+		</choose>
+	</select>
+
+	<!-- 根据项目ID查询项目还款计划列表. -->
+	<select id="findProPlansByProId" resultType="WloanTermProjectPlan">
+		SELECT
+		<include refid="wloanTermProjectPlanBaseColumns" />
+		FROM wloan_term_project_plan a
+		<where>
+			a.del_flag = '0'
+			<if test="null != projectId and '' != projectId">
+				AND a.project_id = #{projectId}
+			</if>
+		</where>
+		ORDER BY a.repayment_date ASC
+	</select>
+
+	<select id="findListRefund" resultType="WloanTermProjectPlan">
+		select
+		<include refid="wloanTermProjectPlanColumns" />
+		from
+		<include refid="wloanTermProjectPlanJoins" />
+		<where>
+			a.del_flag = '0'
+			and a.repayment_date = date(now())
+			and a.state = #{state}
+		</where>
+
+	</select>
+
+	<!-- 以标的ID查询其还款计划. -->
+	<select id="findPlanList" resultType="WloanTermProjectPlanDto">
+		SELECT
+		<include refid="wloanTermProjectPlanColumns" />
+		FROM
+		<include refid="wloanTermProjectPlanJoins" />
+		<where>
+			a.del_flag = '0'
+			<if test="null != projectId and '' != projectId">
+				AND a.project_id = #{projectId}
+			</if>
+		</where>
+		ORDER BY a.repayment_date ASC
+	</select>
+
+	<insert id="insert">
+		INSERT INTO wloan_term_project_plan(
+		id,
+		sub_order_id,
+		project_id,
+		repayment_date,
+		principal,
+		interest,
+		interest_true,
+		order_status,
+		state
+		)values(
+		#{id},
+		#{subOrderId},
+		#{wloanTermProject.id},
+		#{repaymentDate},
+		#{principal},
+		#{interest},
+		#{interestTrue},
+		#{orderStatus},
+		#{state}
+		)
+	</insert>
+
+	<!-- 放款时更新项目还款计划，应还金额. -->
+	<insert id="update">
+		UPDATE wloan_term_project_plan SET
+		interest = #{interest}
+		WHERE id = #{id}
+	</insert>
+
+	<update id="updateWloanTermProjectPlanState">
+		UPDATE wloan_term_project_plan
+		SET state = #{state}
+		WHERE id = #{id}
+	</update>
+
+	<!-- 落单标识，用于标记该笔交易已在存管行完成还款操作，隐藏页面还款按钮，防止操作人员二次点击 -->
+	<update id="modifyProjectPlanOrderStatus">
+		UPDATE wloan_term_project_plan SET
+		order_status = #{orderStatus}
+		WHERE id = #{id}
+	</update>
+
+	<!-- 修改此还款计划状态. -->
+	<update id="modifyWLoanTermProjectPlanState">
+		UPDATE wloan_term_project_plan SET
+		state = #{state}
+		WHERE id = #{id}
+	</update>
+
+	<!-- 项目还款计划逻辑删除. -->
+	<update id="modifyWLoanTermProjectPlanDelFlag">
+		UPDATE wloan_term_project_plan SET
+		del_flag = #{DEL_FLAG_DELETE}
+		WHERE project_id=#{projectId}
+	</update>
+
+	<delete id="deleteByProjectId">
+		delete from wloan_term_project_plan where
+		project_id=#{projectId}
+	</delete>
+
+	<!-- 围绕散标，增量借款人还本付息记录. -->
+	<select id="findCrePayPrincipalAndInterestListZ" resultType="WloanTermProjectPlan">
+		select
+		<include refid="wloanTermProjectPlanColumns" />
+		from
+		<include refid="wloanTermProjectPlanJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="state != null">
+				AND a.state = #{state}
+			</if>
+			<if test="principal != null and principal != ''">
+				AND a.principal = #{principal}
+			</if>
+			AND a.project_id IN (
+			SELECT
+			a.id
+			FROM
+			wloan_term_project a
+			WHERE
+			1 = 1
+			AND a.del_flag = '0'
+			AND a.state IN (4, 5, 6, 7)
+			AND a.online_date &gt;= '2019-06-30 00:00:00'
+			)
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.repayment_date ASC
+			</otherwise>
+		</choose>
+	</select>
+
+	<!-- 围绕散标，存量借款人还本付息记录. -->
+	<select id="findCrePayPrincipalAndInterestList" resultType="WloanTermProjectPlan">
+		select
+		<include refid="wloanTermProjectPlanColumns" />
+		from
+		<include refid="wloanTermProjectPlanJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="state != null">
+				AND a.state = #{state}
+			</if>
+			<if test="principal != null and principal != ''">
+				AND a.principal = #{principal}
+			</if>
+			AND a.project_id IN (
+			SELECT
+			a.id
+			FROM
+			wloan_term_project a
+			WHERE
+			1 = 1
+			AND a.del_flag = '0'
+			AND a.state IN (6)
+			AND a.online_date &lt; '2019-03-01 00:00:00'
+			)
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.repayment_date ASC
+			</otherwise>
+		</choose>
+	</select>
+
+</mapper>

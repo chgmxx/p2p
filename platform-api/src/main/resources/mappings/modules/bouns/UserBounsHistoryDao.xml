@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.power.platform.bouns.dao.UserBounsHistoryDao">
+
+	<sql id="userBounsHistoryColumns">
+		a.id AS "id",
+		a.user_id AS "userId",
+		a.amount AS "amount",
+		a.create_date AS "createDate",
+		case
+		when a.bouns_type = 0 then '出借'
+		when
+		a.bouns_type = 1 then '注册'
+		when a.bouns_type = 2 then '邀请好友'
+		when
+		a.bouns_type = 3 then '签到'
+		when a.bouns_type = 4 then '积分抽奖'
+		when
+		a.bouns_type = 5 then '积分兑换'
+		when a.bouns_type = 6 then '好友出借'
+		when a.bouns_type = 7 then '流标'
+		end AS
+		"bounsType",
+		a.trans_id AS
+		"transId",
+		a.current_amount AS
+		"currentAmount",
+		u.name AS
+		"userInfo.name",
+		u.real_name AS
+		"userInfo.realName"
+	</sql>
+
+	<sql id="userBounsHistoryColumns1">
+		a.create_date AS "createDate",
+		a.bouns_type,
+		a.trans_id,
+		a.current_amount AS "currentAmount",
+		u.name AS "userInfo.name",
+		c.name
+		AS "awardInfo.name"
+	</sql>
+
+	<sql id="userBounsHistoryJoins">
+		LEFT JOIN user_info u ON u.id = a.user_id
+	</sql>
+
+	<sql id="userBounsHistoryJoins1">
+		LEFT JOIN user_info u ON u.id = a.user_id
+		LEFT JOIN
+		user_award b ON b.id = a.trans_id
+		LEFT JOIN award_info c ON c.id =
+		b.award_id
+	</sql>
+
+	<!-- 邀请好友投资佣金总额. -->
+	<select id="bounsTotalAmount" resultType="java.lang.Double">
+		SELECT
+		IFNULL(sum(amount),0) FROM user_bouns_history a WHERE a.user_id =
+		#{userId} and a.bouns_type = 6
+	</select>
+
+
+	<select id="get" resultType="UserBounsHistory">
+		SELECT
+		<include refid="userBounsHistoryColumns" />
+		FROM user_bouns_history a
+		<include refid="userBounsHistoryJoins" />
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findList" resultType="UserBounsHistory">
+		SELECT
+		<include refid="userBounsHistoryColumns" />
+		FROM user_bouns_history a
+		<include refid="userBounsHistoryJoins" />
+		<where>
+			1 = 1
+			<if test="userInfo != null">
+				<if test="userInfo.name != null and userInfo.name != ''">
+					AND u.name LIKE
+					<if test="dbName == 'mysql'">concat('%',#{userInfo.name},'%')</if>
+				</if>
+				<if test="userInfo.realName != null and userInfo.realName != ''">
+					AND u.real_name LIKE
+					<if test="dbName == 'mysql'">concat('%',#{userInfo.realName},'%')</if>
+				</if>
+			</if>
+			<if test="bounsType != null and bounsType != ''">
+				AND a.bouns_type = #{bounsType}
+			</if>
+			<if test="userId != null and userId != ''">
+				AND a.user_id = #{userId }
+			</if>
+			<if test="transId !=null and transId !=''">
+				AND a.trans_id = #{transId}
+			</if>
+			<if test="beginCreateDate != null and beginCreateDate != ''">
+				AND a.create_date &gt;= #{beginCreateDate }
+			</if>
+			<if test="endCreateDate != null and endCreateDate != ''">
+				AND a.create_date &lt;= #{endCreateDate }
+			</if>
+			<if test="null != typeList">
+				AND a.bouns_type in
+				<foreach item="typeList" index="index" collection="typeList"
+					open="(" separator="," close=")">
+					#{typeList}
+				</foreach>
+			</if>
+
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date desc
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findBounsHistoryList" resultType="UserBounsHistory">
+		SELECT
+		<include refid="userBounsHistoryColumns1" />
+		FROM user_bouns_history a
+		<include refid="userBounsHistoryJoins1" />
+		<where>
+			1 = 1
+			<if test="bounsType != null and bounsType != ''">
+				AND a.bouns_type = #{bounsType}
+			</if>
+			AND a.trans_id != 'thanks'
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date desc
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="UserBounsHistory">
+		SELECT
+		<include refid="userBounsHistoryColumns" />
+		FROM user_bouns_history a
+		<include refid="userBounsHistoryJoins" />
+		<where>
+
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+
+	<insert id="insert">
+		INSERT INTO user_bouns_history(
+		id,
+		user_id,
+		amount,
+		current_amount,
+		create_date,
+		bouns_type,
+		trans_id
+		) VALUES (
+		#{id},
+		#{userId},
+		#{amount},
+		#{currentAmount},
+		#{createDate},
+		#{bounsType},
+		#{transId}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE user_bouns_history SET
+		user_id = #{userId},
+		amount = #{amount},
+		current_amount = #{currentAmount},
+		bouns_type =
+		#{bounsType},
+		trans_id = #{transId}
+		WHERE id = #{id}
+	</update>
+
+	<update id="delete">
+		DELETE FROM user_bouns_history
+		WHERE id = #{id}
+	</update>
+
+	<!-- 邀请好友投资获得积分列表 -->
+	<select id="findInviteByUserId" resultType="UserBounsHistory">
+		<!-- SELECT a.amount AS "amount", a.create_date AS "createDate", b.name 
+			AS "userInfo.name" FROM user_bouns_history a JOIN user_info b ON a.trans_id 
+			= b.id -->
+		SELECT
+		a.amount AS "amount",
+		a.create_date AS "createDate",
+		a.bouns_type
+		AS "bounsType",
+		a.trans_id AS "transId",
+		b.name AS "userInfo.name",
+		b.register_date AS "registerDate"
+		FROM user_bouns_history a
+		JOIN
+		user_info b ON
+		a.trans_id = b.id
+		<where>
+			1 = 1
+			AND a.bouns_type = 6
+			<if test="userId != null and userId != ''">
+				AND a.user_id = #{userId}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date desc
+			</otherwise>
+		</choose>
+	</select>
+
+	<!-- 邀请好友（统计好友累计出借金额和累计积分）. -->
+	<select id="findFriendsIntegralByTransId" resultType="UserBounsHistory">
+		SELECT
+			a.trans_id AS "userId",
+			SUM(a.amount) AS "amount",
+			b.`name` AS "userInfo.name",
+			b.real_name AS "userInfo.realName",
+			b.register_date AS "userInfo.registerDate"
+		FROM
+			user_bouns_history a
+		JOIN user_info b ON b.id = a.trans_id
+		<where>
+			1 = 1
+			AND a.bouns_type = '6'
+			<if test="userId != null and userId != ''">
+				AND a.user_id = #{userId}
+			</if>
+			GROUP BY a.trans_id
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+
+</mapper>

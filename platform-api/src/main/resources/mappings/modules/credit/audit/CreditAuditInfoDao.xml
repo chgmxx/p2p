@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.power.platform.credit.dao.audit.CreditAuditInfoDao">
+
+	<sql id="creditAuditInfoColumns">
+		a.id AS "id",
+		a.zip_url AS "zipUrl",
+		a.action_message AS "actionMessage",
+		a.create_date AS "createDate",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag"
+	</sql>
+
+	<sql id="creditAuditInfoJoins">
+	</sql>
+
+	<select id="get" resultType="CreditAuditInfo">
+		SELECT
+		<include refid="creditAuditInfoColumns" />
+		FROM credit_audit_info a
+		<include refid="creditAuditInfoJoins" />
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findList" resultType="CreditAuditInfo">
+		SELECT
+		<include refid="creditAuditInfoColumns" />
+		FROM credit_audit_info a
+		<include refid="creditAuditInfoJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="actionMessage != null and actionMessage != ''">
+				AND a.action_message LIKE
+				<if test="dbName == 'oracle'">'%'||#{actionMessage}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{actionMessage}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{actionMessage},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="CreditAuditInfo">
+		SELECT
+		<include refid="creditAuditInfoColumns" />
+		FROM credit_audit_info a
+		<include refid="creditAuditInfoJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<insert id="insert">
+		INSERT INTO credit_audit_info(
+		id,
+		zip_url,
+		action_message,
+		create_date,
+		update_date,
+		remarks,
+		del_flag
+		) VALUES (
+		#{id},
+		#{zipUrl},
+		#{actionMessage},
+		#{createDate},
+		#{updateDate},
+		#{remarks},
+		#{delFlag}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE credit_audit_info SET
+		zip_url = #{zipUrl},
+		action_message = #{actionMessage},
+		update_date = #{updateDate},
+		remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+
+	<update id="delete">
+		UPDATE credit_audit_info SET
+		del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+
+</mapper>

@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.power.platform.activity.dao.ZtmgWechatReturningCashDao">
+
+	<sql id="ztmgWechatReturningCashColumns">
+		a.id AS "id",
+		a.user_id AS "user_id",
+		a.account_id AS "accountId",
+		a.pay_amount AS "payAmount",
+		a.mobile_phone AS "mobilePhone",
+		a.real_name AS "realName",
+		a.create_date AS "createDate",
+		a.create_by AS "createBy.id",
+		a.update_date AS "updateDate",
+		a.update_by AS "updateBy.id",
+		a.del_flag AS "delFlag",
+		a.state AS "state"
+	</sql>
+
+	<!-- 财务报表，列表展示. -->
+	<sql id="ztmgWechatReturningCashExcelReportColumns">
+		a.id AS "id",
+		a.user_id AS "user_id",
+		a.account_id AS "accountId",
+		a.pay_amount AS "payAmount",
+		a.mobile_phone AS "mobilePhone",
+		a.real_name AS "realName",
+		a.create_date AS "createDate",
+		a.create_by AS "createBy.id",
+		a.update_date AS "updateDate",
+		a.update_by AS "updateBy.id",
+		a.del_flag AS "delFlag",
+		a.state AS "state",
+		b.id AS "userInfo.id",
+		b.name AS "userInfo.name",
+		b.real_name AS "userInfo.realName",
+		b.certificate_no AS "userInfo.certificateNo"
+	</sql>
+
+	<!-- 财务报表，列表展示. -->
+	<sql id="ztmgWechatReturningCashExcelReportJoins">
+		LEFT JOIN user_info b ON a.user_id = b.id
+	</sql>
+
+	<sql id="ztmgWechatReturningCashJoins">
+	</sql>
+
+	<select id="get" resultType="ZtmgWechatReturningCash">
+		SELECT
+		<include refid="ztmgWechatReturningCashColumns" />
+		FROM ztmg_wechat_returning_cash a
+		<include refid="ztmgWechatReturningCashJoins" />
+		WHERE a.id = #{id}
+	</select>
+
+	<!-- 财务报表，列表展示. -->
+	<select id="findExcelReportList" resultType="ZtmgWechatReturningCash">
+		SELECT
+		<include refid="ztmgWechatReturningCashExcelReportColumns" />
+		FROM ztmg_wechat_returning_cash a
+		<include refid="ztmgWechatReturningCashExcelReportJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="beginDate != null and beginDate != ''">
+				AND a.create_date &gt;= #{beginDate}
+			</if>
+			<if test="endDate != null and endDate != ''">
+				AND a.create_date &lt;= #{endDate}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findList" resultType="ZtmgWechatReturningCash">
+		SELECT
+		<include refid="ztmgWechatReturningCashColumns" />
+		FROM ztmg_wechat_returning_cash a
+		<include refid="ztmgWechatReturningCashJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="user_id != null and user_id != ''">
+				AND a.user_id = #{user_id}
+			</if>
+			<if test="mobilePhone != null and mobilePhone != ''">
+				AND a.mobile_phone = #{mobilePhone}
+			</if>
+			<if test="realName != null and realName != ''">
+				AND a.real_name = #{realName}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="ZtmgWechatReturningCash">
+		SELECT
+		<include refid="ztmgWechatReturningCashColumns" />
+		FROM ztmg_wechat_returning_cash a
+		<include refid="ztmgWechatReturningCashJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<insert id="insert">
+		INSERT INTO ztmg_wechat_returning_cash(
+		id,
+		user_id,
+		account_id,
+		pay_amount,
+		mobile_phone,
+		real_name,
+		create_date,
+		create_by,
+		update_date,
+		update_by,
+		del_flag,
+		state
+		) VALUES (
+		#{id},
+		#{user_id},
+		#{accountId},
+		#{payAmount},
+		#{mobilePhone},
+		#{realName},
+		#{createDate},
+		#{createBy.id},
+		#{updateDate},
+		#{updateBy.id},
+		#{delFlag},
+		#{state}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE ztmg_wechat_returning_cash SET
+		user_id = #{user_id},
+		account_id = #{accountId},
+		pay_amount = #{payAmount},
+		mobile_phone = #{mobilePhone},
+		real_name = #{realName},
+		update_date = #{updateDate},
+		update_by = #{updateBy.id},
+		state = #{state}
+		WHERE id = #{id}
+	</update>
+
+	<update id="delete">
+		UPDATE ztmg_wechat_returning_cash SET
+		del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+
+</mapper>

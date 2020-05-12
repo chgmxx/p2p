@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.power.platform.userinfo.dao.UserLogDao">
+	<select id="findList" resultType="UserLog">
+		SELECT 
+			*
+		FROM user_log 
+		<where>
+		<if test="remark != null and remark != ''">
+			AND remark LIKE 
+					<if test="dbName == 'oracle'">'%'||#{remark}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{remark}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{remark},'%')</if>
+		</if>
+		<if test="userId != null and userId != ''">
+			AND user_id = #{userId}
+		</if>			
+		<if test="beginDate != null and beginDate != ''">
+			AND create_date &gt;= #{beginDate}
+		</if>
+		<if test="endDate != null and endDate != ''">
+			AND create_date &lt;= #{endDate}
+		</if>
+		<if test="userName != null and userName != ''">
+			AND user_name LIKE 
+				<if test="dbName == 'oracle'">'%'||#{userName}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{userName}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{userName},'%')</if>
+		</if>
+		<if test="type != null and type != ''">
+			AND type = #{type}
+		</if>
+		</where>
+		ORDER BY create_date DESC
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO user_log(
+			id, 
+			user_id,
+			user_name,
+			type, 
+			remark,
+			create_date
+		) VALUES (
+			#{id}, 
+			#{userId},
+			#{userName},
+			#{type}, 
+			#{remark}, 
+			#{createDate} 
+		)
+	</insert>
+	
+</mapper>

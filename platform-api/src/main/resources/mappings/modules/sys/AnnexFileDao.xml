@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.power.platform.sys.dao.AnnexFileDao">
+
+
+	<sql id="annexFileColumns">
+			a.id AS "id",
+			a.url AS "url",
+			a.other_id AS "otherId",
+			a.type AS "type",
+			su.id AS "createBy.id",
+			su.name AS "createBy.name",
+			a.create_date AS "createDate",
+			a.update_by AS "updateBy.id",
+			a.update_date
+	</sql>
+	
+	<sql id="annexFileBaseColumns">
+			a.id AS "id",
+			a.url AS "url",
+			a.other_id AS "otherId",
+			a.type AS "type",
+			a.create_date AS "createDate",
+			a.update_by AS "updateBy.id",
+			a.update_date
+	</sql>
+	
+	<sql id="annexFileJoins">
+		  annex_file a LEFT JOIN sys_user su ON a.create_by = su.id
+	</sql>
+	
+	
+	<select id="findList" resultType="AnnexFile">
+		select
+		<include refid="annexFileColumns"/>
+			from
+		<include refid="annexFileJoins"/>
+			WHERE a.del_flag = #{DEL_FLAG_NORMAL}	
+		<if test="otherId != null and otherId != ''">
+			and a.other_id=#{otherId}
+		</if>	
+		<if test="type != null and type != ''">
+			and a.type=#{type}
+		</if>
+			order by a.create_date DESC
+	</select>
+	
+	<select id="get" resultType="AnnexFile">
+		select
+			<include refid="annexFileColumns"/>
+		from
+			<include refid="annexFileJoins"/>
+		where a.id =#{id}
+	</select>
+	
+	<select id="findByOtherId" resultType="AnnexFile">
+		select
+			<include refid="annexFileBaseColumns"/>
+		from annex_file a
+		where a.other_id =#{otherId} and a.type='200'
+	</select>
+	
+	
+	<select id="findCount" resultType="java.lang.Integer">
+		select  count(*) from
+		<include refid="annexFileJoins"/>
+			WHERE a.del_flag = #{DEL_FLAG_NORMAL}	
+		<if test="otherId != null and otherId != ''">
+			and a.other_id=#{otherId}
+		</if>	
+		<if test="type != null and type != ''">
+			and a.type=#{type}
+		</if>
+	</select>
+	
+	<select id="findAnnexFileMap" resultType="AnnexFile">
+		SELECT a.id as 'id', d.label as 'label', a.url as 'url', a.create_date as 'createDate', a.other_id as 'otherId'
+		FROM annex_file a
+		LEFT JOIN sys_dict d ON a.type = d.VALUE
+		WHERE d.type = 'wguarantee_company_datum'
+		AND a.other_id = #{otherId}
+	</select>
+	
+	
+	
+	<update id="update">
+		update annex_file set
+			  url=#{url},
+			  type=#{type},
+			  update_by = #{updateBy.id}, 
+			  update_date = #{updateDate} 
+		where id =#{id}
+	</update>
+
+	<insert id="insert">
+		INSERT INTO annex_file(
+		id,
+		type,
+		url,
+		other_id,
+		create_by,
+		create_date
+		) VALUES (
+		#{id},
+		#{type},
+		#{url},
+		#{otherId},
+		#{createBy.id},
+		#{createDate}
+		)
+	</insert>
+	<update id="delete">
+		UPDATE annex_file SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	<delete id="deleteAnnexFile">
+		DELETE FROM annex_file WHERE ID = #{id}
+	</delete>
+	
+</mapper>

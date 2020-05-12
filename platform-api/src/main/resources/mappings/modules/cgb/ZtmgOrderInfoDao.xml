@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.power.platform.cgb.dao.ZtmgOrderInfoDao">
+
+	<sql id="ztmgOrderInfoColumns">
+		a.id AS "id",
+		a.merchant_id AS "merchantId",
+		a.order_id AS "orderId",
+		a.status AS "status",
+		a.signature AS "signature",
+		a.type AS "type",
+		a.state AS "state",
+		a.create_date AS "createDate",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag"
+	</sql>
+
+	<sql id="ztmgOrderInfoJoins">
+	</sql>
+
+	<select id="get" resultType="ZtmgOrderInfo">
+		SELECT
+		<include refid="ztmgOrderInfoColumns" />
+		FROM ztmg_order_info a
+		<include refid="ztmgOrderInfoJoins" />
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findByOrderId" resultType="ZtmgOrderInfo">
+		SELECT
+		<include refid="ztmgOrderInfoColumns" />
+		FROM ztmg_order_info a
+		<include refid="ztmgOrderInfoJoins" />
+		WHERE a.order_id = #{orderId}
+	</select>
+
+	<select id="findList" resultType="ZtmgOrderInfo">
+		SELECT
+		<include refid="ztmgOrderInfoColumns" />
+		FROM ztmg_order_info a
+		<include refid="ztmgOrderInfoJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="state != null and state != ''">
+				AND a.state = #{state}
+			</if>
+			<!-- 更新开始时间. -->
+			<if test="beginUpdateDate != null and beginUpdateDate != ''">
+				AND a.update_date &gt;= #{beginUpdateDate}
+			</if>
+			<!-- 更新结束时间. -->
+			<if test="endUpdateDate != null and endUpdateDate != ''">
+				AND a.update_date &lt;= #{endUpdateDate}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date ASC
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findZtmgOrderInfo" resultType="ZtmgOrderInfo">
+		SELECT
+		<include refid="ztmgOrderInfoColumns" />
+		FROM ztmg_order_info a
+		<include refid="ztmgOrderInfoJoins" />
+		WHERE a.del_flag = '0'
+		and a.state = '2'
+		and a.update_date &gt;= #{starStr}
+		and a.update_date &lt;= #{endStr}
+	</select>
+
+	<select id="findAllList" resultType="ZtmgOrderInfo">
+		SELECT
+		<include refid="ztmgOrderInfoColumns" />
+		FROM ztmg_order_info a
+		<include refid="ztmgOrderInfoJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<insert id="insert">
+		INSERT INTO ztmg_order_info(
+		id,
+		merchant_id,
+		order_id,
+		status,
+		signature,
+		type,
+		state,
+		create_date,
+		update_date,
+		remarks,
+		del_flag
+		) VALUES (
+		#{id},
+		#{merchantId},
+		#{orderId},
+		#{status},
+		#{signature},
+		#{type},
+		#{state},
+		#{createDate},
+		#{updateDate},
+		#{remarks},
+		#{delFlag}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE ztmg_order_info SET
+		merchant_id = #{merchantId},
+		order_id = #{orderId},
+		status = #{status},
+		signature = #{signature},
+		type = #{type},
+		state = #{state},
+		update_date = #{updateDate},
+		remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+
+	<update id="delete">
+		UPDATE ztmg_order_info SET
+		del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+
+</mapper>

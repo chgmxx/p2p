@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.power.platform.sms.dao.SmsMsgHistoryDao">
+    
+	<sql id="smsMsgHistoryColumns">
+		a.id AS "id",
+		a.phone AS "phone",
+		a.validate_code AS "validateCode",
+		a.msg_content AS "msgContent",
+		a.create_time AS "createTime",
+		a.type AS "type",
+		a.ip AS "ip"
+	</sql>
+	
+	<sql id="smsMsgHistoryJoins">
+	</sql>
+    
+	<select id="get" resultType="SmsMsgHistory">
+		SELECT 
+			<include refid="smsMsgHistoryColumns"/>
+		FROM sms_msg_history a
+		<include refid="smsMsgHistoryJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="SmsMsgHistory">
+		SELECT 
+			<include refid="smsMsgHistoryColumns"/>
+		FROM sms_msg_history a
+		<include refid="smsMsgHistoryJoins"/>
+		<where>
+			
+			<if test="phone != null and phone != ''">
+				AND a.phone = #{phone}
+			</if>
+			<if test="validateCode != null and validateCode != ''">
+				AND a.validate_code = #{validateCode}
+			</if>
+			<if test="beginCreateTime != null and endCreateTime != null and beginCreateTime != '' and endCreateTime != ''">
+				AND a.create_time BETWEEN #{beginCreateTime} AND #{endCreateTime}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY a.create_time desc
+			</when>
+			<otherwise>
+				ORDER BY a.create_time desc
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="SmsMsgHistory">
+		SELECT 
+			<include refid="smsMsgHistoryColumns"/>
+		FROM sms_msg_history a
+		<include refid="smsMsgHistoryJoins"/>
+		<where>
+			
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO sms_msg_history(
+			id,
+			phone,
+			validate_code,
+			msg_content,
+			create_time,
+			type,
+			ip
+		) VALUES (
+			#{id},
+			#{phone},
+			#{validateCode},
+			#{msgContent},
+			#{createTime},
+			#{type},
+			#{ip}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE sms_msg_history SET 	
+			phone = #{phone},
+			validate_code = #{validateCode},
+			msg_content = #{msgContent},
+			type = #{type},
+			ip = #{ip}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		DELETE FROM sms_msg_history
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

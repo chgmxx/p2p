@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.power.platform.pay.recharge.dao.UserRechargeDao">
+
+	<sql id="userRechargeColumns">
+		a.id AS "id",
+		a.account_id AS "accountId",
+		a.sn AS "sn",
+		a.user_id AS "userId",
+		a.bank AS "bank",
+		a.bank_account AS "bankAccount",
+		a.amount AS "amount",
+		a.fee_amount AS "feeAmount",
+		a.fee_account AS "feeAccount",
+		a.begin_date AS "beginDate",
+		a.ip AS "ip",
+		a.state AS "state",
+		a.end_date AS "endDate",
+		a.plat_form AS "platForm",
+		a.reqfrom AS "from",
+		b.name AS "userInfo.name",
+		b.real_name AS "userInfo.realName"
+	</sql>
+
+	<!-- 财务报表，列表展示. -->
+	<sql id="userRechargeReportColumns">
+		a.id AS "id",
+		a.account_id AS "accountId",
+		a.sn AS "sn",
+		a.user_id AS "userId",
+		a.bank AS "bank",
+		a.bank_account AS "bankAccount",
+		a.amount AS "amount",
+		a.fee_amount AS "feeAmount",
+		a.fee_account AS "feeAccount",
+		a.begin_date AS "beginDate",
+		a.ip AS "ip",
+		a.state AS "state",
+		a.end_date AS "endDate",
+		a.plat_form AS "platForm",
+		a.reqfrom AS "from"
+	</sql>
+
+	<sql id="userRechargeJoins">
+	  join user_info b on a.user_id = b.id
+	</sql>
+
+	<!-- 财务报表，列表展示. -->
+	<sql id="userRechargeReportJoins">
+	</sql>
+
+	<!-- 区间查询统计客户充值总额. -->
+	<select id="findUserRechargeTotalAmount" resultType="java.lang.Double">
+		SELECT
+		SUM(a.amount)
+		FROM
+		user_recharge a
+		JOIN user_info b ON a.user_id = b.id
+		WHERE
+		1 = 1
+		AND a.state = 3
+		AND a.begin_date &gt;= #{beginBeginDate}
+		AND a.begin_date &lt;= #{endBeginDate};
+	</select>
+
+	<select id="get" resultType="UserRecharge">
+		SELECT
+		<include refid="userRechargeColumns" />
+		FROM user_recharge a
+		<include refid="userRechargeJoins" />
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="getById" resultType="UserRecharge">
+		SELECT
+		<include refid="userRechargeReportColumns" />
+		FROM user_recharge a
+		WHERE a.id = #{id}
+	</select>
+
+	<!-- 财务报表，列表展示. -->
+	<select id="findExcelReportList" resultType="UserRecharge">
+		SELECT
+		<include refid="userRechargeReportColumns" />
+		FROM user_recharge a
+		<include refid="userRechargeReportJoins" />
+		<where>
+			1 = 1
+			<if test="userId != null and userId != ''">
+				AND a.user_id = #{userId}
+			</if>
+			<if test="creditUserId != null and creditUserId != ''">
+				OR a.user_id = #{creditUserId}
+			</if>
+			<if test="beginDate != null and beginDate != ''">
+				AND a.begin_date &gt;= #{beginDate}
+			</if>
+			<if test="endDate != null and endDate != ''">
+				AND a.begin_date &lt;= #{endDate}
+			</if>
+			<if test="state != null and state != ''">
+				AND a.state = #{state}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.begin_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findList" resultType="UserRecharge">
+		SELECT
+		<include refid="userRechargeColumns" />
+		FROM user_recharge a
+		<include refid="userRechargeJoins" />
+		<where>
+
+			<if test="sn != null and sn != ''">
+				AND a.sn LIKE
+				<if test="dbName == 'oracle'">'%'||#{sn}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{sn}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{sn},'%')</if>
+			</if>
+			<if test="bankAccount != null and bankAccount != ''">
+				AND a.bank_account LIKE
+				<if test="dbName == 'oracle'">'%'||#{bankAccount}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{bankAccount}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{bankAccount},'%')</if>
+			</if>
+			<if test="beginBeginDate != null and endBeginDate != null and beginBeginDate != '' and endBeginDate != ''">
+				AND a.begin_date BETWEEN #{beginBeginDate} AND #{endBeginDate}
+			</if>
+			<if test="state != null and state != ''">
+				AND a.state = #{state}
+			</if>
+			<if test="beginEndDate != null and endEndDate != null and beginEndDate != '' and endEndDate != ''">
+				AND a.end_date BETWEEN #{beginEndDate} AND #{endEndDate}
+			</if>
+			<if test="platForm != null and platForm != ''">
+				AND a.plat_form = #{platForm}
+			</if>
+			<if test="from != null and from != ''">
+				AND a.reqfrom = #{from}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="UserRecharge">
+		SELECT
+		<include refid="userRechargeColumns" />
+		FROM user_recharge a
+		<include refid="userRechargeJoins" />
+		<where>
+
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+
+	<insert id="insert">
+		INSERT INTO user_recharge(
+		id,
+		account_id,
+		sn,
+		user_id,
+		bank,
+		bank_account,
+		amount,
+		fee_amount,
+		fee_account,
+		begin_date,
+		ip,
+		state,
+		end_date,
+		plat_form,
+		reqfrom
+		) VALUES (
+		#{id},
+		#{accountId},
+		#{sn},
+		#{userId},
+		#{bank},
+		#{bankAccount},
+		#{amount},
+		#{feeAmount},
+		#{feeAccount},
+		#{beginDate},
+		#{ip},
+		#{state},
+		#{endDate},
+		#{platForm},
+		#{from}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE user_recharge SET
+		account_id = #{accountId},
+		sn = #{sn},
+		user_id = #{userId},
+		bank = #{bank},
+		bank_account = #{bankAccount},
+		amount = #{amount},
+		fee_amount = #{feeAmount},
+		fee_account = #{feeAccount},
+		begin_date = #{beginDate},
+		ip = #{ip},
+		state = #{state},
+		end_date = #{endDate},
+		plat_form = #{platForm},
+		reqfrom = #{from}
+		WHERE id = #{id}
+	</update>
+
+	<update id="updateState">
+		UPDATE user_recharge SET
+		state = #{state}
+		WHERE id = #{id}
+	</update>
+
+	<update id="delete">
+		DELETE FROM user_recharge
+		WHERE id = #{id}
+	</update>
+	<select id="getUncompleteRecharge" resultType="UserRecharge">
+		SELECT
+		<include refid="userRechargeColumns" />
+		FROM user_recharge a
+		<include refid="userRechargeJoins" />
+		<where>
+			<![CDATA[
+      			DATE_FORMAT(a.begin_date, '%Y-%m-%d') <=  DATE_FORMAT(#{date}, '%Y-%m-%d')
+			]]>
+			and (a.state = 1 or a.state=2)
+		</where>
+
+	</select>
+</mapper>

@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.power.platform.userinfo.dao.UserCheckOrderDao">
+    
+	<sql id="userCheckOrderColumns">
+		a.id AS "id",
+		a.name AS "name",
+		a.phone AS "phone",
+		a.sn AS "sn",
+		a.amount AS "amount",
+		a.order_date AS "orderDate",
+		a.state AS "state",
+		a.remarks AS "remarks",
+		a.type AS "type"
+	</sql>
+	
+	<sql id="userCheckOrderJoins">
+	</sql>
+    
+	<select id="get" resultType="UserCheckOrder">
+		SELECT 
+			<include refid="userCheckOrderColumns"/>
+		FROM user_check_order a
+		<include refid="userCheckOrderJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="UserCheckOrder">
+		SELECT 
+			<include refid="userCheckOrderColumns"/>
+		FROM user_check_order a
+		<include refid="userCheckOrderJoins"/>
+		<where>
+			
+			<if test="name != null and name != ''">
+				AND a.name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{name}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{name}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{name},'%')</if>
+			</if>
+			<if test="phone != null and phone != ''">
+				AND a.phone LIKE 
+					<if test="dbName == 'oracle'">'%'||#{phone}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{phone}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{phone},'%')</if>
+			</if>
+			<if test="sn != null and sn != ''">
+				AND a.sn LIKE 
+					<if test="dbName == 'oracle'">'%'||#{sn}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{sn}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{sn},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="UserCheckOrder">
+		SELECT 
+			<include refid="userCheckOrderColumns"/>
+		FROM user_check_order a
+		<include refid="userCheckOrderJoins"/>
+		<where>
+			
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO user_check_order(
+			id,
+			name,
+			phone,
+			sn,
+			amount,
+			order_date,
+			state,
+			remarks,
+			type
+		) VALUES (
+			#{id},
+			#{name},
+			#{phone},
+			#{sn},
+			#{amount},
+			#{orderDate},
+			#{state},
+			#{remarks},
+			#{type}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE user_check_order SET 	
+			name = #{name},
+			phone = #{phone},
+			sn = #{sn},
+			amount = #{amount},
+			order_date = #{orderDate},
+			state = #{state},
+			remarks = #{remarks},
+			type = #{type}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		DELETE FROM user_check_order
+		WHERE id = #{id}
+	</update>
+	
+	<delete id="deleteAll">
+	  DELETE FROM user_check_order
+	</delete>
+	
+</mapper>

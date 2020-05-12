@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.power.platform.regular.dao.WGuaranteeCompanyDao">
+	
+	<sql id="WGuaranteeCompanyColumns">
+		 a.id AS "id" ,
+		 a.name AS "name",
+		 a.brief_name AS "briefName",
+		 a.industry AS "industry",
+		 a.register_date AS "registerDate",
+		 a.business_no AS "businessNo",
+		 a.organ_no AS "organNo",
+		 a.tax_code AS "taxCode",
+		 a.brief_info AS "briefInfo",
+		 a.web_site AS "webSite",
+		 a.corporation AS "corporation",
+		 a.guarantee_scheme AS "guaranteeScheme",
+		 a.guarantee_case AS "guaranteeCase",
+		 a.register_amount AS "registerAmount",
+		 a.net_asset_amount AS "netAssetAmount",
+		 a.last_year_cash AS "lastYearCash",
+		 a.run_case AS "runCase",
+		 a.wguarantee_logo AS "wguaranteeLogo",
+		 a.electronic_sign_url AS "electronicSignUrl",
+		 a.address AS "address",
+		 a.phone AS "phone",
+		 a.create_date AS "createDate",
+		 a.create_by AS "createBy",
+		 a.update_date AS "updateDate",
+		 a.update_by AS "updateBy",
+		 a.remark AS "remarks",
+		 a.del_flag AS "delFlag",
+		 ar.name AS "area.name"
+	</sql>
+	
+	<select id="get" resultType="WGuaranteeCompany">
+		SELECT 
+			<include refid="WGuaranteeCompanyColumns"/>
+		FROM wguarantee_company a
+		LEFT JOIN sys_area ar ON ar.id = a.locus
+		where a.id =#{id}
+	</select>
+	
+	<select id="getdatum" resultType="WGuaranteeCompany">
+		SELECT 
+			<include refid="WGuaranteeCompanyColumns"/>
+		FROM wguarantee_company a
+		LEFT 
+		
+		LEFT JOIN sys_dict ar ON ar.id = a.locus
+		where a.id =#{id}
+	</select>
+	
+	<select id="findList" resultType="WGuaranteeCompany">
+		SELECT 
+			<include refid="WGuaranteeCompanyColumns"/>
+		FROM wguarantee_company a
+		LEFT JOIN sys_area ar ON ar.id = a.locus
+		<where>
+			 a.del_flag = #{delFlag}	
+			 <if test="name!=null and name!='' ">
+				and a.name like concat('%', #{name}, '%')  
+			</if>
+			 <if test="corporation!=null and corporation!=''">
+				and a.corporation like concat('%', #{corporation}, '%')  
+			</if>
+			 <if test="phone!=null and phone!=''">
+				and a.phone like concat('%', #{phone}, '%')  
+			</if>
+		</where>
+	</select>
+	
+	
+	<insert id="insert">
+		INSERT INTO wguarantee_company(
+			 id ,
+			 name ,
+			 brief_name ,
+			 locus ,
+			 industry ,
+			 register_date ,
+			 business_no ,
+			 organ_no ,
+			 tax_code ,
+			 brief_info ,
+			 web_site ,
+			 corporation ,
+			 guarantee_scheme ,
+			 guarantee_case ,
+			 register_amount ,
+			 net_asset_amount ,
+			 last_year_cash ,
+			 run_case ,
+			 wguarantee_logo ,
+			 electronic_sign_url ,
+			 address ,
+			 phone ,
+			 create_date ,
+			 create_by ,
+			 update_date ,
+			 update_by ,
+			 remark ,
+			 del_flag
+		) VALUES (
+			  #{id},
+			  #{name},
+			  #{briefName},
+			  #{area.id},
+			  #{industry},
+			  #{registerDate},
+			  #{businessNo},
+			  #{organNo},
+			  #{taxCode},
+			  #{briefInfo},
+			  #{webSite},
+			  #{corporation},
+			  #{guaranteeScheme},
+			  #{guaranteeCase},
+			  #{registerAmount},
+			  #{netAssetAmount},
+			  #{lastYearCash},
+			  #{runCase},
+			  #{wguaranteeLogo},
+			  #{electronicSignUrl},
+			  #{address},
+			  #{phone},
+			  #{createDate},
+			  #{createBy.name},
+			  #{updateDate},
+			  #{updateBy.name},
+			  #{remarks},
+			  #{delFlag}
+		)
+	</insert>
+ 
+	<update id="update">
+		 UPDATE wguarantee_company SET
+			  id = #{id},
+			  name = #{name},
+			  brief_name = #{briefName},
+			  locus = #{area.id},
+			  industry = #{industry},
+			  register_date = #{registerDate},
+			  business_no = #{businessNo},
+			  organ_no = #{organNo},
+			  tax_code = #{taxCode},
+			  brief_info = #{briefInfo},
+			  web_site = #{webSite},
+			  corporation = #{corporation},
+			  guarantee_scheme = #{guaranteeScheme},
+			  guarantee_case = #{guaranteeCase},
+			  register_amount = #{registerAmount},
+			  net_asset_amount = #{netAssetAmount},
+			  last_year_cash = #{lastYearCash},
+			  run_case = #{runCase},
+			  wguarantee_logo = #{wguaranteeLogo},
+			  electronic_sign_url = #{electronicSignUrl},
+			  address = #{address},
+			  phone = #{phone},
+			  create_date = #{createDate},
+			  create_by = #{createBy.name},
+			  update_date = #{updateDate},
+			  update_by = #{updateBy.name},
+			  remark = #{remarks},
+			  del_flag = #{delFlag}
+		 WHERE id = #{id}	
+		
+	</update>
+	<update id="delete">
+		 UPDATE wguarantee_company SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		 WHERE id = #{id}
+	</update>
+</mapper>

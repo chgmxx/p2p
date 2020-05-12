@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.power.platform.current.dao.redeem.WloanCurrentUserRedeemDao">
+    
+	<sql id="wloanCurrentUserRedeemColumns">
+		a.id AS "id",
+		a.project_id AS "projectId",
+		a.to_user_id AS "toUserId",
+		a.redeem_user_id AS "redeemUserId",
+		a.amount AS "amount",
+		a.redeem_date AS "redeemDate",
+		a.redeem_contract_url AS "redeemContractUrl",
+		a.state AS "state",
+		b.id AS "userInfo.id",
+		b.name AS "userInfo.name",
+		b.real_name AS "userInfo.realName",
+        c.id AS "userInfo1.id",
+		c.name AS "userInfo1.name",
+		c.real_name AS "userInfo1.realName"
+	</sql>
+	
+	<sql id="wloanCurrentUserRedeemJoins">
+	  JOIN user_info b ON b.id = a.to_user_id
+      JOIN user_info c ON c.id = a.redeem_user_id
+	</sql>
+    
+	<select id="get" resultType="WloanCurrentUserRedeem">
+		SELECT 
+			<include refid="wloanCurrentUserRedeemColumns"/>
+		FROM wloan_current_user_redeem a
+		<include refid="wloanCurrentUserRedeemJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="WloanCurrentUserRedeem">
+		SELECT 
+			<include refid="wloanCurrentUserRedeemColumns"/>
+		FROM wloan_current_user_redeem a
+		<include refid="wloanCurrentUserRedeemJoins"/>
+		<where>
+		     1=1
+		     <!-- 转到用户 -->
+		  	<if test="userInfo != null">
+				<if test="userInfo.id != null and userInfo.id != ''">
+					and b.id = #{userInfo.id}
+				</if>
+				<if test="userInfo.name != null and userInfo.name != ''">
+					and b.name LIKE
+					<if test="dbName == 'mysql'">concat('%',#{userInfo.name},'%')</if>
+				</if>
+				<if test="userInfo.realName != null and userInfo.realName != ''">
+					and b.real_name LIKE
+					<if test="dbName == 'mysql'">concat('%',#{userInfo.realName},'%')</if>
+				</if>
+			</if>
+			<!-- 转让用户 -->
+			<if test="userInfo1 != null">
+				<if test="userInfo1.id != null and userInfo1.id != ''">
+					and c.id = #{userInfo1.id}
+				</if>
+				<if test="userInfo1.name != null and userInfo1.name != ''">
+					and c.name LIKE
+					<if test="dbName == 'mysql'">concat('%',#{userInfo1.name},'%')</if>
+				</if>
+				<if test="userInfo1.realName != null and userInfo1.realName != ''">
+					and c.real_name LIKE
+					<if test="dbName == 'mysql'">concat('%',#{userInfo1.realName},'%')</if>
+				</if>
+			</if>   
+		<!-- <if test="wloanCurrentProject !=null">
+			    <if test="wloanCurrentProject.id !=null and wloanCurrentProject.id != ''">
+			        and a.id = #{wloanCurrentProject.id} 
+			    </if>
+			    <if test="wloanCurrentProject.name !=null and wloanCurrentProject.name != ''">
+			        and d.name LIKE
+			        <if test="dbName == 'mysql'">concat('%',#{wloanCurrentProject.name},'%')</if>
+			    </if>
+			</if> -->
+			<if test="amount != null and amount != ''">
+				AND a.amount = #{amount}
+			</if>
+			<if test="beginRedeemDate != null and endRedeemDate != null and beginRedeemDate != '' and endRedeemDate != ''">
+				AND a.redeem_date BETWEEN #{beginRedeemDate} AND #{endRedeemDate}
+			</if>
+			<if test="beginRedeemDate != null and beginRedeemDate != ''">
+				AND a.redeem_date &gt;= #{beginRedeemDate}
+			</if>
+			<if test="endRedeemDate != null and endRedeemDate != ''">
+				AND a.redeem_date &lt;= #{endRedeemDate}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="WloanCurrentUserRedeem">
+		SELECT 
+			<include refid="wloanCurrentUserRedeemColumns"/>
+		FROM wloan_current_user_redeem a
+		<include refid="wloanCurrentUserRedeemJoins"/>
+		<where>
+			
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO wloan_current_user_redeem(
+			id,
+			project_id,
+			to_user_id,
+			redeem_user_id,
+			amount,
+			redeem_date,
+			redeem_contract_url,
+			state
+		) VALUES (
+			#{id},
+			#{projectId},
+			#{toUserId},
+			#{redeemUserId},
+			#{amount},
+			#{redeemDate},
+			#{redeemContractUrl},
+			#{state}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE wloan_current_user_redeem SET 	
+			project_id = #{projectId},
+			to_user_id = #{toUserId},
+			redeem_user_id = #{redeemUserId},
+			amount = #{amount},
+			redeem_date = #{redeemDate},
+			redeem_contract_url = #{redeemContractUrl},
+			state = #{state}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		DELETE FROM wloan_current_user_redeem
+		WHERE id = #{id}
+	</update>
+	
+	<select id="findRedeem" resultType="java.lang.Double">
+	select IFNULL(sum(amount),0) 
+	from wloan_current_user_redeem 
+	where redeem_user_id = #{userId} and state = #{state}
+	</select>
+	
+</mapper>

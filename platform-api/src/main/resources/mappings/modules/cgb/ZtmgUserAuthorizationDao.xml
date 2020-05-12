@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.power.platform.cgb.dao.ZtmgUserAuthorizationDao">
+
+	<sql id="ztmgUserAuthorizationColumns">
+		a.id AS "id",
+		a.user_id AS "userId",
+		a.merchant_id AS "merchantId",
+		a.fail_reason AS "failReason",
+		a.status AS "status",
+		a.grant_list AS "grantList",
+		a.grant_amount_list AS "grantAmountList",
+		a.grant_time_list AS "grantTimeList",
+		a.signature AS "signature",
+		a.create_date AS "createDate",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag"
+	</sql>
+
+	<!-- 联借款用户表查询. -->
+	<sql id="ztmgUserAuthorizationJoins">
+		LEFT JOIN credit_user_info u2 ON u2.id = a.user_id
+	</sql>
+
+	<select id="get" resultType="ZtmgUserAuthorization">
+		SELECT
+		<include refid="ztmgUserAuthorizationColumns" />
+		FROM ztmg_user_authorization a
+		<include refid="ztmgUserAuthorizationJoins" />
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findList" resultType="ZtmgUserAuthorization">
+		SELECT
+		<include refid="ztmgUserAuthorizationColumns" />
+		FROM ztmg_user_authorization a
+		<include refid="ztmgUserAuthorizationJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="merchantId != null and merchantId != ''">
+				AND a.merchant_id LIKE
+				<if test="dbName == 'oracle'">'%'||#{merchantId}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{merchantId}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{merchantId},'%')</if>
+			</if>
+			<if test="userId != null and userId != ''">
+				AND a.user_id = #{userId}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="ZtmgUserAuthorization">
+		SELECT
+		<include refid="ztmgUserAuthorizationColumns" />
+		FROM ztmg_user_authorization a
+		<include refid="ztmgUserAuthorizationJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<insert id="insert">
+		INSERT INTO ztmg_user_authorization(
+		id,
+		user_id,
+		merchant_id,
+		fail_reason,
+		status,
+		grant_list,
+		grant_amount_list,
+		grant_time_list,
+		signature,
+		create_date,
+		update_date,
+		remarks,
+		del_flag
+		)
+		VALUES (
+		#{id},
+		#{userId},
+		#{merchantId},
+		#{failReason},
+		#{status},
+		#{grantList},
+		#{grantAmountList},
+		#{grantTimeList},
+		#{signature},
+		#{createDate},
+		#{updateDate},
+		#{remarks},
+		#{delFlag}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE ztmg_user_authorization SET
+		status = #{status},
+		grant_list = #{grantList},
+		grant_amount_list = #{grantAmountList},
+		grant_time_list = #{grantTimeList},
+		signature = #{signature},
+		update_date = #{updateDate},
+		remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+
+	<update id="delete">
+		UPDATE ztmg_user_authorization SET
+		del_flag =
+		#{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+
+</mapper>

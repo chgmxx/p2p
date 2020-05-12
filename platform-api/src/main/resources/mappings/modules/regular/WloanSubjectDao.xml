@@ -1,0 +1,545 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.power.platform.regular.dao.WloanSubjectDao">
+
+	<sql id="wloanSubjectColumns">
+		a.id AS "id",
+		a.company_name AS "companyName",
+		a.brief_name AS "briefName",
+		a.type AS "type",
+		a.locus AS "locus",
+		a.industry AS "industry",
+		a.register_date AS "registerDate",
+		a.business__no AS "businessNo",
+		a.organ_no AS "organNo",
+		a.tax_code AS "taxCode",
+		a.brief_info AS "briefInfo",
+		a.web_site AS "webSite",
+		a.register_amount AS "registerAmount",
+		a.net_asset_amount AS "netAssetAmount",
+		a.last_year_cash AS "lastYearCash",
+		a.run_case AS "runCase",
+		a.is_entrusted_pay AS "isEntrustedPay",
+		a.cashier_user AS "cashierUser",
+		a.cashier_id_card AS "cashierIdCard",
+		a.cashier_bank_no AS "cashierBankNo",
+		a.cashier_bank_code AS "cashierBankCode",
+		a.cashier_bank_adderss AS "cashierBankAdderss",
+		a.cashier_bank_phone AS
+		"cashierBankPhone",
+		a.cashier_bank_no_flag AS "cashierBankNoFlag",
+		a.cashier_bank_issuer AS "cashierBankIssuer",
+		a.loan_apply_id AS "loanApplyId",
+		a.loan_user AS "loanUser",
+		a.loan_id_card AS "loanIdCard",
+		a.loan_phone AS "loanPhone",
+		a.loan_bank_no AS "loanBankNo",
+		a.loan_bank_phone AS "loanBankPhone",
+		a.loan_bank_name AS "loanBankName",
+		a.loan_bank_code AS "loanBankCode",
+		a.loan_bank_card_name AS "loanBankCardName",
+		a.loan_bank_Province AS "loanBankProvince",
+		a.loan_bank_city AS "loanBankCity",
+		a.loan_issuer_name AS "loanIssuerName",
+		a.loan_issuer AS "loanIssuer",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS
+		"delFlag",
+		a.business_license_type AS "businessLicenseType",
+		a.bank_permit_cert_no AS "bankPermitCertNo",
+		a.agent_person_name AS "agentPersonName",
+		a.agent_person_phone AS "agentPersonPhone",
+		a.agent_person_cert_type AS "agentPersonCertType",
+		a.agent_person_cert_no AS "agentPersonCertNo",
+		a.corporation_cert_type AS "corporationCertType",
+		a.corporation_cert_no AS "corporationCertNo",
+		a.email AS "email",
+		a.regist_address AS "registAddress",
+		a.loan_bank_county AS "loanBankCounty",
+		b.login_name AS "createBy.loginName",
+		b.login_name AS "updateBy.loginName",
+		c.id AS "area.id",
+		c.name AS "area.name"
+	</sql>
+
+	<!-- 定期-融资主体和融资项目. -->
+	<sql id="WloanSubjectAndWloanTermProjectColumns">
+		ws.id AS "id",
+		ws.company_name AS "companyName",
+		wtp.name AS "wloanTermProject.name"
+	</sql>
+
+	<!-- 定期-融资主体和融资项目. -->
+	<sql id="WloanSubjectAndWloanTermProjectJoins">
+		LEFT JOIN wloan_term_project wtp ON wtp.subject_id = ws.id
+	</sql>
+
+	<sql id="wloanSubjectJoins">
+		LEFT JOIN sys_user b ON a.create_by = b.id
+		LEFT JOIN sys_area c ON c.id = a.locus
+	</sql>
+
+	<select id="get" resultType="WloanSubject">
+		SELECT
+		<include refid="wloanSubjectColumns" />
+		FROM wloan_subject a
+		<include refid="wloanSubjectJoins" />
+		WHERE a.id = #{id}
+	</select>
+
+	<!-- 借款人获取融资主体. -->
+	<select id="getByLoanApplyId" resultType="WloanSubject">
+		SELECT
+		<include refid="wloanSubjectColumns" />
+		FROM wloan_subject a
+		<include refid="wloanSubjectJoins" />
+		WHERE 1 = 1 AND a.del_flag = '0' AND a.loan_apply_id = #{loanApplyId}
+	</select>
+
+	<!-- 融资主体为借款人，查询平台所有借款人数量. -->
+	<select id="findLoanUserTotalNumbers" resultType="java.lang.String">
+		SELECT DISTINCT
+		a.id AS 'wloan_subject_id' FROM wloan_subject a JOIN
+		wloan_term_project b ON b.subject_id = a.id WHERE 1 = 1 AND a.del_flag
+		= '0' AND b.del_flag = '0' AND b.state IN (4,5,6,7)
+	</select>
+
+	<!-- 融资主体为借款人，根据月份查询 平台所有借款人数量. -->
+	<select id="findLoanUserTotalNumbersByMonth" resultType="java.lang.String">
+		SELECT DISTINCT
+		a.id AS 'wloan_subject_id' FROM wloan_subject a JOIN
+		wloan_term_project b ON b.subject_id = a.id WHERE 1 = 1 AND a.del_flag
+		= '0' AND b.del_flag = '0' AND b.state IN (4,5,6,7) AND b.online_date &lt;= #{endTime}
+	</select>
+
+	<!-- 融资主体为借款人，查询平台当前借款人数量. -->
+	<select id="findNowLoanUserTotalNumbers" resultType="java.lang.String">
+		SELECT
+		DISTINCT p.subject_id
+		FROM
+		wloan_term_project p
+		JOIN wloan_term_user_plan up ON up.project_id = p.id
+		WHERE
+		1 = 1
+		AND p.del_flag = 0
+		AND p.state IN (4, 5, 6)
+	</select>
+
+	<!-- 融资主体为借款人，借款人借款总金额列表. -->
+	<select id="findLoanUserTotalAmountList" resultType="WloanSubject">
+		SELECT *
+		FROM (SELECT b.subject_id AS 'id', SUM(b.current_real_amount) AS
+		'wloanTermProject.currentRealAmount' FROM wloan_term_project b WHERE 1
+		= 1 AND b.del_flag = '0' AND b.subject_id IN (
+		SELECT DISTINCT a.id AS
+		'wloan_subject_id' FROM wloan_subject a JOIN
+		wloan_term_project b ON
+		b.subject_id = a.id WHERE 1 = 1 AND a.del_flag
+		= '0' AND b.del_flag =
+		'0' AND b.state IN (4,5,6,7)
+		) GROUP BY b.subject_id) AS c WHERE 1 = 1
+		ORDER BY
+		c.`wloanTermProject.currentRealAmount` DESC
+	</select>
+
+	<!-- 在贷余额(本息). -->
+	<select id="findLoanUserTotalPrincipalAndInterestAmount" resultType="java.lang.Double">
+		SELECT
+		SUM(up.interest) AS 'interest'
+		FROM
+		wloan_term_user_plan up
+		LEFT JOIN wloan_term_project p ON p.id =
+		up.project_id
+		LEFT JOIN wloan_subject s ON s.id = p.subject_id
+		WHERE
+		1 =
+		1
+		AND p.del_flag = '0'
+		AND s.del_flag = '0'
+		AND p.state IN (5, 6)
+		AND
+		up.state = '2'
+	</select>
+
+
+	<!--根据月份查询 在贷余额(本息). -->
+	<select id="findLoanUserTotalPrincipalAndInterestAmountByMonth" resultType="java.lang.Double">
+		SELECT
+		SUM(up.interest) AS 'interest'
+		FROM
+		wloan_term_user_plan up
+		LEFT JOIN wloan_term_project p ON p.id =
+		up.project_id
+		LEFT JOIN wloan_subject s ON s.id = p.subject_id
+		WHERE
+		1 =
+		1
+		AND p.del_flag = '0'
+		AND p.online_date &lt;= #{endTime}
+		AND s.del_flag = '0'
+		AND p.state IN (4, 5, 6)
+		AND
+		up.state = '2'
+	</select>
+
+	<!-- 在贷余额(本金). -->
+	<select id="findLoanUserTotalPrincipalAmountList" resultType="WloanSubject">
+		SELECT
+		*
+		FROM
+		(
+		SELECT
+		p.subject_id AS 'id',
+		ws.company_name AS 'companyName',
+		SUM(p.current_amount) AS 'wloanTermProject.currentAmount'
+		FROM
+		wloan_term_project p
+		LEFT JOIN wloan_subject ws ON ws.id = p.subject_id
+		WHERE
+		1 = 1
+		AND p.del_flag = '0'
+		AND p.state IN (4, 5, 6)
+		GROUP BY
+		p.subject_id
+		) AS c
+		ORDER BY
+		c.`wloanTermProject.currentAmount` DESC
+	</select>
+
+	<!-- 融资主体为借款人，待还总额. -->
+	<select id="findLoanUserStayStillTotalAmount" resultType="java.lang.Double">
+		SELECT
+		SUM(u.interest) AS
+		'sumInterest' FROM wloan_term_user_plan u WHERE 1
+		= 1
+		AND u.state = '2'
+		AND u.project_id IN (
+		SELECT a.id AS 'project_id' FROM
+		wloan_term_project a WHERE 1 = 1 AND
+		a.del_flag = '0' AND a.state IN
+		(6) AND a.subject_id = #{wloanSubjectId}
+		)
+	</select>
+
+	<select id="findList" resultType="WloanSubject">
+		SELECT
+		<include refid="wloanSubjectColumns" />
+		FROM wloan_subject a
+		<include refid="wloanSubjectJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="companyName != null and companyName != ''">
+				AND a.company_name LIKE
+				<if test="dbName == 'oracle'">'%'||#{companyName}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{companyName}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{companyName},'%')</if>
+			</if>
+			<if test="loanApplyId != null and loanApplyId != ''">
+				AND a.loan_apply_id = #{loanApplyId}
+			</if>
+			<if test="type != null and type != ''">
+				AND a.type = #{type}
+			</if>
+			<if test="isEntrustedPay != null and isEntrustedPay != ''">
+				AND a.is_entrusted_pay = #{isEntrustedPay}
+			</if>
+			<if test="cashierUser != null and cashierUser != ''">
+				AND a.cashier_user LIKE
+				<if test="dbName == 'oracle'">'%'||#{cashierUser}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{cashierUser}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{cashierUser},'%')</if>
+			</if>
+			<if test="cashierIdCard != null and cashierIdCard != ''">
+				AND a.cashier_id_card LIKE
+				<if test="dbName == 'oracle'">'%'||#{cashierIdCard}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{cashierIdCard}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{cashierIdCard},'%')</if>
+			</if>
+			<if test="cashierBankNo != null and cashierBankNo != ''">
+				AND a.cashier_bank_no LIKE
+				<if test="dbName == 'oracle'">'%'||#{cashierBankNo}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{cashierBankNo}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{cashierBankNo},'%')</if>
+			</if>
+			<if test="cashierBankPhone != null and cashierBankPhone != ''">
+				AND a.cashier_bank_phone LIKE
+				<if test="dbName == 'oracle'">'%'||#{cashierBankPhone}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{cashierBankPhone}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{cashierBankPhone},'%')</if>
+			</if>
+			<if test="loanUser != null and loanUser != ''">
+				AND a.loan_user LIKE
+				<if test="dbName == 'oracle'">'%'||#{loanUser}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{loanUser}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{loanUser},'%')</if>
+			</if>
+			<if test="loanIdCard != null and loanIdCard != ''">
+				AND a.loan_id_card LIKE
+				<if test="dbName == 'oracle'">'%'||#{loanIdCard}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{loanIdCard}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{loanIdCard},'%')</if>
+			</if>
+			<if test="loanPhone != null and loanPhone != ''">
+				AND a.loan_phone LIKE
+				<if test="dbName == 'oracle'">'%'||#{loanPhone}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{loanPhone}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{loanPhone},'%')</if>
+			</if>
+			<if test="beginCreateDate != null and beginCreateDate != ''">
+				AND a.create_date &gt;= #{beginCreateDate}
+			</if>
+			<if test="endCreateDate != null and endCreateDate != ''">
+				AND a.create_date &lt;= #{endCreateDate}
+			</if>
+			<if test="beginUpdateDate != null and beginUpdateDate != ''">
+				AND a.update_date &gt;= #{beginUpdateDate}
+			</if>
+			<if test="endUpdateDate != null and endUpdateDate != ''">
+				AND a.update_date &lt;= #{endUpdateDate}
+			</if>
+			<if test="loanApplyId != null and loanApplyId != ''">
+				AND a.loan_apply_id = #{loanApplyId}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="WloanSubject">
+		SELECT
+		<include refid="wloanSubjectColumns" />
+		FROM wloan_subject a
+		<include refid="wloanSubjectJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="getSubject" resultType="WloanSubject">
+		SELECT
+		<include refid="wloanSubjectColumns" />
+		,zl.province as province,zl.city as city ,zl.county as county ,zl.street as street 
+		FROM wloan_subject a
+		<include refid="wloanSubjectJoins" />
+		left join ztmg_loan_basic_info zl on a.loan_apply_id = zl.credit_user_id
+		<where>
+			a.del_flag = '0'
+			AND a.id = #{subjectId}
+		</where>
+	</select>
+
+	<select id="isExistWloanSubjectAndWloanTermProject" resultType="WloanSubject">
+		SELECT
+		<include refid="WloanSubjectAndWloanTermProjectColumns" />
+		FROM
+		wloan_subject ws
+		<include refid="WloanSubjectAndWloanTermProjectJoins" />
+		<where>
+			ws.del_flag = #{DEL_FLAG_NORMAL}
+			AND wtp.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="id != null and id != ''">
+				AND ws.id = #{id}
+			</if>
+		</where>
+	</select>
+
+	<insert id="insert">
+		INSERT INTO wloan_subject(
+		id,
+		company_name,
+		brief_name,
+		type,
+		locus,
+		industry,
+		register_date,
+		business__no,
+		organ_no,
+		tax_code,
+		brief_info,
+		web_site,
+		register_amount,
+		net_asset_amount,
+		last_year_cash,
+		run_case,
+		is_entrusted_pay,
+		cashier_user,
+		cashier_id_card,
+		cashier_bank_no,
+		cashier_bank_code,
+		cashier_bank_adderss,
+		cashier_bank_phone,
+		cashier_bank_no_flag,
+		cashier_bank_issuer,
+		loan_apply_id,
+		loan_user,
+		loan_id_card,
+		loan_phone,
+		loan_bank_no,
+		loan_bank_phone,
+		loan_bank_name,
+		loan_bank_code,
+		create_by,
+		create_date,
+		update_by,
+		update_date,
+		remarks,
+		business_license_type,
+		bank_permit_cert_no,
+		agent_person_name,
+		agent_person_phone,
+		agent_person_cert_type,
+		agent_person_cert_no,
+		corporation_cert_type,
+		corporation_cert_no,
+		email,
+		regist_address,
+		loan_bank_county,
+		loan_issuer_name,
+		loan_issuer,
+		loan_bank_Province,
+		loan_bank_city,
+		del_flag
+		) VALUES (
+		#{id},
+		#{companyName},
+		#{briefName},
+		#{type},
+		#{area.id},
+		#{industry},
+		#{registerDate},
+		#{businessNo},
+		#{organNo},
+		#{taxCode},
+		#{briefInfo},
+		#{webSite},
+		#{registerAmount},
+		#{netAssetAmount},
+		#{lastYearCash},
+		#{runCase},
+		#{isEntrustedPay},
+		#{cashierUser},
+		#{cashierIdCard},
+		#{cashierBankNo},
+		#{cashierBankCode},
+		#{cashierBankAdderss},
+		#{cashierBankPhone},
+		#{cashierBankNoFlag},
+		#{cashierBankIssuer},
+		#{loanApplyId},
+		#{loanUser},
+		#{loanIdCard},
+		#{loanPhone},
+		#{loanBankNo},
+		#{loanBankPhone},
+		#{loanBankName},
+		#{loanBankCode},
+		#{createBy.id},
+		#{createDate},
+		#{updateBy.id},
+		#{updateDate},
+		#{remarks},
+		#{businessLicenseType},
+		#{bankPermitCertNo},
+		#{agentPersonName},
+		#{agentPersonPhone},
+		#{agentPersonCertType},
+		#{agentPersonCertNo},
+		#{corporationCertType},
+		#{corporationCertNo},
+		#{email},
+		#{registAddress},
+		#{loanBankCounty},
+		#{loanIssuerName},
+		#{loanIssuer},
+		#{loanBankProvince},
+		#{loanBankCity},
+		#{delFlag}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE wloan_subject SET
+		company_name = #{companyName},
+		brief_name = #{briefName},
+		type = #{type},
+		locus = #{area.id},
+		industry = #{industry},
+		register_date = #{registerDate},
+		business__no = #{businessNo},
+		organ_no = #{organNo},
+		tax_code = #{taxCode},
+		brief_info = #{briefInfo},
+		web_site = #{webSite},
+		register_amount = #{registerAmount},
+		net_asset_amount = #{netAssetAmount},
+		last_year_cash = #{lastYearCash},
+		run_case = #{runCase},
+		is_entrusted_pay = #{isEntrustedPay},
+		cashier_user = #{cashierUser},
+		cashier_id_card = #{cashierIdCard},
+		cashier_bank_no = #{cashierBankNo},
+		cashier_bank_code = #{cashierBankCode},
+		cashier_bank_adderss = #{cashierBankAdderss},
+		cashier_bank_phone = #{cashierBankPhone},
+		cashier_bank_no_flag
+		= #{cashierBankNoFlag},
+		cashier_bank_issuer = #{cashierBankIssuer},
+		loan_apply_id = #{loanApplyId},
+		loan_user = #{loanUser},
+		loan_id_card = #{loanIdCard},
+		loan_phone = #{loanPhone},
+		loan_bank_no = #{loanBankNo},
+		loan_bank_phone = #{loanBankPhone},
+		loan_bank_name = #{loanBankName},
+		loan_bank_code = #{loanBankCode},
+		loan_issuer_name = #{loanIssuerName},
+		loan_issuer = #{loanIssuer},
+		loan_bank_Province = #{loanBankProvince},
+		loan_bank_city = #{loanBankCity},
+		update_by = #{updateBy.id},
+		update_date = #{updateDate},
+		business_license_type = #{businessLicenseType},
+		bank_permit_cert_no = #{bankPermitCertNo},
+		agent_person_name = #{agentPersonName},
+		agent_person_phone = #{agentPersonPhone},
+		agent_person_cert_type = #{agentPersonCertType},
+		agent_person_cert_no = #{agentPersonCertNo},
+		corporation_cert_type = #{corporationCertType},
+		corporation_cert_no = #{corporationCertNo},
+		remarks = #{remarks},
+		email=#{email},
+		regist_address=#{registAddress},
+		loan_bank_county=#{loanBankCounty}
+		WHERE id = #{id}
+	</update>
+
+	<update id="delete">
+		UPDATE wloan_subject SET
+		del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+
+	<update id="deleteWloanSubjectByUserId">
+		UPDATE wloan_subject SET del_flag = 1
+		WHERE loan_apply_id=#{userId}
+	</update>
+
+</mapper>

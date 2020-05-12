@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.power.platform.userinfo.dao.UserMessagesDao">
+
+	<sql id="userMessagesColumns">
+		a.id AS "id",
+		a.receiver_id AS "receiverId",
+		a.receiver_name AS "receiverName",
+		a.sender_id AS "senderId",
+		a.sender_name AS "senderName",
+		a.sender_type AS "senderType",
+		a.title AS "title",
+		a.body AS "body",
+		a.state AS "state",
+		a.send_time AS "sendTime" 
+	</sql>
+ 
+
+	<select id="get" resultType="UserMessages">
+		SELECT
+		<include refid="userMessagesColumns" />
+		FROM user_messages a
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findList" resultType="UserMessages">
+		SELECT
+		<include refid="userMessagesColumns" />
+		FROM user_messages a
+		<where>
+ 			1 = 1
+			<if test="receiverId != null and receiverId != ''">
+				AND a.receiver_id = #{receiverId}
+			</if>
+			<if test="state != null and state != ''">
+				AND a.state = #{state}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.state ASC, a.send_time DESC
+			</otherwise>
+			
+		</choose>
+	</select>
+
+	<insert id="insert">
+		INSERT INTO user_messages(
+			id,
+			receiver_id,
+			receiver_name,
+			sender_id,
+			sender_name,
+			sender_type,
+			title,
+			body,
+			state,
+			send_time  
+		)
+		VALUES (
+			"id",
+			"receiverId",
+		 	"receiverName",
+			"senderId",
+			"senderName",
+			"senderType",
+			"title",
+			"body",
+			"state",
+			"sendTime" 
+		)
+	</insert>
+
+	<update id="updateStates">
+		UPDATE user_messages
+		SET state = #{state}
+		WHERE id = #{id}
+	</update>
+ 
+</mapper>

@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.power.platform.credit.dao.basicinfo.CreditBasicInfoDao">
+
+	<sql id="creditBasicInfoBasicColumns">
+		a.id AS "id",
+		a.credit_user_id AS "creditUserId",
+		a.name AS "name",
+		a.age AS "age",
+		a.marital_status AS "maritalStatus",
+		a.education_status AS "educationStatus",
+		a.id_card AS "idCard",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remark AS "remark",
+		a.del_flag AS "delFlag"
+	</sql>
+
+	<sql id="creditBasicInfoColumns">
+		a.id AS "id",
+		a.credit_user_id AS "creditUserId",
+		a.name AS "name",
+		a.age AS "age",
+		a.marital_status AS "maritalStatus",
+		a.education_status AS "educationStatus",
+		a.id_card AS "idCard",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remark AS "remark",
+		a.del_flag AS "delFlag",
+		GROUP_CONCAT(b.url) AS "creditAnnexFile.url"
+	</sql>
+
+	<sql id="creditBasicInfoJoins">
+		LEFT JOIN credit_annex_file b ON a.id = b.other_id
+	</sql>
+
+	<!-- 通过用户ID获取基本信息. -->
+	<select id="getCreditBasicInfo" resultType="CreditBasicInfo">
+		SELECT
+		<include refid="creditBasicInfoBasicColumns" />
+		FROM credit_basic_info a
+		WHERE a.credit_user_id = #{creditUserId}
+	</select>
+
+	<select id="get" resultType="CreditBasicInfo">
+		SELECT
+		<include refid="creditBasicInfoColumns" />
+		FROM credit_basic_info a
+		<include refid="creditBasicInfoJoins" />
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findList" resultType="CreditBasicInfo">
+		SELECT
+		<include refid="creditBasicInfoColumns" />
+		FROM credit_basic_info a
+		<include refid="creditBasicInfoJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="creditUserId != null and creditUserId != ''">
+				AND a.credit_user_id = #{creditUserId}
+			</if>
+			<if test="name != null and name != ''">
+				AND a.name LIKE
+				<if test="dbName == 'oracle'">'%'||#{name}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{name}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{name},'%')</if>
+			</if>
+		</where>
+		GROUP BY a.id
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="CreditBasicInfo">
+		SELECT
+		<include refid="creditBasicInfoColumns" />
+		FROM credit_basic_info a
+		<include refid="creditBasicInfoJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findByUserId" resultType="CreditBasicInfo">
+	    SELECT
+		<include refid="creditBasicInfoBasicColumns" />
+		FROM credit_basic_info a
+		WHERE a.credit_user_id = #{creditUserId}
+	</select>
+
+	<insert id="insert">
+		INSERT INTO credit_basic_info(
+		id,
+		credit_user_id,
+		name,
+		age,
+		marital_status,
+		education_status,
+		id_card,
+		create_by,
+		create_date,
+		update_by,
+		update_date,
+		remark,
+		del_flag
+		) VALUES (
+		#{id},
+		#{creditUserId},
+		#{name},
+		#{age},
+		#{maritalStatus},
+		#{educationStatus},
+		#{idCard},
+		#{createBy.id},
+		#{createDate},
+		#{updateBy.id},
+		#{updateDate},
+		#{remark},
+		#{delFlag}
+
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE credit_basic_info SET
+		credit_user_id = #{creditUserId},
+		name = #{name},
+		age = #{age},
+		marital_status = #{maritalStatus},
+		education_status = #{educationStatus},
+		id_card = #{idCard},
+		update_by = #{updateBy.id},
+		update_date = #{updateDate},
+		remark = #{remark}
+		WHERE id = #{id}
+	</update>
+
+	<update id="delete">
+		UPDATE credit_basic_info SET
+		del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+
+	<delete id="deleteBasicInfoById">
+		DELETE FROM credit_basic_info
+		WHERE id = #{id}
+	</delete>
+
+</mapper>

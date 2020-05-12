@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.power.platform.zdw.dao.ZdwRegistrationInfoDao">
+
+	<sql id="zdwRegistrationInfoColumns">
+		a.id AS "id",
+		a.num AS "num",
+		a.pro_id_list AS "proIdList",
+		a.check_in_no AS "checkInNo",
+		a.modify_code AS "modifyCode",
+		a.prove_file_path AS "proveFilePath",
+		a.status AS "status",
+		a.create_date AS "createDate",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag"
+	</sql>
+
+	<sql id="zdwRegistrationInfoJoins">
+	</sql>
+
+	<select id="get" resultType="ZdwRegistrationInfo">
+		SELECT
+		<include refid="zdwRegistrationInfoColumns" />
+		FROM zdw_registration_info a
+		<include refid="zdwRegistrationInfoJoins" />
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findList" resultType="ZdwRegistrationInfo">
+		SELECT
+		<include refid="zdwRegistrationInfoColumns" />
+		FROM zdw_registration_info a
+		<include refid="zdwRegistrationInfoJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="checkInNo != null and checkInNo != ''">
+				AND a.check_in_no LIKE
+				<if test="dbName == 'oracle'">'%'||#{checkInNo}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{checkInNo}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{checkInNo},'%')</if>
+			</if>
+			<if test="modifyCode != null and modifyCode != ''">
+				AND a.modify_code LIKE
+				<if test="dbName == 'oracle'">'%'||#{modifyCode}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{modifyCode}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{modifyCode},'%')</if>
+			</if>
+			<if test="status != null and status != ''">
+				AND a.status = #{status}
+			</if>
+			<!-- 创建时间-开始. -->
+			<if test="beginCreateDateTime != null and beginCreateDateTime != ''">
+				AND a.create_date &gt;= #{beginCreateDateTime}
+			</if>
+			<!-- 创建时间-结束. -->
+			<if test="endCreateDateTime != null and endCreateDateTime != ''">
+				AND a.create_date &lt;= #{endCreateDateTime}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="ZdwRegistrationInfo">
+		SELECT
+		<include refid="zdwRegistrationInfoColumns" />
+		FROM zdw_registration_info a
+		<include refid="zdwRegistrationInfoJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<insert id="insert">
+		INSERT INTO zdw_registration_info(
+		id,
+		num,
+		pro_id_list,
+		check_in_no,
+		modify_code,
+		prove_file_path,
+		status,
+		create_date,
+		update_date,
+		remarks,
+		del_flag
+		) VALUES (
+		#{id},
+		#{num},
+		#{proIdList},
+		#{checkInNo},
+		#{modifyCode},
+		#{proveFilePath},
+		#{status},
+		#{createDate},
+		#{updateDate},
+		#{remarks},
+		#{delFlag}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE zdw_registration_info SET
+		num = #{num},
+		pro_id_list = #{proIdList},
+		check_in_no = #{checkInNo},
+		modify_code = #{modifyCode},
+		prove_file_path = #{proveFilePath},
+		status = #{status},
+		update_date = #{updateDate},
+		remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+
+	<update id="delete">
+		UPDATE zdw_registration_info SET
+		del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+
+</mapper>

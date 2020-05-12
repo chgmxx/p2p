@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.power.platform.bouns.dao.UserConsigneeAddressDao">
+    
+	<sql id="userConsigneeAddressColumns">
+		a.id AS "id",
+		a.user_id AS "userId",
+		a.name AS "username",
+		case 
+			when a.is_default = 0 then '否'
+			when a.is_default = 1 then '是'
+		end AS "isDefault",
+		a.province_code AS "provinceCode",
+		a.city_code AS "cityCode",
+		a.address AS "address",
+		a.create_date AS "createDate",
+		a.update_date AS "updateDate",
+		a.mobile AS "mobile",
+		u.name AS "userInfo.name",
+		u.real_name AS "userInfo.realName",
+		ar.name AS "province.name",
+		ara.name AS "city.name"
+	</sql>
+	
+	<sql id="userConsigneeAddressJoins">
+		LEFT JOIN user_info u ON u.id = a.user_id
+		LEFT JOIN sys_area ar ON ar.sort = a.province_code
+		LEFT JOIN sys_area ara ON ara.sort = a.city_code
+	</sql>
+    
+	<select id="get" resultType="UserConsigneeAddress">
+		SELECT 
+			<include refid="userConsigneeAddressColumns"/>
+		FROM user_consignee_address a
+		<include refid="userConsigneeAddressJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="UserConsigneeAddress">
+		SELECT 
+			<include refid="userConsigneeAddressColumns"/>
+		FROM user_consignee_address a
+		<include refid="userConsigneeAddressJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="userInfo != null">
+				<if test="userInfo.name != null and userInfo.name != ''">
+					AND u.name LIKE 
+						<if test="dbName == 'mysql'">concat('%',#{userInfo.name},'%')</if>
+				</if>
+				<if test="userInfo.realName != null and userInfo.realName != ''">
+					AND u.real_name LIKE 
+						<if test="dbName == 'mysql'">concat('%',#{userInfo.realName},'%')</if>
+				</if>
+			</if>
+			<if test="userId != null and userId != ''">
+				AND a.user_id = #{userId }
+			</if>
+			<if test="isDefault != null and isDefault != ''">
+				AND a.is_default = #{isDefault }
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="UserConsigneeAddress">
+		SELECT 
+			<include refid="userConsigneeAddressColumns"/>
+		FROM user_consignee_address a
+		<include refid="userConsigneeAddressJoins"/>
+		<where>
+			
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO user_consignee_address(
+			id,
+			user_id,
+			name,
+			mobile,
+			is_default,
+			province_code,
+			city_code,
+			address,
+			create_date,
+			update_date,
+			del_flag
+		) VALUES (
+			#{id},
+			#{userId},
+			#{username},
+			#{mobile},
+			#{isDefault},
+			#{provinceCode},
+			#{cityCode},
+			#{address},
+			#{createDate},
+			#{updateDate},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE user_consignee_address SET 	
+			user_id = #{userId},
+			name = #{username},
+			mobile = #{mobile},
+			is_default = #{isDefault},
+			province_code = #{provinceCode},
+			city_code = #{cityCode},
+			address = #{address},
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE user_consignee_address SET
+		del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

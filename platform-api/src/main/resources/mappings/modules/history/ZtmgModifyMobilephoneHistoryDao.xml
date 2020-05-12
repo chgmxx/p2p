@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.power.platform.history.dao.ZtmgModifyMobilephoneHistoryDao">
+
+	<sql id="ztmgModifyMobilephoneHistoryColumns">
+		a.id AS "id",
+		a.oldmobilephone AS "oldmobilephone",
+		a.newmobilephone AS "newmobilephone",
+		a.remarks AS "remarks",
+		a.create_date AS "createDate",
+		a.create_by AS "createBy.id",
+		a.update_date AS "updateDate",
+		a.update_by AS "updateBy.id",
+		a.del_flag AS "delFlag"
+	</sql>
+
+	<sql id="ztmgModifyMobilephoneHistoryJoins">
+	</sql>
+
+	<select id="get" resultType="ZtmgModifyMobilephoneHistory">
+		SELECT
+		<include refid="ztmgModifyMobilephoneHistoryColumns" />
+		FROM ztmg_modify_mobilephone_history a
+		<include refid="ztmgModifyMobilephoneHistoryJoins" />
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findList" resultType="ZtmgModifyMobilephoneHistory">
+		SELECT
+		<include refid="ztmgModifyMobilephoneHistoryColumns" />
+		FROM ztmg_modify_mobilephone_history a
+		<include refid="ztmgModifyMobilephoneHistoryJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="oldmobilephone != null and oldmobilephone != ''">
+				AND a.oldmobilephone LIKE
+				<if test="dbName == 'oracle'">'%'||#{oldmobilephone}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{oldmobilephone}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{oldmobilephone},'%')</if>
+			</if>
+			<if test="newmobilephone != null and newmobilephone != ''">
+				AND a.newmobilephone LIKE
+				<if test="dbName == 'oracle'">'%'||#{newmobilephone}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{newmobilephone}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{newmobilephone},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="ZtmgModifyMobilephoneHistory">
+		SELECT
+		<include refid="ztmgModifyMobilephoneHistoryColumns" />
+		FROM ztmg_modify_mobilephone_history a
+		<include refid="ztmgModifyMobilephoneHistoryJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<insert id="insert">
+		INSERT INTO ztmg_modify_mobilephone_history(
+		id,
+		oldmobilephone,
+		newmobilephone,
+		remarks,
+		create_date,
+		create_by,
+		update_date,
+		update_by,
+		del_flag
+		) VALUES (
+		#{id},
+		#{oldmobilephone},
+		#{newmobilephone},
+		#{remarks},
+		#{createDate},
+		#{createBy.id},
+		#{updateDate},
+		#{updateBy.id},
+		#{delFlag}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE ztmg_modify_mobilephone_history SET
+		oldmobilephone = #{oldmobilephone},
+		newmobilephone = #{newmobilephone},
+		remarks = #{remarks},
+		update_date = #{updateDate},
+		update_by = #{updateBy.id}
+		WHERE id = #{id}
+	</update>
+
+	<update id="delete">
+		UPDATE ztmg_modify_mobilephone_history SET
+		del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+
+</mapper>

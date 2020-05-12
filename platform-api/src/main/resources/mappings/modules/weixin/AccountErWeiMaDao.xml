@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://10.20.91.130/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.power.platform.weixin.dao.AccountErWeiMaDao">
+	
+	<sql id="accountErWeiMaColumns">
+		a.id AS "id",
+		a.channel_code AS "channelCode", 
+		a.channel_name AS "channelName", 
+		a.file_url AS "fileUrl", 
+		a.file_name AS "fileName", 
+		a.create_by AS "createBy", 
+		a.create_date AS "createDate", 
+		a.update_by AS "updateBy", 
+		a.update_date AS "updateDate", 
+		a.remarks AS "remarks", 
+		a.del_flag AS "delFlag" 
+	</sql>
+	
+	
+	<select id="findList"  resultType="AccountErWeiMa">
+		SELECT <include refid="accountErWeiMaColumns" /> 
+		FROM t_wxcms_account_erweima a
+		<where>
+			1 = 1
+			<if test="channelCode != null and channelCode != ''">
+				AND a.channel_code like concat('%', #{channelCode}, '%')  
+			</if>
+			<if test="channelName != null and channelName != ''">
+				AND a.channel_name like concat('%', #{channelName}, '%')  
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+
+
+	<select id="get" resultType="AccountErWeiMa">
+		SELECT <include refid="accountErWeiMaColumns" /> 
+		FROM t_wxcms_account_erweima a
+		WHERE a.ID = #{id}
+	</select>
+
+	<insert id="insert" >
+		 INSERT INTO t_wxcms_account_erweima (
+			 id ,
+			 channel_code , 
+			 channel_name , 
+			 file_url , 
+			 file_name , 
+			 create_by , 
+			 create_date , 
+			 update_by, 
+			 update_date, 
+			 remarks , 
+			 del_flag 
+		 ) VALUES (
+			 #{id},
+			 #{channelCode},
+			 #{channelName},
+			 #{fileUrl},
+			 #{fileName},
+			 #{createBy},
+			 #{createDate},
+			 #{updateBy},
+			 #{updateDate},
+			 #{remarks},
+			 #{delFlag}
+		 )
+	</insert>
+	<update id="update" >
+		UPDATE t_wxcms_account_erweima 
+		SET channel_code = #{channelCode}, 
+		channel_name = #{channelName}, 
+		file_url = #{fileUrl}, 
+		file_name = #{fileName}, 
+		update_by = #{updateBy}, 
+		update_date=#{updateDate} 
+		WHERE ID = #{id} 
+	</update>
+
+	<delete id="delete" >
+		DELETE FROM t_wxcms_account_erweima WHERE ID = #{id}
+	</delete>
+	
+</mapper>
