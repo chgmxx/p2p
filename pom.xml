@@ -102,7 +102,7 @@
 
 		<!-- json -->
 		<fastjson.version>1.2.3</fastjson.version>
-		<jackson.version>2.2.1</jackson.version>
+		<jackson.version>2.11.0</jackson.version>
 		<json-lib.version>2.4</json-lib.version>
 		<xstream.version>1.4.7</xstream.version>
 		<guava.version>17.0</guava.version>
